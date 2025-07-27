@@ -16,29 +16,9 @@ const GlobalHealthChecker: React.FC = () => {
 
     const fetchHealth = async () => {
       try {
-        // ブラウザのロケールとタイムゾーンを取得
-        const locale = typeof window !== 'undefined' ? navigator.language : 'en-US';
-        const timeZone = typeof window !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC';
         
-        // Local health check (latency measurement)
-        const localStartTime = Date.now();
-        const localRes = await fetch('/health');
-        const localEndTime = Date.now();
-        const localLatency = localEndTime - localStartTime;
         
-        const localData = await localRes.json();
-        console.log('[Health Check] Local Health:', localData.status);
-        console.log('[Health Check] Local Hostname:', localData.hostname);
-        console.log('[Health Check] Local Latency:', `${localLatency}ms`);
         
-        // 日時をブラウザロケール・タイムゾーンで表示
-        const healthTime = new Date(localData.time);
-        const formattedHealthTime = new Intl.DateTimeFormat(locale, {
-          dateStyle: 'short',
-          timeStyle: 'long',
-          timeZone,
-        }).format(healthTime);
-        console.log('[Health Check] Local Time:', formattedHealthTime);
 
         // Global health check - 単一APIルートで全プールのヘルスチェックを実行
         try {
@@ -66,27 +46,39 @@ const GlobalHealthChecker: React.FC = () => {
             hostname?: string;
             time?: string;
             error?: string;
+            stratumUrl?: string; // 追加
+            stratumPorts?: number[]; // 追加
           };
           
-          // 最速のhealthyプールを選択
-          const healthyPools = poolResults.filter((pool: PoolResult) => pool.status === 'healthy');
-          const fastestPool = healthyPools.length > 0 
-            ? healthyPools.reduce((fastest: PoolResult, current: PoolResult) => 
-                current.latency < fastest.latency ? current : fastest
-              )
+          // pools.jsonからactiveかつglobal以外の全プールのstratumUrl/stratumPorts[0]で/api/check-portを並列fetch
+          const candidatePools = poolResults.filter((pool: PoolResult) => pool.status !== 'inactive' && pool.pool !== 'global');
+          const checkPortResults = await Promise.all(candidatePools.map(async (pool: any) => {
+            const host = pool.stratumUrl;
+            const port = Array.isArray(pool.stratumPorts) && pool.stratumPorts.length > 0 ? pool.stratumPorts[0] : 8002;
+            const res = await fetch(`/api/check-port?host=${host}&port=${port}`);
+            let latency = Infinity;
+            let healthy = false;
+            if (res.ok) {
+              const data = await res.json();
+              latency = typeof data.latency === 'number' ? data.latency : Infinity;
+              healthy = !!data.healthy;
+            }
+            return { pool, latency, healthy };
+          }));
+          const healthyPools = checkPortResults.filter(r => r.healthy && typeof r.latency === 'number');
+          const fastest = healthyPools.length > 0
+            ? healthyPools.reduce((a, b) => (a.latency < b.latency ? a : b))
             : null;
 
-          // 全体のステータスを決定（1つでもhealthyならhealthy）
-          const overallStatus = healthyPools.length > 0 ? 'healthy' : 'unhealthy';
+          // ログ出力
+          if (fastest) {
+            console.log('[Health Check] Selected Pool:', `${fastest.pool.stratumUrl || 'N/A'}`);
+            console.log('[Health Check] Global Latency:', `${fastest.latency}ms`);
+          } else {
+            console.log('[Health Check] Selected Pool:', 'none');
+            console.log('[Health Check] Global Latency:', 'N/A');
+          }
 
-          console.log('[Health Check] Global Health (Fastest):', overallStatus);
-          console.log('[Health Check] Selected Pool:', fastestPool?.pool || 'none');
-          console.log('[Health Check] Global Latency:', fastestPool?.latency || 'N/A');
-
-          // 全プールの結果をログ出力
-          poolResults.forEach((pool: PoolResult) => {
-            console.log(`[Health Check] ${pool.pool}: ${pool.status} (${pool.latency}ms)${pool.error ? ` - ${pool.error}` : ''}`);
-          });
 
         } catch (globalError) {
           console.error('[Health Check] Global health check failed:', globalError);

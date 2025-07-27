@@ -16,11 +16,12 @@ export async function GET() {
   }
 
   // 2. ステータスチェック
-  const checks = poolsJson.map(async (pool: any) => {
+  const checks = poolsJson.map(async (pool: { apiUrl: string; active: boolean; id?: string; [key: string]: unknown }) => {
     if (!pool.active) {
-      return { ...pool, status: 'inactive' };
+      return { ...pool, pool: pool.id || pool.apiUrl, status: 'inactive', latency: null };
     }
     const url = `${pool.apiUrl}/health`;
+    const start = Date.now();
     try {
       const res = await fetch(url, {
         method: 'GET',
@@ -28,15 +29,17 @@ export async function GET() {
           Accept: 'application/json',
           'User-Agent': 'Virbicoin-Pool-Frontend/1.0',
         },
-        signal: AbortSignal.timeout(5000),
+        signal: AbortSignal.timeout(2000),
       });
+      const latency = Date.now() - start;
       if (!res.ok) {
-        return { ...pool, status: 'unhealthy', error: `HTTP ${res.status}` };
+        return { ...pool, pool: pool.id || pool.apiUrl, status: 'unhealthy', latency, error: `HTTP ${res.status}` };
       }
       const json = await res.json();
-      return { ...pool, status: 'healthy', ...json };
+      return { ...pool, pool: pool.id || pool.apiUrl, status: 'healthy', latency, ...json };
     } catch (err) {
-      return { ...pool, status: 'unhealthy', error: err instanceof Error ? err.message : 'unknown error' };
+      const latency = Date.now() - start;
+      return { ...pool, pool: pool.id || pool.apiUrl, status: 'unhealthy', latency, error: err instanceof Error ? err.message : 'unknown error' };
     }
   });
 

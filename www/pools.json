@@ -1,11 +1,11 @@
 [
-  {"apiUrl":"https://pool.digitalregion.jp","stratumUrl":"stratum.digitalregion.jp","location":"Global","flag":"🌍","country":"GLOBAL","region":"Global","stratumPorts":[8002,8004,8009],"active":true},
-  {"apiUrl":"https://pool1.digitalregion.jp","stratumUrl":"stratum1.digitalregion.jp","location":"Singapore","flag":"🇸🇬","country":"SG","region":"South East Asia","stratumPorts":[8002,8004,8009],"active":true},
-  {"apiUrl":"https://pool2.digitalregion.jp","stratumUrl":"stratum2.digitalregion.jp","location":"Hong Kong","flag":"🇭🇰","country":"HK","region":"East Asia","stratumPorts":[8002,8004,8009],"active":true},
-  {"apiUrl":"https://pool3.digitalregion.jp","stratumUrl":"stratum3.digitalregion.jp","location":"Eastern USA","flag":"🇺🇸","country":"US","region":"North America","stratumPorts":[8002,8004,8009],"active":true},
-  {"apiUrl":"https://pool4.digitalregion.jp","stratumUrl":"stratum4.digitalregion.jp","location":"Sweden","flag":"🇸🇪","country":"SE","region":"North Europe","stratumPorts":[8002,8004,8009],"active":true},
-  {"apiUrl":"https://pool5.digitalregion.jp","stratumUrl":"stratum5.digitalregion.jp","location":"Western USA","flag":"🇺🇸","country":"US","region":"North America","stratumPorts":[8002,8004,8009],"active":true},
-  {"apiUrl":"https://pool6.digitalregion.jp","stratumUrl":"stratum6.digitalregion.jp","location":"Australia","flag":"🇦🇺","country":"AU","region":"Pacific Ocean","stratumPorts":[8002,8004,8009],"active":false},
-  {"apiUrl":"https://pool7.digitalregion.jp","stratumUrl":"stratum7.digitalregion.jp","location":"Brazil","flag":"🇧🇷","country":"BR","region":"South America","stratumPorts":[8002,8004,8009],"active":false},
-  {"apiUrl":"https://pool8.digitalregion.jp","stratumUrl":"stratum8.digitalregion.jp","location":"South Africa","flag":"🇿🇦","country":"ZA","region":"South Africa","stratumPorts":[8002,8004,8009],"active":false}
+  {"id":"global","apiUrl":"https://pool.digitalregion.jp","stratumUrl":"stratum.digitalregion.jp","location":"Global","flag":"🌍","country":"GLOBAL","region":"Global","stratumPorts":[8002,8004,8009],"active":true},
+  {"id":"pool1","apiUrl":"https://pool1.digitalregion.jp","stratumUrl":"stratum1.digitalregion.jp","location":"Singapore","flag":"🇸🇬","country":"SG","region":"South East Asia","stratumPorts":[8002,8004,8009],"active":true},
+  {"id":"pool2","apiUrl":"https://pool2.digitalregion.jp","stratumUrl":"stratum2.digitalregion.jp","location":"Hong Kong","flag":"🇭🇰","country":"HK","region":"East Asia","stratumPorts":[8002,8004,8009],"active":true},
+  {"id":"pool3","apiUrl":"https://pool3.digitalregion.jp","stratumUrl":"stratum3.digitalregion.jp","location":"Eastern USA","flag":"🇺🇸","country":"US","region":"North America","stratumPorts":[8002,8004,8009],"active":true},
+  {"id":"pool4","apiUrl":"https://pool4.digitalregion.jp","stratumUrl":"stratum4.digitalregion.jp","location":"Sweden","flag":"🇸🇪","country":"SE","region":"North Europe","stratumPorts":[8002,8004,8009],"active":true},
+  {"id":"pool5","apiUrl":"https://pool5.digitalregion.jp","stratumUrl":"stratum5.digitalregion.jp","location":"Western USA","flag":"🇺🇸","country":"US","region":"North America","stratumPorts":[8002,8004,8009],"active":true},
+  {"id":"pool6","apiUrl":"https://pool6.digitalregion.jp","stratumUrl":"stratum6.digitalregion.jp","location":"Australia","flag":"🇦🇺","country":"AU","region":"Pacific Ocean","stratumPorts":[8002,8004,8009],"active":false},
+  {"id":"pool7","apiUrl":"https://pool7.digitalregion.jp","stratumUrl":"stratum7.digitalregion.jp","location":"Brazil","flag":"🇧🇷","country":"BR","region":"South America","stratumPorts":[8002,8004,8009],"active":false},
+  {"id":"pool8","apiUrl":"https://pool8.digitalregion.jp","stratumUrl":"stratum8.digitalregion.jp","location":"South Africa","flag":"🇿🇦","country":"ZA","region":"South Africa","stratumPorts":[8002,8004,8009],"active":false}
 ]
