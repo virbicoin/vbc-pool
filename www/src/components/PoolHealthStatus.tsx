@@ -3,20 +3,23 @@
 import useSWR from "swr";
 import Image from "next/image";
 import { ServerIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import React, { useEffect, useState, useMemo } from 'react';
 
 interface PoolNode {
-    url: string;
+    apiUrl: string;
+    stratumUrl: string;
     location: string;
     flag: string;
     country: string;
     stratumPorts: number[];
     region: string;
+    active: boolean;
 }
 
 interface PoolHealthData {
     isHealthy: boolean;
     latency?: number;
-    portStatuses?: Record<number, boolean>;
+    portStatuses?: Record<number, boolean | string> | undefined;
     lastChecked?: number;
 }
 
@@ -49,360 +52,127 @@ function FlagIcon({ country }: { country: string }) {
     );
 }
 
-// アクティブプール（稼働中）
-const ACTIVE_POOL_NODES: PoolNode[] = [
-    {
-        url: "stratum.digitalregion.jp",
-        location: "Global",
-        flag: "🌍",
-        country: "GLOBAL",
-        stratumPorts: [8002, 8004, 8009],
-        region: "Global"
-    },
-    {
-        url: "stratum1.digitalregion.jp",
-        location: "Singapore",
-        flag: "🇸🇬",
-        country: "SG",
-        stratumPorts: [8002, 8004, 8009],
-        region: "South East Asia"
-    },
-    {
-        url: "stratum2.digitalregion.jp",
-        location: "Hong Kong",
-        flag: "🇭🇰",
-        country: "HK",
-        stratumPorts: [8002, 8004, 8009],
-        region: "East Asia"
-    },
-    {
-        url: "stratum3.digitalregion.jp",
-        location: "Eastern USA",
-        flag: "🇺🇸",
-        country: "US",
-        stratumPorts: [8002, 8004, 8009],
-        region: "North America"
-    },
-    {
-        url: "stratum4.digitalregion.jp",
-        location: "Sweden Central",
-        flag: "🇸🇪",
-        country: "SE",
-        stratumPorts: [8002, 8004, 8009],
-        region: "North Europe"
-    },
-    {
-        url: "stratum5.digitalregion.jp",
-        location: "Western USA",
-        flag: "🇺🇸",
-        country: "US",
-        stratumPorts: [8002, 8004, 8009],
-        region: "North America"
-    }
-];
-
-// 非アクティブプール（未実装・Coming Soon）
-const INACTIVE_POOL_NODES: PoolNode[] = [
-    {
-        url: "stratum6.digitalregion.jp",
-        location: "Australia East",
-        flag: "🇦🇺",
-        country: "AU",
-        stratumPorts: [8002, 8004, 8009],
-        region: "Pacific Ocean"
-    },
-    {
-        url: "stratum7.digitalregion.jp",
-        location: "Brazil Central",
-        flag: "🇧🇷",
-        country: "BR",
-        stratumPorts: [8002, 8004, 8009],
-        region: "South America"
-    },
-    {
-        url: "stratum8.digitalregion.jp",
-        location: "South Africa East",
-        flag: "🇿🇦",
-        country: "ZA",
-        stratumPorts: [8002, 8004, 8009],
-        region: "South Africa"
-    }
-];
-
-// 全プールノード（表示用）
-const POOL_NODES: PoolNode[] = [...ACTIVE_POOL_NODES, ...INACTIVE_POOL_NODES];
+// Fetch pools.json from /api/pools endpoint
+function usePools() {
+    const { data, error } = useSWR('/api/pools', async (url) => {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to fetch pools.json');
+        return res.json();
+    }, { suspense: false });
+    return {
+        pools: data as PoolNode[] | undefined,
+        isLoading: !error && !data,
+        isError: !!error
+    };
+}
 
 // プールのヘルス状態をチェックする関数
-async function checkPoolHealth(url: string): Promise<PoolHealthData> {
+async function checkPoolHealth(apiUrl: string): Promise<PoolHealthData> {
     const startTime = Date.now();
-    
-    // NODE_ENVが'development'の場合のみ模擬データを使用
-    // localhostでもproductionビルドなら実際のAPIを使用
-    const isDevelopment = process.env.NODE_ENV === 'development';
-
-    // 開発環境での模擬データ（ブラウザ側でのチェック）
-    if (isDevelopment) {
-        // プール設定から動的に生成
-        const healthProbability: Record<string, number> = {};
-        const latencyBase: Record<string, number> = {};
-        
-        // アクティブプールは95%確率でオンライン（Route53により最適化済み）
-        ACTIVE_POOL_NODES.forEach(pool => {
-            healthProbability[pool.url] = 0.95;
-            // Route53により最適化されるため、統一された低遅延範囲  
-            latencyBase[pool.url] = 50 + Math.random() * 100; // 50-150ms
-        });
-        
-        // 非アクティブプールは0%確率
-        INACTIVE_POOL_NODES.forEach(pool => {
-            healthProbability[pool.url] = 0.00;
-            latencyBase[pool.url] = 130; // 仮想値
-        });
-
-        const probability = healthProbability[url as keyof typeof healthProbability] || 0.95;
-        const baseLatency = latencyBase[url as keyof typeof latencyBase] || 100;
-
-        // 非アクティブプールは特別処理 - 正確な状態を表示
-        const isInactivePool = INACTIVE_POOL_NODES.some(node => node.url === url);
-        const nodeInfo = POOL_NODES.find(n => n.url === url);
-        const simulatedPortStatuses: Record<number, boolean> | undefined = nodeInfo ? Object.fromEntries(
-            nodeInfo.stratumPorts.map(p => [p, !isInactivePool && Math.random() < 0.9])
-        ) : undefined;
-
-        if (isInactivePool) {
-            await new Promise(resolve => setTimeout(resolve, 1000)); // 1秒待機
-            const inactiveObj: PoolHealthData = { isHealthy: false, lastChecked: Date.now() };
-            if (simulatedPortStatuses) inactiveObj.portStatuses = simulatedPortStatuses;
-            return inactiveObj;
-        }
-
-        // より安定したヘルス状態判定のため、時間ベースでステータスを決定
-        const now = Date.now();
-        const hourly = Math.floor(now / (1000 * 60 * 60)); // 1時間ごとに変わる値
-        const timeBasedSeed = url.charCodeAt(0) + hourly; // URLと時間を組み合わせたシード値
-
-        // 実際のネットワーク遅延をシミュレート
-        const simulatedDelay = baseLatency + Math.random() * 50;
-        await new Promise(resolve => setTimeout(resolve, simulatedDelay));
-
-        // 時間ベースの安定した判定（1時間ごとにのみ状態が変わる可能性）
-        const stableRandom = (timeBasedSeed % 100) / 100;
-        const isHealthy = stableRandom < probability;
-        const endTime = Date.now();
-
-        const baseObj: PoolHealthData = {
-            isHealthy,
-            lastChecked: Date.now()
-        };
-        if (isHealthy) {
-            baseObj.latency = endTime - startTime;
-        }
-        if (simulatedPortStatuses) {
-            baseObj.portStatuses = simulatedPortStatuses;
-        }
-        return baseObj;
-    }
-
-    
-    // リクエストパス決定: 実行環境に応じてローカル API プロキシか直接 URL を使用
-    const runningOnLocalhost = typeof window !== 'undefined' && (
-        window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    );
-
-    // SSR（typeof window === 'undefined'）や localhost 開発時はプロキシを使用。
-    // それ以外 (本番ブラウザ) ではプールサーバーへ直接アクセス。
-    const useProxy = typeof window === 'undefined' || runningOnLocalhost;
-
-    let fetchUrl: string | undefined;
-
-    if (url === 'stratum.digitalregion.jp') {
-        // Global pool
-        fetchUrl = useProxy ? '/health' : 'https://pool.digitalregion.jp/health';
-    } else {
-        // stratum1.digitalregion.jp -> pool1 etc.
-        const match = url.match(/stratum(\d+)\.digitalregion\.jp/);
-        if (match) {
-            const poolNumber = match[1];
-            fetchUrl = useProxy
-                ? `/api/pool${poolNumber}/health`
-                : `https://pool${poolNumber}.digitalregion.jp/health`;
-        }
-    }
-    
-    if (!fetchUrl) {
-        return { isHealthy: false, lastChecked: Date.now() };
-    }
-
-    // Pre-start port health check (runs in parallel) for stratum hosts
-    const poolNodeForPorts = POOL_NODES.find(p => p.url === url && p.stratumPorts && url.startsWith('stratum'));
-    let portStatusesPromise: Promise<Record<number, boolean>> | undefined;
-    if (poolNodeForPorts) {
-        portStatusesPromise = checkStratumPortHealth(url, poolNodeForPorts.stratumPorts);
-    }
-
-    let portStatuses: Record<number, boolean> | undefined = undefined;
-
     try {
-        // 決定したURLへリクエスト - Route53により最適なサーバーに自動ルーティング
-        const response = await fetch(fetchUrl, {
+        const response = await fetch(`${apiUrl}/health`, {
             method: 'GET',
-            signal: AbortSignal.timeout(10000), // 統一タイムアウト10秒
+            signal: AbortSignal.timeout(10000),
             mode: 'cors',
             credentials: 'omit'
         });
-
         const endTime = Date.now();
         const latency = endTime - startTime;
-
         if (response.ok) {
             const data = await response.json();
-            // データが有効かチェック
             if (data && typeof data === 'object' && !data.error) {
-                if (portStatusesPromise) {
-                    portStatuses = await portStatusesPromise;
-                }
-                const successObj: PoolHealthData = { isHealthy: true, latency, lastChecked: Date.now() };
-                if (portStatuses) successObj.portStatuses = portStatuses;
-                return successObj;
+                return { isHealthy: true, latency, lastChecked: Date.now() };
             } else {
-                if (portStatusesPromise) {
-                    portStatuses = await portStatusesPromise;
-                }
-                const failObj: PoolHealthData = { isHealthy: false, lastChecked: Date.now() };
-                if (portStatuses) failObj.portStatuses = portStatuses;
-                return failObj;
+                return { isHealthy: false, lastChecked: Date.now() };
             }
         }
-        
-        // レスポンスエラーの場合 - 実際のエラー状態を返す
-        if (portStatusesPromise) {
-            portStatuses = await portStatusesPromise;
-        }
-        {
-            const errObj: PoolHealthData = { isHealthy: false, lastChecked: Date.now() };
-            if (portStatuses) errObj.portStatuses = portStatuses;
-            return errObj;
-        }
-        
+        return { isHealthy: false, lastChecked: Date.now() };
     } catch {
-        // 接続エラーの場合 - 実際のエラー状態を返す
-        if (portStatusesPromise) {
-            portStatuses = await portStatusesPromise;
-        }
-        {
-            const errObj: PoolHealthData = { isHealthy: false, lastChecked: Date.now() };
-            if (portStatuses) errObj.portStatuses = portStatuses;
-            return errObj;
-        }
+        return { isHealthy: false, lastChecked: Date.now() };
     }
 }
 
-// Port-level health checks are enabled by default. They can be disabled
-// explicitly by setting NEXT_PUBLIC_DISABLE_PORT_CHECK=true at build time.
-const PORT_CHECK_DISABLED = typeof process !== 'undefined' && process.env['NEXT_PUBLIC_DISABLE_PORT_CHECK'] === 'true';
-
-async function checkStratumPortHealth(host: string, ports: number[]): Promise<Record<number, boolean>> {
-    if (PORT_CHECK_DISABLED) {
-        return Object.fromEntries(ports.map((p) => [p, false]));
-    }
-
-    const results: Record<number, boolean> = {};
-    await Promise.all(ports.map(async (port) => {
-        try {
-            const res = await fetch(`/api/check-port?host=${host}&port=${port}`, {
-                method: 'GET',
-                // 5s timeout
-                signal: AbortSignal.timeout(2000),
-            });
-            if (res.ok) {
-                const data = await res.json();
-                results[port] = !!data.healthy;
-            } else {
-                results[port] = false;
-            }
-        } catch {
-            results[port] = false;
-        }
-    }));
-    return results;
+// HealthCheck型を定義
+interface HealthCheck extends PoolNode {
+    healthData: PoolHealthData;
+    isLoading: boolean;
 }
 
 export default function PoolHealthStatus({ className = "" }: PoolHealthStatusProps) {
-    // React Hooksの制約により、各プールのヘルス状態を個別に取得
-    // プール数が固定されているため、この方法が最も適切
-    const pool0Health = useSWR(`pool-health-${POOL_NODES[0]?.url}`, () => POOL_NODES[0] ? checkPoolHealth(POOL_NODES[0].url) : Promise.resolve({ isHealthy: false, lastChecked: Date.now() }), {
-        refreshInterval: 120000,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        errorRetryCount: 1,
-        errorRetryInterval: 60000,
-        dedupingInterval: 60000,
-        fallbackData: { isHealthy: false, lastChecked: Date.now() }
-    });
+    const { pools } = usePools();
+    const activePools = useMemo(() => pools?.filter(p => p.active) || [], [pools]);
+    const inactivePools = useMemo(() => pools?.filter(p => !p.active) || [], [pools]);
+    const POOL_NODES = useMemo(() => [...activePools, ...inactivePools], [activePools, inactivePools]);
 
-    const pool1Health = useSWR(`pool-health-${POOL_NODES[1]?.url}`, () => POOL_NODES[1] ? checkPoolHealth(POOL_NODES[1].url) : Promise.resolve({ isHealthy: false, lastChecked: Date.now() }), {
-        refreshInterval: 120000,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        errorRetryCount: 1,
-        errorRetryInterval: 60000,
-        dedupingInterval: 60000,
-        fallbackData: { isHealthy: false, lastChecked: Date.now() }
-    });
+    // 動的ヘルスチェック管理
+    const [healthChecks, setHealthChecks] = useState<HealthCheck[]>([]);
 
-    const pool2Health = useSWR(`pool-health-${POOL_NODES[2]?.url}`, () => POOL_NODES[2] ? checkPoolHealth(POOL_NODES[2].url) : Promise.resolve({ isHealthy: false, lastChecked: Date.now() }), {
-        refreshInterval: 120000,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        errorRetryCount: 1,
-        errorRetryInterval: 60000,
-        dedupingInterval: 60000,
-        fallbackData: { isHealthy: false, lastChecked: Date.now() }
-    });
+    useEffect(() => {
+        if (!POOL_NODES.length) return;
+        let cancelled = false;
+        (async () => {
+            const results = await Promise.all(
+                POOL_NODES.map(async (pool) => {
+                    if (!pool.active) {
+                        // 非アクティブは通信せずダミーデータ
+                        return {
+                            ...pool,
+                            healthData: { isHealthy: false, lastChecked: Date.now() },
+                            isLoading: false
+                        };
+                    }
+                    const healthData = await checkPoolHealth(pool.apiUrl);
+                    let portStatuses: Record<number, boolean | string> | undefined = undefined;
+                    try {
+                        portStatuses = await checkStratumPortHealth(pool.stratumUrl, pool.stratumPorts);
+                    } catch {}
+                    return {
+                        ...pool,
+                        healthData: { ...healthData, portStatuses },
+                        isLoading: false
+                    };
+                })
+            );
+            if (!cancelled) setHealthChecks(results);
+        })();
+        return () => { cancelled = true; };
+    }, [POOL_NODES]);
 
-    const pool3Health = useSWR(`pool-health-${POOL_NODES[3]?.url}`, () => POOL_NODES[3] ? checkPoolHealth(POOL_NODES[3].url) : Promise.resolve({ isHealthy: false, lastChecked: Date.now() }), {
-        refreshInterval: 120000,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        errorRetryCount: 1,
-        errorRetryInterval: 60000,
-        dedupingInterval: 60000,
-        fallbackData: { isHealthy: false, lastChecked: Date.now() }
-    });
-
-    const pool4Health = useSWR(`pool-health-${POOL_NODES[4]?.url}`, () => POOL_NODES[4] ? checkPoolHealth(POOL_NODES[4].url) : Promise.resolve({ isHealthy: false, lastChecked: Date.now() }), {
-        refreshInterval: 120000,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        errorRetryCount: 1,
-        errorRetryInterval: 60000,
-        dedupingInterval: 60000,
-        fallbackData: { isHealthy: false, lastChecked: Date.now() }
-    });
-
-    const pool5Health = useSWR(`pool-health-${POOL_NODES[5]?.url}`, () => POOL_NODES[5] ? checkPoolHealth(POOL_NODES[5].url) : Promise.resolve({ isHealthy: false, lastChecked: Date.now() }), {
-        refreshInterval: 120000,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        errorRetryCount: 1,
-        errorRetryInterval: 60000,
-        dedupingInterval: 60000,
-        fallbackData: { isHealthy: false, lastChecked: Date.now() }
-    });
-
-    // プールとヘルス結果を対応付け
-    const healthResults = [pool0Health, pool1Health, pool2Health, pool3Health, pool4Health, pool5Health];
-
-    // ヘルスチェック結果をプールデータと組み合わせ
-    const healthChecks = POOL_NODES.map((pool, index) => ({
-        ...pool,
-        healthData: healthResults[index]?.data || { isHealthy: false, lastChecked: Date.now() },
-        isLoading: healthResults[index]?.data === undefined && !healthResults[index]?.error
-    }));
+    // stratumポートのヘルスチェック関数
+    async function checkStratumPortHealth(stratumUrl: string, ports: number[]): Promise<Record<number, boolean | string>> {
+        const results: Record<number, boolean | string> = {};
+        await Promise.all(ports.map(async (port: number) => {
+            try {
+                const res = await fetch(`/api/check-port?host=${stratumUrl}&port=${port}`, {
+                    method: 'GET',
+                    signal: AbortSignal.timeout(10000), // タイムアウトを10秒に延長
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    results[port] = !!data.healthy;
+                } else {
+                    results[port] = `HTTP ${res.status}`;
+                }
+            } catch (e: unknown) {
+                let errorName = '';
+                let errorMessage = '';
+                if (typeof e === 'object' && e !== null) {
+                    if ('name' in e && typeof (e as { name: unknown }).name === 'string') {
+                        errorName = (e as { name: string }).name;
+                    }
+                    if ('message' in e && typeof (e as { message: unknown }).message === 'string') {
+                        errorMessage = (e as { message: string }).message;
+                    }
+                }
+                results[port] = errorName === 'TimeoutError' ? 'Timeout' : (errorMessage || 'Error');
+            }
+        }));
+        return results;
+    }
 
     // アクティブプールのみをカウント
     const activeHealthChecks = healthChecks.filter(check =>
-        ACTIVE_POOL_NODES.some(node => node.url === check.url)
+        activePools.some(node => node.apiUrl === check.apiUrl)
     );
     // Pool-level health counts (API endpoint)
     const healthyPoolCount = activeHealthChecks.filter(check => check.healthData.isHealthy).length;
@@ -412,8 +182,8 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
     const totalPortCount = activeHealthChecks.reduce((sum, pool) => sum + pool.stratumPorts.length, 0);
     const healthyPortCount = activeHealthChecks.reduce((sum, pool) => {
         const statuses = pool.healthData.portStatuses;
-        if (!statuses) return sum; // 未取得の場合は0とみなす
-        return sum + pool.stratumPorts.filter(port => statuses[port]).length;
+        if (!statuses) return sum;
+        return sum + pool.stratumPorts.filter((port: number) => statuses[port]).length;
     }, 0);
 
     // Global health includes both API (pool) と 各 stratum port
@@ -452,8 +222,8 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                     {healthChecks.map((pool, index) => (
                         <div
-                            key={pool.url}
-                            className={`w-full p-6 rounded-lg border transition-all duration-300 hover:shadow-lg min-h-[160px] ${INACTIVE_POOL_NODES.some(node => node.url === pool.url) ?
+                            key={pool.apiUrl}
+                            className={`w-full p-6 rounded-lg border transition-all duration-300 hover:shadow-lg min-h-[160px] ${inactivePools.some(node => node.apiUrl === pool.apiUrl) ?
                                 'bg-gray-800/30 border-gray-600/50 opacity-60' :
                             `bg-gray-700/50 hover:bg-gray-700/70 ${pool.healthData.isHealthy ? 'border-green-400/30 shadow-green-400/10' :
                                 pool.isLoading ? 'border-gray-600/50' : 'border-red-400/30 shadow-red-400/10'
@@ -467,7 +237,7 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
                                 <FlagIcon country={pool.country} />
                                 {/* ステータスバッジ */}
                                 <div className="absolute -bottom-1 -right-1">
-                                    {INACTIVE_POOL_NODES.some(node => node.url === pool.url) ? (
+                                    {inactivePools.some(node => node.apiUrl === pool.apiUrl) ? (
                                         // Show a static gray circle for "Coming Soon" pools instead of a spinner
                                         <div className="w-4 h-4 bg-gray-400 rounded-full shadow-lg"></div>
                                     ) : pool.isLoading ? (
@@ -488,7 +258,7 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
                                             <h4 className="text-white font-semibold text-base truncate">{pool.location}</h4>
                                         </div>
                                         <span className={`text-xs font-medium px-3 py-1 rounded-full ${
-  INACTIVE_POOL_NODES.some(node => node.url === pool.url)
+  inactivePools.some(node => node.apiUrl === pool.apiUrl)
     ? 'bg-orange-500/20 text-orange-400'
     : pool.isLoading
       ? 'bg-gray-600/50 text-gray-300'
@@ -497,7 +267,7 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
         : 'bg-red-400/20 text-red-400'
 }`}>
                                             {/* Always show "Coming Soon" for inactive pools, regardless of loading state */}
-                                            {INACTIVE_POOL_NODES.some(node => node.url === pool.url)
+                                            {inactivePools.some(node => node.apiUrl === pool.apiUrl)
                                                 ? 'Coming Soon'
                                                 : pool.isLoading
                                                     ? 'Checking'
@@ -507,7 +277,7 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
                                         </span>
                                     </div>
 
-                                    <p className="text-sm text-gray-400 truncate mb-4">{pool.url}</p>
+                                    <p className="text-sm text-gray-400 truncate mb-4">{pool.stratumUrl}</p>
                                 </div>
 
                                 {/* メトリクス行 */}
@@ -515,25 +285,32 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
                                     <div className="flex flex-col items-center p-2.5 bg-gray-800/50 rounded-lg min-w-0">
                                         <span className="text-gray-400 text-xs mb-1">Latency</span>
                                         <span className={`font-mono font-medium text-xs ${pool.healthData.latency ? 'text-white' :
-                                            INACTIVE_POOL_NODES.some(node => node.url === pool.url) ? 'text-gray-500' : 'text-gray-500'
+                                            inactivePools.some(node => node.apiUrl === pool.apiUrl) ? 'text-gray-500' : 'text-gray-500'
                                             }`}>
-                                            {INACTIVE_POOL_NODES.some(node => node.url === pool.url) ? '---' :
+                                            {inactivePools.some(node => node.apiUrl === pool.apiUrl) ? '---' :
                                                 pool.healthData.latency ? `${pool.healthData.latency}ms` : 'N/A'}
                                         </span>
                                     </div>
                                     <div className="col-span-2 w-full flex flex-col items-center p-2.5 bg-gray-800/50 rounded-lg min-w-0">
                                         <span className="text-gray-400 text-xs mb-1">Stratum Ports</span>
                                         <div className="flex justify-center gap-1">
-                                            {INACTIVE_POOL_NODES.some(node => node.url === pool.url) ? (
+                                            {inactivePools.some(node => node.apiUrl === pool.apiUrl) ? (
                                                 <span className="text-gray-500 font-medium text-xs">---</span>
                                             ) : (
-                                                pool.stratumPorts.map((port, portIndex) => {
+                                                pool.stratumPorts.map((port: number, portIndex: number) => {
                                                     const portHealthy = pool.healthData.portStatuses ? pool.healthData.portStatuses[port] : undefined;
-                                                    const badgeClass = portHealthy === undefined ? 'bg-blue-500/20 text-blue-400' : portHealthy ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400';
+                                                    const badgeClass = portHealthy === undefined
+                                                        ? 'bg-blue-500/20 text-blue-400'
+                                                        : portHealthy === true
+                                                            ? 'bg-green-500/20 text-green-400'
+                                                            : portHealthy === false
+                                                                ? 'bg-red-500/20 text-red-400'
+                                                                : 'bg-gray-500/20 text-gray-400'; // エラー時はグレー
                                                     return (
                                                         <span
                                                             key={portIndex}
                                                             className={`${badgeClass} px-1.5 py-0.5 rounded text-xs font-medium`}
+                                                            title={typeof portHealthy === 'string' ? portHealthy : undefined}
                                                         >
                                                             {port}
                                                         </span>

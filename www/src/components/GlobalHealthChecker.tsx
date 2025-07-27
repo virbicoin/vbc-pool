@@ -47,7 +47,7 @@ const GlobalHealthChecker: React.FC = () => {
             headers: {
               'Accept': 'application/json',
             },
-            signal: AbortSignal.timeout(10000) // 10秒タイムアウト（全プール分）
+            signal: AbortSignal.timeout(20000) // 20秒タイムアウト（全プール分）
           });
 
           if (!response.ok) {

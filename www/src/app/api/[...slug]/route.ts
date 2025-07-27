@@ -9,15 +9,23 @@ import { GET as checkPortGET } from '../check-port/route';
 // handler uses the "net" module which is Node-only.
 export const runtime = 'nodejs';
 
-// プールエンドポイントのマッピング
-const POOL_ENDPOINTS = {
-  'pool1': 'https://pool1.digitalregion.jp',
-  'pool2': 'https://pool2.digitalregion.jp',
-  'pool3': 'https://pool3.digitalregion.jp',
-  'pool4': 'https://pool4.digitalregion.jp',
-  'pool5': 'https://pool5.digitalregion.jp',
-  'pool': 'https://pool.digitalregion.jp'
-};
+// Build pool endpoints dynamically from env (NEXT_PUBLIC_POOL*_URL)
+function getPoolEndpoints(): Record<string, string> {
+    const endpoints: Record<string, string> = {};
+    if (process.env['NEXT_PUBLIC_POOL_BASE_URL']) endpoints['pool'] = process.env['NEXT_PUBLIC_POOL_BASE_URL'];
+    // Check all env vars, add those that match NEXT_PUBLIC_POOL{N}_URL
+    Object.keys(process.env).forEach((key) => {
+        const match = key.match(/^NEXT_PUBLIC_POOL(\d+)_URL$/);
+        if (match && process.env[key]) {
+            const poolId = `pool${match[1]}`;
+            endpoints[poolId] = process.env[key] as string;
+        }
+    });
+    return endpoints;
+}
+
+// Use dynamic endpoints
+const POOL_ENDPOINTS = getPoolEndpoints();
 
 export async function GET(
   _req: NextRequest,

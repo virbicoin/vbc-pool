@@ -3,29 +3,27 @@ import { NextResponse } from 'next/server';
 // Use Node.js runtime so that AbortSignal.timeout is available and we can parallel fetch
 export const runtime = 'nodejs';
 
-// Mapping of pool IDs to their base URLs – keep in sync with [...slug]/route.ts
-const POOL_ENDPOINTS: Record<string, string> = {
-  pool1: 'https://pool1.digitalregion.jp',
-  pool2: 'https://pool2.digitalregion.jp',
-  pool3: 'https://pool3.digitalregion.jp',
-  pool4: 'https://pool4.digitalregion.jp',
-  pool5: 'https://pool5.digitalregion.jp',
-};
-
-interface PoolResult {
-  pool: string;
-  status: 'healthy' | 'unhealthy';
-  latency: number;
-  hostname?: string;
-  time?: string;
-  error?: string;
+// Build pool endpoints dynamically from env (NEXT_PUBLIC_POOL*_URL)
+function getPoolEndpoints(): Record<string, string> {
+    const endpoints: Record<string, string> = {};
+    if (process.env['NEXT_PUBLIC_POOL_BASE_URL']) endpoints['pool'] = process.env['NEXT_PUBLIC_POOL_BASE_URL'];
+    // Check all env vars, add those that match NEXT_PUBLIC_POOL{N}_URL
+    Object.keys(process.env).forEach((key) => {
+        const match = key.match(/^NEXT_PUBLIC_POOL(\d+)_URL$/);
+        if (match && process.env[key]) {
+            const poolId = `pool${match[1]}`;
+            endpoints[poolId] = process.env[key] as string;
+        }
+    });
+    return endpoints;
 }
+
+// Use dynamic endpoints
+const POOL_ENDPOINTS = getPoolEndpoints();
 
 export async function GET() {
   const checks = Object.entries(POOL_ENDPOINTS).map(async ([poolId, baseUrl]) => {
     const url = `${baseUrl}/health`;
-    const start = Date.now();
-    let latency = 0;
     try {
       const res = await fetch(url, {
         method: 'GET',
@@ -33,65 +31,21 @@ export async function GET() {
           Accept: 'application/json',
           'User-Agent': 'Virbicoin-Pool-Frontend/1.0',
         },
-        // 5 秒でタイムアウト
         signal: AbortSignal.timeout(5000),
       });
-      latency = Date.now() - start;
       if (!res.ok) {
-        return { pool: poolId, status: 'unhealthy', latency, error: `HTTP ${res.status}` } as PoolResult;
+        return { pool: poolId, status: 'unhealthy', error: `HTTP ${res.status}` };
       }
-      let json: unknown = null;
-      const ct = res.headers.get('content-type') || '';
-      if (ct.includes('application/json')) {
-        try {
-          json = await res.json();
-        } catch {
-          // ignore parse errors
-        }
-      }
-
-      // Safe extraction of known properties
-      let hostname: string | undefined = undefined;
-      let time: string | undefined = undefined;
-      if (json && typeof json === 'object') {
-        const obj = json as Record<string, unknown>;
-        if (typeof obj['hostname'] === 'string') hostname = obj['hostname'] as string;
-        if (typeof obj['time'] === 'string') time = obj['time'] as string;
-      }
-
-      const result: PoolResult = {
-        pool: poolId,
-        status: 'healthy',
-        latency,
-        ...(hostname ? { hostname } : {}),
-        ...(time ? { time } : {}),
-      };
-
-      return result;
+      const json = await res.json();
+      return { pool: poolId, status: 'healthy', ...json };
     } catch (err) {
-      latency = Date.now() - start;
-      const msg = err instanceof Error ? err.message : 'unknown error';
-      return { pool: poolId, status: 'unhealthy', latency, error: msg } as PoolResult;
+      return { pool: poolId, status: 'unhealthy', error: err instanceof Error ? err.message : 'unknown error' };
     }
   });
-
-  const pools: PoolResult[] = await Promise.all(checks);
-
-  // Determine overall HTTP status: if at least one healthy, 200 else 503
+  const pools = await Promise.all(checks);
   const healthyExists = pools.some((p) => p.status === 'healthy');
   const statusCode = healthyExists ? 200 : 503;
-
-  return NextResponse.json(
-    { pools, generatedAt: new Date().toISOString() },
-    {
-      status: statusCode,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    },
-  );
+  return NextResponse.json({ pools }, { status: statusCode });
 }
 
 export async function OPTIONS() {

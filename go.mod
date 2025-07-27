@@ -1,6 +1,8 @@
 module github.com/virbicoin/open-virbicoin-pool
 
-go 1.22
+go 1.21.0
+
+toolchain go1.22.11
 
 require (
 	github.com/ethereum/go-ethereum v1.10.26
