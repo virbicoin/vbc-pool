@@ -52,7 +52,7 @@ const GlobalHealthChecker: React.FC = () => {
           
           // pools.jsonからactiveかつglobal以外の全プールのstratumUrl/stratumPorts[0]で/api/check-portを並列fetch
           const candidatePools = poolResults.filter((pool: PoolResult) => pool.status !== 'inactive' && pool.pool !== 'global');
-          const checkPortResults = await Promise.all(candidatePools.map(async (pool: any) => {
+          const checkPortResults = await Promise.all(candidatePools.map(async (pool: { stratumUrl: string; id?: string; pool?: string; apiUrl?: string; stratumPorts?: number[] }) => {
             const host = pool.stratumUrl;
             const port = Array.isArray(pool.stratumPorts) && pool.stratumPorts.length > 0 ? pool.stratumPorts[0] : 8002;
             const res = await fetch(`/api/check-port?host=${host}&port=${port}`);
