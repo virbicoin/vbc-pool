@@ -79,21 +79,12 @@ type Worker struct {
 }
 
 func NewRedisClient(cfg *Config, prefix string) *RedisClient {
-
 	client := redis.NewClient(&redis.Options{
-		Addr:       cfg.Endpoint,
-		Password:   cfg.Password,
-		DB:         cfg.Database,
-		PoolSize:   cfg.PoolSize,
-		MaxRetries: -1, // retry indefinitely
+		Addr:     cfg.Endpoint,
+		Password: cfg.Password,
+		DB:       cfg.Database,
+		PoolSize: cfg.PoolSize,
 	})
-
-	// Verify initial connectivity (non-fatal)
-	if _, err := client.Ping().Result(); err != nil {
-		fmt.Printf("[Redis] Initial ping failed: %v\n", err)
-	} else {
-		fmt.Println("[Redis] Connected")
-	}
 	return &RedisClient{client: client, prefix: prefix}
 }
 
