@@ -104,17 +104,30 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
     const inactivePools = useMemo(() => pools?.filter(p => !p.active) || [], [pools]);
     const POOL_NODES = useMemo(() => [...activePools, ...inactivePools], [activePools, inactivePools]);
 
-    // 動的ヘルスチェック管理
-    const [healthChecks, setHealthChecks] = useState<HealthCheck[]>([]);
+    // まずpools.jsonの内容をそのまま表示（healthDataは空）
+    const [healthChecks, setHealthChecks] = useState<HealthCheck[]>(
+        POOL_NODES.map(pool => ({
+            ...pool,
+            healthData: { isHealthy: false, lastChecked: Date.now() },
+            isLoading: true
+        }))
+    );
 
+    // 非同期でヘルスチェックを取得し、上書き反映
     useEffect(() => {
         if (!POOL_NODES.length) return;
+        setHealthChecks(
+            POOL_NODES.map(pool => ({
+                ...pool,
+                healthData: { isHealthy: false, lastChecked: Date.now() },
+                isLoading: true
+            }))
+        );
         let cancelled = false;
         (async () => {
             const results = await Promise.all(
                 POOL_NODES.map(async (pool) => {
                     if (!pool.active) {
-                        // 非アクティブは通信せずダミーデータ
                         return {
                             ...pool,
                             healthData: { isHealthy: false, lastChecked: Date.now() },

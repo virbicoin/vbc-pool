@@ -7,6 +7,5 @@
   {"apiUrl":"https://pool5.digitalregion.jp","stratumUrl":"stratum5.digitalregion.jp","location":"Western USA","flag":"🇺🇸","country":"US","region":"North America","stratumPorts":[8002,8004,8009],"active":true},
   {"apiUrl":"https://pool6.digitalregion.jp","stratumUrl":"stratum6.digitalregion.jp","location":"Australia","flag":"🇦🇺","country":"AU","region":"Pacific Ocean","stratumPorts":[8002,8004,8009],"active":false},
   {"apiUrl":"https://pool7.digitalregion.jp","stratumUrl":"stratum7.digitalregion.jp","location":"Brazil","flag":"🇧🇷","country":"BR","region":"South America","stratumPorts":[8002,8004,8009],"active":false},
-  {"apiUrl":"https://pool8.digitalregion.jp","stratumUrl":"stratum8.digitalregion.jp","location":"South Africa","flag":"🇿🇦","country":"ZA","region":"South Africa","stratumPorts":[8002,8004,8009],"active":false},
-  {"apiUrl":"https://pool0.digitalregion.jp","stratumUrl":"stratum0.digitalregion.jp","location":"India","flag":"🇮🇳","country":"IN","region":"South Asia","stratumPorts":[8002,8004,8009],"active":true}
+  {"apiUrl":"https://pool8.digitalregion.jp","stratumUrl":"stratum8.digitalregion.jp","location":"South Africa","flag":"🇿🇦","country":"ZA","region":"South Africa","stratumPorts":[8002,8004,8009],"active":false}
 ]
