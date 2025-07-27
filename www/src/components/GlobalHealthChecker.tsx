@@ -48,32 +48,32 @@ const GlobalHealthChecker: React.FC = () => {
             error?: string;
             stratumUrl?: string; // 追加
             stratumPorts?: number[]; // 追加
+            apiUrl?: string; // 追加
+            id?: string; // 追加
           };
           
-          // pools.jsonからactiveかつglobal以外の全プールのstratumUrl/stratumPorts[0]で/api/check-portを並列fetch
-          const candidatePools = poolResults.filter((pool: PoolResult) => pool.status !== 'inactive' && pool.pool !== 'global');
-          const checkPortResults = await Promise.all(candidatePools.map(async (pool: { stratumUrl: string; id?: string; pool?: string; apiUrl?: string; stratumPorts?: number[] }) => {
-            const host = pool.stratumUrl;
-            const port = Array.isArray(pool.stratumPorts) && pool.stratumPorts.length > 0 ? pool.stratumPorts[0] : 8002;
-            const res = await fetch(`/api/check-port?host=${host}&port=${port}`);
-            let latency = Infinity;
-            let healthy = false;
-            if (res.ok) {
-              const data = await res.json();
-              latency = typeof data.latency === 'number' ? data.latency : Infinity;
-              healthy = !!data.healthy;
-            }
-            return { pool, latency, healthy };
-          }));
-          const healthyPools = checkPortResults.filter(r => r.healthy && typeof r.latency === 'number');
-          const fastest = healthyPools.length > 0
-            ? healthyPools.reduce((a, b) => (a.latency < b.latency ? a : b))
+          // /healthエンドポイントのHTTPレイテンシ（直接fetch）で各プールを計測
+          const healthyPoolsWithLatency = await Promise.all(
+            poolResults.filter((pool: PoolResult) => pool.status === 'healthy' && pool.pool !== 'global')
+              .map(async (pool: PoolResult) => {
+                let latency = Infinity;
+                try {
+                  const start = Date.now();
+                  const res = await fetch(`${pool.apiUrl}/health`);
+                  await res.text(); // 内容不要でも待つ
+                  latency = Date.now() - start;
+                } catch {}
+                return { ...pool, latency };
+              })
+          );
+          const fastest = healthyPoolsWithLatency.length > 0
+            ? healthyPoolsWithLatency.reduce((a: PoolResult, b: PoolResult) => (typeof a.latency === 'number' && typeof b.latency === 'number' && a.latency < b.latency) ? a : b)
             : null;
 
           // ログ出力
           if (fastest) {
-            console.log('[Health Check] Selected Pool:', `${fastest.pool.stratumUrl || 'N/A'}`);
-            console.log('[Health Check] Global Latency:', `${fastest.latency}ms`);
+            console.log('[Health Check] Selected Pool:', `${fastest.stratumUrl || fastest.pool || fastest.id || fastest.apiUrl || 'N/A'}`);
+            console.log('[Health Check] Global Latency:', typeof fastest.latency === 'number' ? `${fastest.latency}ms` : 'N/A');
           } else {
             console.log('[Health Check] Selected Pool:', 'none');
             console.log('[Health Check] Global Latency:', 'N/A');
