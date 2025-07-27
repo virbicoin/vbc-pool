@@ -1,29 +1,26 @@
 import { NextResponse } from 'next/server';
+import { promises as fs } from 'fs';
+import path from 'path';
 
-// Use Node.js runtime so that AbortSignal.timeout is available and we can parallel fetch
 export const runtime = 'nodejs';
 
-// Build pool endpoints dynamically from env (NEXT_PUBLIC_POOL*_URL)
-function getPoolEndpoints(): Record<string, string> {
-    const endpoints: Record<string, string> = {};
-    if (process.env['NEXT_PUBLIC_POOL_BASE_URL']) endpoints['pool'] = process.env['NEXT_PUBLIC_POOL_BASE_URL'];
-    // Check all env vars, add those that match NEXT_PUBLIC_POOL{N}_URL
-    Object.keys(process.env).forEach((key) => {
-        const match = key.match(/^NEXT_PUBLIC_POOL(\d+)_URL$/);
-        if (match && process.env[key]) {
-            const poolId = `pool${match[1]}`;
-            endpoints[poolId] = process.env[key] as string;
-        }
-    });
-    return endpoints;
-}
-
-// Use dynamic endpoints
-const POOL_ENDPOINTS = getPoolEndpoints();
-
 export async function GET() {
-  const checks = Object.entries(POOL_ENDPOINTS).map(async ([poolId, baseUrl]) => {
-    const url = `${baseUrl}/health`;
+  // 1. pools.jsonを読み込む
+  const poolsPath = path.join(process.cwd(), 'pools.json');
+  let poolsJson = [];
+  try {
+    const data = await fs.readFile(poolsPath, 'utf-8');
+    poolsJson = JSON.parse(data);
+  } catch (e) {
+    return NextResponse.json({ error: 'Failed to load pools.json', details: String(e) }, { status: 500 });
+  }
+
+  // 2. ステータスチェック
+  const checks = poolsJson.map(async (pool: any) => {
+    if (!pool.active) {
+      return { ...pool, status: 'inactive' };
+    }
+    const url = `${pool.apiUrl}/health`;
     try {
       const res = await fetch(url, {
         method: 'GET',
@@ -34,14 +31,15 @@ export async function GET() {
         signal: AbortSignal.timeout(5000),
       });
       if (!res.ok) {
-        return { pool: poolId, status: 'unhealthy', error: `HTTP ${res.status}` };
+        return { ...pool, status: 'unhealthy', error: `HTTP ${res.status}` };
       }
       const json = await res.json();
-      return { pool: poolId, status: 'healthy', ...json };
+      return { ...pool, status: 'healthy', ...json };
     } catch (err) {
-      return { pool: poolId, status: 'unhealthy', error: err instanceof Error ? err.message : 'unknown error' };
+      return { ...pool, status: 'unhealthy', error: err instanceof Error ? err.message : 'unknown error' };
     }
   });
+
   const pools = await Promise.all(checks);
   const healthyExists = pools.some((p) => p.status === 'healthy');
   const statusCode = healthyExists ? 200 : 503;
