@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "VirBiCoin Pool",
+  title: "VirBiCoin Mining Pool",
   description: "High performance VirBiCoin mining pool",
 };
 

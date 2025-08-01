@@ -36,7 +36,7 @@ export default function Header() {
             </Link>
           </li>
           <li>
-            <Link href='https://explorer.digitalregion.jp/contract/verify' className='nav-link text-gray-200 flex items-center gap-1'>
+            <Link href='https://explorer.digitalregion.jp/' target='_blank' className='nav-link text-gray-200 flex items-center gap-1'>
               <MagnifyingGlassIcon className='w-5 h-5' />
               <span className='hidden sm:inline'>Explorer</span>
             </Link>
