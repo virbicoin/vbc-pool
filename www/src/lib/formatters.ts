@@ -15,7 +15,7 @@ export function formatDifficulty(diff: number) {
 
 export function formatDate(timestamp: number | null | undefined): string {
   if (timestamp == null || timestamp === 0) return 'N/A';
-  return new Date(timestamp * 1000).toLocaleString();
+  return new Date(timestamp * 1000).toLocaleString(undefined, { timeZoneName: 'short' });
 }
 
 export function timeSince(timestamp: number | null | undefined): string {

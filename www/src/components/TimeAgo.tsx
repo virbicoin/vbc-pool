@@ -19,7 +19,7 @@ export default function TimeAgo({ timestamp, agoOnly = false }: { timestamp: num
         else if (diff < 86400) setText(`${Math.floor(diff / 3600)} hours ago`);
         else setText(`${Math.floor(diff / 86400)} days ago`);
       } else {
-        setText(new Date(timestamp * 1000).toLocaleString());
+        setText(new Date(timestamp * 1000).toLocaleString(undefined, { timeZoneName: 'short' }));
       }
     }
     update();

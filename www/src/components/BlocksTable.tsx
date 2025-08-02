@@ -113,13 +113,25 @@ export default function BlocksTable({ blocks, type }: BlocksTableProps) {
                                 <td className="px-4 py-3">
                                     {(type === "immature" || type === "matured") && block.orphan ? '' : (
                                         block.reward ? (
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium ${
-                                                block.uncle 
-                                                    ? 'bg-gray-700 text-gray-200 border-gray-600' 
-                                                    : 'bg-blue-900 text-blue-200 border-blue-700'
-                                            } border`}>
-                                                {(Number(block.reward) / 1e18).toFixed(4)} VBC
-                                            </span>
+                                            (() => {
+                                                const rewardAmount = Number(block.reward) / 1e18;
+                                                const isStandardReward = rewardAmount >= 8.0;
+                                                let badgeClass = '';
+                                                
+                                                if (block.uncle) {
+                                                    badgeClass = 'bg-gray-700 text-gray-200 border-gray-600';
+                                                } else if (isStandardReward) {
+                                                    badgeClass = 'bg-green-900 text-green-200 border-green-700';
+                                                } else {
+                                                    badgeClass = 'bg-blue-900 text-blue-200 border-blue-700';
+                                                }
+                                                
+                                                return (
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium ${badgeClass} border`}>
+                                                        {rewardAmount.toFixed(4)} VBC
+                                                    </span>
+                                                );
+                                            })()
                                         ) : 'N/A'
                                     )}
                                 </td>

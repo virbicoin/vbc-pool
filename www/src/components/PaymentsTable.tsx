@@ -33,7 +33,7 @@ export default function PaymentsTable({ payments }: PaymentsTableProps) {
                   {payment.tx}
                 </a>
               </td>
-              <td className="px-4 py-3 text-gray-300">{(payment.amount / 1e9).toFixed(8)} VBC</td>
+              <td className="px-4 py-3 text-green-400">{(payment.amount / 1e9).toFixed(8)} VBC</td>
             </tr>
           ))}
         </tbody>

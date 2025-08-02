@@ -106,7 +106,7 @@ export default function AccountPage() {
             icon={<ClockIcon className="w-8 h-8 text-cyan-400" />} 
             title="Last Share Submitted" 
             value={<TimeAgo timestamp={stats.lastShare} agoOnly={true} />} 
-            subtext={stats.lastShare ? new Date(stats.lastShare * 1000).toLocaleString() : 'N/A'} 
+            subtext={stats.lastShare ? new Date(stats.lastShare * 1000).toLocaleString(undefined, { timeZoneName: 'short' }) : 'N/A'} 
           />
           <StatCard icon={<CubeIcon className="w-8 h-8 text-pink-400" />} title="Blocks Found" value={`${stats.blocksFound} Blocks`} />
           <StatCard icon={<ArrowPathIcon className="w-8 h-8 text-blue-400" />} title="Total Payments" value={`${paymentsTotal || 0} Payouts`} />

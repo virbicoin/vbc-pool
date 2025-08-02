@@ -82,8 +82,8 @@ const AccountTabs = ({ workers, payments }: AccountTabsProps) => {
                 <tbody className="divide-y divide-gray-700 bg-gray-800">
                   {payments.map((payout) => (
                     <tr key={payout.tx} className="hover:bg-gray-800 transition-colors duration-150">
-                      <td className="px-4 py-3 text-gray-300">{new Date(payout.timestamp * 1000).toLocaleString()}</td>
-                      <td className="px-4 py-3 text-gray-300">{(payout.amount / 1e9).toFixed(4)} VBC</td>
+                      <td className="px-4 py-3 text-gray-300">{new Date(payout.timestamp * 1000).toLocaleString(undefined, { timeZoneName: 'short' })}</td>
+                      <td className="px-4 py-3 text-green-400">{(payout.amount / 1e9).toFixed(4)} VBC</td>
                       <td className="px-4 py-3 font-mono text-sm text-gray-400">
                         <a href={`https://explorer.digitalregion.jp/tx/${payout.tx}`} className="text-blue-400 hover:text-blue-300 transition-colors break-all" target="_blank" rel="noopener noreferrer">
                           {payout.tx.substring(0, 10)}...{payout.tx.substring(payout.tx.length - 8)}
