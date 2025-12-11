@@ -9,7 +9,46 @@ import { GET as checkPortGET } from '../check-port/route';
 // handler uses the "net" module which is Node-only.
 export const runtime = 'nodejs';
 
+// SECURITY: 許可されたプールIDのホワイトリスト
+// 環境変数から動的に構築するのではなく、明示的にリスト化
+const ALLOWED_POOL_IDS: ReadonlySet<string> = new Set([
+  'pool',
+  'pool1',
+  'pool2',
+  'pool3',
+  'pool4',
+  'pool5',
+  'global',
+]);
+
+// SECURITY: 許可されたAPIパスのホワイトリスト（パストラバーサル防止）
+const ALLOWED_API_PATHS: ReadonlySet<string> = new Set([
+  'stats',
+  'blocks',
+  'payments',
+  'miners',
+  'accounts',
+  'health',
+]);
+
+// SECURITY: パスの検証（パストラバーサル防止）
+function isValidApiPath(apiPath: string): boolean {
+  // 空パスは拒否
+  if (!apiPath || apiPath.length === 0) return false;
+  
+  // パストラバーサル攻撃を防止
+  if (apiPath.includes('..') || apiPath.includes('//')) return false;
+  
+  // 特殊文字を拒否（英数字、ハイフン、スラッシュ、アンダースコアのみ許可）
+  if (!/^[a-zA-Z0-9\-_\/]+$/.test(apiPath)) return false;
+  
+  // ルートパスが許可リストにあるかチェック
+  const rootPath = apiPath.split('/')[0];
+  return ALLOWED_API_PATHS.has(rootPath);
+}
+
 // Build pool endpoints dynamically from env (NEXT_PUBLIC_POOL*_URL)
+// SECURITY: 環境変数からURLを取得するが、許可されたプールIDのみ
 function getPoolEndpoints(): Record<string, string> {
     const endpoints: Record<string, string> = {};
     if (process.env['NEXT_PUBLIC_POOL_BASE_URL']) endpoints['pool'] = process.env['NEXT_PUBLIC_POOL_BASE_URL'];
@@ -18,7 +57,10 @@ function getPoolEndpoints(): Record<string, string> {
         const match = key.match(/^NEXT_PUBLIC_POOL(\d+)_URL$/);
         if (match && process.env[key]) {
             const poolId = `pool${match[1]}`;
-            endpoints[poolId] = process.env[key] as string;
+            // SECURITY: 許可されたプールIDのみ追加
+            if (ALLOWED_POOL_IDS.has(poolId)) {
+                endpoints[poolId] = process.env[key] as string;
+            }
         }
     });
     return endpoints;
@@ -64,6 +106,18 @@ export async function GET(
         console.error(`[Proxy] Invalid proxy path: missing sub-path`);
         return NextResponse.json({ error: 'Invalid proxy path' }, { status: 400 });
       }
+    }
+
+    // SECURITY: プールIDのホワイトリストチェック
+    if (!ALLOWED_POOL_IDS.has(poolId)) {
+      console.warn(`[Security] Blocked request to unauthorized pool: ${poolId}`);
+      return NextResponse.json({ error: 'Invalid pool identifier' }, { status: 403 });
+    }
+
+    // SECURITY: APIパスの検証
+    if (!isValidApiPath(apiPath)) {
+      console.warn(`[Security] Blocked request with invalid API path: ${apiPath}`);
+      return NextResponse.json({ error: 'Invalid API path' }, { status: 403 });
     }
 
     const baseUrl = POOL_ENDPOINTS[poolId as keyof typeof POOL_ENDPOINTS];

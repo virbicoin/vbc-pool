@@ -3,7 +3,7 @@
 import useSWR from "swr";
 import Image from "next/image";
 import { ServerIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 interface PoolNode {
     apiUrl: string;
