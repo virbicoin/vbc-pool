@@ -1,21 +1,17 @@
 import Link from 'next/link'
-import { HomeIcon, QuestionMarkCircleIcon, InformationCircleIcon, CurrencyDollarIcon, GlobeAltIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import Image from 'next/image'
+import { QuestionMarkCircleIcon, InformationCircleIcon, CurrencyDollarIcon, GlobeAltIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import HeaderStats from './HeaderStats'
 
 export default function Header() {
   return (
     <header className="bg-gray-900 border-b border-gray-800">
       <nav className="container mx-auto px-2 flex items-center justify-between h-14">
-        <Link href="/" className="text-xl font-bold nav-link text-gray-100 hover:text-green-400 transition-colors">
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold nav-link text-gray-100 hover:text-green-400 transition-colors">
+          <Image src="/VBC.svg" alt="VirBiCoin" width={32} height={32} />
           VirBiCoin Pool
         </Link>
         <ul className="flex items-center space-x-4">
-          <li>
-            <Link href="/" className="nav-link text-gray-200 flex items-center gap-1">
-              <HomeIcon className="w-5 h-5" />
-              <span>Dashboard</span>
-            </Link>
-          </li>
           <li>
             <Link href="/help" className="nav-link text-gray-200 flex items-center gap-1">
               <QuestionMarkCircleIcon className="w-5 h-5" />

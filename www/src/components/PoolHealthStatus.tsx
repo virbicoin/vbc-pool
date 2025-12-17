@@ -3,7 +3,7 @@
 import useSWR from "swr";
 import Image from "next/image";
 import { ServerIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 
 interface PoolNode {
     apiUrl: string;
@@ -105,54 +105,16 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
     const POOL_NODES = useMemo(() => [...activePools, ...inactivePools], [activePools, inactivePools]);
 
     // まずpools.jsonの内容をそのまま表示（healthDataは空）
-    const [healthChecks, setHealthChecks] = useState<HealthCheck[]>(
+    const [healthChecks, setHealthChecks] = useState<HealthCheck[]>(() =>
         POOL_NODES.map(pool => ({
             ...pool,
-            healthData: { isHealthy: false, lastChecked: Date.now() },
+            healthData: { isHealthy: false, lastChecked: 0 },
             isLoading: true
         }))
     );
 
-    // 非同期でヘルスチェックを取得し、上書き反映
-    useEffect(() => {
-        if (!POOL_NODES.length) return;
-        setHealthChecks(
-            POOL_NODES.map(pool => ({
-                ...pool,
-                healthData: { isHealthy: false, lastChecked: Date.now() },
-                isLoading: true
-            }))
-        );
-        let cancelled = false;
-        (async () => {
-            const results = await Promise.all(
-                POOL_NODES.map(async (pool) => {
-                    if (!pool.active) {
-                        return {
-                            ...pool,
-                            healthData: { isHealthy: false, lastChecked: Date.now() },
-                            isLoading: false
-                        };
-                    }
-                    const healthData = await checkPoolHealth(pool.apiUrl);
-                    let portStatuses: Record<number, boolean | string> | undefined = undefined;
-                    try {
-                        portStatuses = await checkStratumPortHealth(pool.stratumUrl, pool.stratumPorts);
-                    } catch {}
-                    return {
-                        ...pool,
-                        healthData: { ...healthData, portStatuses },
-                        isLoading: false
-                    };
-                })
-            );
-            if (!cancelled) setHealthChecks(results);
-        })();
-        return () => { cancelled = true; };
-    }, [POOL_NODES]);
-
     // stratumポートのヘルスチェック関数
-    async function checkStratumPortHealth(stratumUrl: string, ports: number[]): Promise<Record<number, boolean | string>> {
+    const checkStratumPortHealth = useCallback(async (stratumUrl: string, ports: number[]): Promise<Record<number, boolean | string>> => {
         const results: Record<number, boolean | string> = {};
         await Promise.all(ports.map(async (port: number) => {
             try {
@@ -181,7 +143,53 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
             }
         }));
         return results;
-    }
+    }, []);
+
+    // 非同期でヘルスチェックを取得し、上書き反映
+    useEffect(() => {
+        if (!POOL_NODES.length) return;
+        let cancelled = false;
+        
+        // Defer initial state setup to avoid synchronous setState in effect
+        const initializeAndFetch = async () => {
+            const now = Date.now();
+            const initialState = POOL_NODES.map(pool => ({
+                ...pool,
+                healthData: { isHealthy: false, lastChecked: now },
+                isLoading: true
+            }));
+            
+            if (cancelled) return;
+            setHealthChecks(initialState);
+            
+            const results = await Promise.all(
+                POOL_NODES.map(async (pool) => {
+                    const checkTime = Date.now();
+                    if (!pool.active) {
+                        return {
+                            ...pool,
+                            healthData: { isHealthy: false, lastChecked: checkTime },
+                            isLoading: false
+                        };
+                    }
+                    const healthData = await checkPoolHealth(pool.apiUrl);
+                    let portStatuses: Record<number, boolean | string> | undefined = undefined;
+                    try {
+                        portStatuses = await checkStratumPortHealth(pool.stratumUrl, pool.stratumPorts);
+                    } catch {}
+                    return {
+                        ...pool,
+                        healthData: { ...healthData, portStatuses },
+                        isLoading: false
+                    };
+                })
+            );
+            if (!cancelled) setHealthChecks(results);
+        };
+        
+        initializeAndFetch();
+        return () => { cancelled = true; };
+    }, [POOL_NODES, checkStratumPortHealth]);
 
     // アクティブプールのみをカウント
     const activeHealthChecks = healthChecks.filter(check =>

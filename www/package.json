@@ -1,35 +1,35 @@
 {
   "name": "www",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "check": "next lint && tsc --noEmit",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix"
+    "check": "eslint . && tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
-    "next": "^16.0.8",
+    "next": "^16.0.10",
     "postcss-load-config": "^6.0.1",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "react-icons": "^5.5.0",
     "swr": "^2.3.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
-    "@tailwindcss/postcss": "4.1.17",
-    "@types/node": "^25.0.0",
+    "@tailwindcss/postcss": "4.1.18",
+    "@types/node": "^25.0.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "autoprefixer": "^10.4.22",
-    "eslint": "^9.39.1",
-    "eslint-config-next": "^16.0.8",
+    "autoprefixer": "^10.4.23",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.0.10",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.17",
+    "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3"
   }
 }

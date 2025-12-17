@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from 'react';
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import { formatHashrate } from '@/lib/formatters';
@@ -53,6 +54,16 @@ export default function AccountPage() {
   const { data: accountData } = useSWR(address ? API_BASE_URL + `/api/accounts/${address}` : null, fetcher, { refreshInterval: 5000 });
   const { data: statsData } = useSWR(API_BASE_URL + "/api/stats", fetcher, { refreshInterval: 5000 });
 
+  // Hooks must be called at top level, before any conditional returns
+  const currentHeight = statsData?.pools?.virbicoin?.poolStats?.poolHeight || 0;
+  const blockTime = statsData?.pools?.virbicoin?.config?.blockTime || 10;
+  const epochBlocks = 30000;
+  const blocksUntilEpoch = epochBlocks - (currentHeight % epochBlocks);
+  const [epochSwitchTimestamp, setEpochSwitchTimestamp] = useState(0);
+  useEffect(() => {
+    setEpochSwitchTimestamp(Date.now() + (blocksUntilEpoch * blockTime * 1000));
+  }, [blocksUntilEpoch, blockTime]);
+
   if (!accountData || !accountData.stats) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -66,11 +77,6 @@ export default function AccountPage() {
   const accountRoundShares = accountData.roundShares || 0;
   const poolRoundShares = statsData?.stats?.roundShares || 0;
   const yourRoundSharePercent = poolRoundShares > 0 ? (accountRoundShares / poolRoundShares) * 100 : 0;
-  const currentHeight = statsData?.pools?.virbicoin?.poolStats?.poolHeight || 0;
-  const blockTime = statsData?.pools?.virbicoin?.config?.blockTime || 10;
-  const epochBlocks = 30000;
-  const blocksUntilEpoch = epochBlocks - (currentHeight % epochBlocks);
-  const epochSwitchTimestamp = Date.now() + (blocksUntilEpoch * blockTime * 1000);
   const workerList = Object.entries(workers).map(([name, worker]) => ({
     ...(worker as AccountWorker),
     name,

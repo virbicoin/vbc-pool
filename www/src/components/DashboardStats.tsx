@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from 'react';
 import useSWR from "swr";
 import { formatHashrate } from "@/lib/formatters";
 import TimeAgo from "@/components/TimeAgo";
@@ -63,9 +64,10 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
   // localhostでもproductionビルドなら実際のAPIを使用
   const isDevelopment = process.env.NODE_ENV === 'development';
   
-  // 開発環境用の模擬データを定義
-  const mockData = {
-    time: Date.now(),
+  // 開発環境用の模擬データを定義（初回レンダリング時に固定）
+  const [mockTime] = useState(() => Date.now());
+  const mockData = useMemo(() => ({
+    time: mockTime,
     hashrate: 8.93e9,
     networkHashrate: 1.919e10,
     minersTotal: 810,
@@ -74,14 +76,14 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
       height: '114514'
     }],
     stats: {
-      lastBlockFound: Math.floor((Date.now() - 12000) / 1000), // 12秒前のUnixタイムスタンプ（秒）
+      lastBlockFound: Math.floor((mockTime - 12000) / 1000), // 12秒前のUnixタイムスタンプ（秒）
       roundShares: 1.8e10,
       networkHashrate: 1.919e10,
       networkDifficulty: 3.64364e12, 
       height: 114514,
       roundVariance: 85.2
     }
-  };
+  }), [mockTime]);
   
   const fetcher = async () => {
     if (isDevelopment) {
