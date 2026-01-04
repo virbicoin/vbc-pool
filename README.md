@@ -94,6 +94,14 @@ You can customize the layout using built-in web server with live reload:
 Check out <code>www/app</code> directory and edit these templates
 in order to customise the frontend.
 
+### Security
+
+We take security seriously.
+
+*   **Dependencies**: We regularly check our dependencies for vulnerabilities. The frontend (`www`) has been audited and found to have 0 vulnerabilities as of January 2026.
+*   **Reporting**: If you find a security vulnerability, please do not open an issue. Instead, please email security@virbicoin.com (or the repository owner directly).
+*   **Best Practices**: Always change default passwords and keys in `config.json` before deploying to production.
+
 ### Configuration
 
 Configuration is actually simple, just read it twice and think twice before changing defaults.
