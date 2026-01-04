@@ -75,10 +75,11 @@ www/
 
 ## Security Considerations
 
-- Never expose API keys in client code
-- Use `NEXT_PUBLIC_` prefix only for public environment variables
-- API requests are proxied through Next.js API routes
-- CORS is handled by middleware
+- **Audit**: Run `npm audit` regularly to check for vulnerabilities.
+- **Secrets**: Never expose API keys, passwords, or private keys in client code or commit them to the repository.
+- **Environment Variables**: Use `NEXT_PUBLIC_` prefix only for public environment variables.
+- **API**: API requests are proxied through Next.js API routes to hide backend details.
+- **CORS**: CORS is handled by middleware to prevent unauthorized access.
 
 ## Testing
 
