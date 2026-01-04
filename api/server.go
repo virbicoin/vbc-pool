@@ -250,47 +250,61 @@ func (s *ApiServer) AccountIndex(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 
 	login := strings.ToLower(mux.Vars(r)["login"])
-	s.minersMu.Lock()
-	defer s.minersMu.Unlock()
-
-	reply, ok := s.miners[login]
 	now := util.MakeTimestamp()
 	cacheIntv := int64(s.statsIntv / time.Millisecond)
-	// Refresh stats if stale
-	if !ok || reply.updatedAt < now-cacheIntv {
-		exist, err := s.backend.IsMinerExists(login)
-		if !exist {
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Printf("Failed to fetch stats from backend: %v", err)
-			return
-		}
 
-		stats, err := s.backend.GetMinerStats(login, s.config.Payments)
+	// First, check cache with read lock (non-blocking for other readers)
+	s.minersMu.RLock()
+	reply, ok := s.miners[login]
+	if ok && reply.updatedAt >= now-cacheIntv {
+		// Cache hit and fresh - return immediately
+		s.minersMu.RUnlock()
+		w.WriteHeader(http.StatusOK)
+		err := json.NewEncoder(w).Encode(reply.stats)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Printf("Failed to fetch stats from backend: %v", err)
-			return
+			log.Println("Error serializing API response: ", err)
 		}
-		workers, err := s.backend.CollectWorkersStats(s.hashrateWindow, s.hashrateLargeWindow, login)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Printf("Failed to fetch stats from backend: %v", err)
-			return
-		}
-		for key, value := range workers {
-			stats[key] = value
-		}
-		stats["pageSize"] = s.config.Payments
-		reply = &Entry{stats: stats, updatedAt: now}
-		s.miners[login] = reply
+		return
+	}
+	s.minersMu.RUnlock()
+
+	// Cache miss or stale - fetch from backend (without holding lock)
+	exist, err := s.backend.IsMinerExists(login)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Failed to check miner existence: %v", err)
+		return
+	}
+	if !exist {
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
+	stats, err := s.backend.GetMinerStats(login, s.config.Payments)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Failed to fetch stats from backend: %v", err)
+		return
+	}
+	workers, err := s.backend.CollectWorkersStats(s.hashrateWindow, s.hashrateLargeWindow, login)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Failed to fetch stats from backend: %v", err)
+		return
+	}
+	for key, value := range workers {
+		stats[key] = value
+	}
+	stats["pageSize"] = s.config.Payments
+
+	// Update cache with write lock (only for map update)
+	s.minersMu.Lock()
+	reply = &Entry{stats: stats, updatedAt: util.MakeTimestamp()}
+	s.miners[login] = reply
+	s.minersMu.Unlock()
+
 	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(reply.stats)
+	err = json.NewEncoder(w).Encode(reply.stats)
 	if err != nil {
 		log.Println("Error serializing API response: ", err)
 	}
