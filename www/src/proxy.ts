@@ -57,7 +57,7 @@ function cleanupRateLimitMap() {
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
-  
+
   // Lazy cleanup: probabilistically clean up to avoid doing it on every request
   if (Math.random() < 0.01) {
     cleanupRateLimitMap();
@@ -97,10 +97,7 @@ export default function proxy(request: NextRequest) {
   // SECURITY: Block suspicious patterns (prevent command injection)
   if (containsSuspiciousPattern(fullUrl)) {
     console.warn(`[Security] Blocked suspicious request from ${clientIP}: ${fullUrl}`);
-    return NextResponse.json(
-      { error: "Forbidden" },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // SECURITY: Rate limiting (API routes only)
@@ -109,7 +106,7 @@ export default function proxy(request: NextRequest) {
       console.warn(`[Security] Rate limit exceeded for ${clientIP}`);
       return NextResponse.json(
         { error: "Too many requests" },
-        { 
+        {
           status: 429,
           headers: {
             "Retry-After": "60",
