@@ -1,24 +1,42 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import { QuestionMarkCircleIcon, InformationCircleIcon, CurrencyDollarIcon, GlobeAltIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
-import HeaderStats from './HeaderStats'
+import Link from "next/link";
+import Image from "next/image";
+import {
+  HomeIcon,
+  QuestionMarkCircleIcon,
+  InformationCircleIcon,
+  CurrencyDollarIcon,
+  GlobeAltIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/outline";
+import HeaderStats from "./HeaderStats";
 
 export default function Header() {
   return (
     <header className="bg-gray-900 border-b border-gray-800">
       <nav className="container mx-auto px-2 flex items-center justify-between h-14">
-        <Link href="/" className="flex items-center gap-2 text-xl font-bold nav-link text-gray-100 hover:text-green-400 transition-colors">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-xl font-bold nav-link text-gray-100 hover:text-green-400 transition-colors"
+        >
           <Image src="/VBC.svg" alt="VirBiCoin" width={32} height={32} />
-          VirBiCoin Pool
+          <span className="hidden sm:inline">VirBiCoin Pool</span>
         </Link>
         <ul className="flex items-center space-x-4">
           <li>
-            <Link href="/help" className="nav-link text-gray-200 flex items-center gap-1">
-              <QuestionMarkCircleIcon className="w-5 h-5" />
-              <span>Getting Started</span>
+            <Link href="/" className="nav-link text-gray-200 flex items-center gap-1">
+              <HomeIcon className="w-5 h-5" />
+              <span className="hidden sm:inline">Home</span>
             </Link>
           </li>
-          <li><HeaderStats /></li>
+          <li>
+            <Link href="/help" className="nav-link text-gray-200 flex items-center gap-1">
+              <QuestionMarkCircleIcon className="w-5 h-5" />
+              <span className="hidden sm:inline">Getting Started</span>
+            </Link>
+          </li>
+          <li>
+            <HeaderStats />
+          </li>
           <li>
             <Link href="/payments" className="nav-link text-gray-200 flex items-center gap-1">
               <CurrencyDollarIcon className="w-5 h-5" />
@@ -32,13 +50,22 @@ export default function Header() {
             </Link>
           </li>
           <li>
-            <Link href='https://explorer.digitalregion.jp/' target='_blank' className='nav-link text-gray-200 flex items-center gap-1'>
-              <MagnifyingGlassIcon className='w-5 h-5' />
-              <span className='hidden sm:inline'>Explorer</span>
+            <Link
+              href="https://explorer.digitalregion.jp/"
+              target="_blank"
+              className="nav-link text-gray-200 flex items-center gap-1"
+            >
+              <MagnifyingGlassIcon className="w-5 h-5" />
+              <span className="hidden sm:inline">Explorer</span>
             </Link>
           </li>
           <li>
-            <a href="https://stats.digitalregion.jp/" target="_blank" rel="noopener noreferrer" className="nav-link text-gray-200 flex items-center gap-1">
+            <a
+              href="https://stats.digitalregion.jp/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nav-link text-gray-200 flex items-center gap-1"
+            >
               <GlobeAltIcon className="w-5 h-5" />
               <span>Network</span>
             </a>
@@ -46,5 +73,5 @@ export default function Header() {
         </ul>
       </nav>
     </header>
-  )
-} 
+  );
+}

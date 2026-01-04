@@ -1,7 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 
-export default function TimeAgo({ timestamp, agoOnly = false }: { timestamp: number, agoOnly?: boolean }) {
+export default function TimeAgo({
+  timestamp,
+  agoOnly = false,
+}: {
+  timestamp: number;
+  agoOnly?: boolean;
+}) {
   const [text, setText] = useState("");
 
   useEffect(() => {
@@ -19,7 +25,7 @@ export default function TimeAgo({ timestamp, agoOnly = false }: { timestamp: num
         else if (diff < 86400) setText(`${Math.floor(diff / 3600)} hours ago`);
         else setText(`${Math.floor(diff / 86400)} days ago`);
       } else {
-        setText(new Date(timestamp * 1000).toLocaleString(undefined, { timeZoneName: 'short' }));
+        setText(new Date(timestamp * 1000).toLocaleString(undefined, { timeZoneName: "short" }));
       }
     }
     update();
@@ -28,4 +34,4 @@ export default function TimeAgo({ timestamp, agoOnly = false }: { timestamp: num
   }, [timestamp, agoOnly]);
 
   return <span>{text}</span>;
-} 
+}

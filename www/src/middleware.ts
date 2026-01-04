@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 // SECURITY: シンプルなインメモリレート制限
 // 本番環境ではRedisなどの外部ストアを使用することを推奨
@@ -32,17 +32,17 @@ const SUSPICIOUS_PATTERNS = [
 
 function getClientIP(request: NextRequest): string {
   // X-Forwarded-For ヘッダーから実際のクライアントIPを取得
-  const forwarded = request.headers.get('x-forwarded-for');
+  const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
-    return forwarded.split(',')[0].trim();
+    return forwarded.split(",")[0].trim();
   }
   // Cloudflare
-  const cfConnecting = request.headers.get('cf-connecting-ip');
+  const cfConnecting = request.headers.get("cf-connecting-ip");
   if (cfConnecting) {
     return cfConnecting;
   }
   // デフォルト
-  return 'unknown';
+  return "unknown";
 }
 
 function isRateLimited(ip: string): boolean {
@@ -65,7 +65,7 @@ function isRateLimited(ip: string): boolean {
 
 function containsSuspiciousPattern(url: string): boolean {
   const decodedUrl = decodeURIComponent(url);
-  return SUSPICIOUS_PATTERNS.some(pattern => pattern.test(decodedUrl));
+  return SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(decodedUrl));
 }
 
 // 古いエントリをクリーンアップ（メモリリーク防止）
@@ -86,21 +86,21 @@ export function middleware(request: NextRequest) {
   // SECURITY: 疑わしいパターンをブロック（コマンドインジェクション防止）
   if (containsSuspiciousPattern(fullUrl)) {
     console.warn(`[Security] Blocked suspicious request from ${clientIP}: ${fullUrl}`);
-    return new NextResponse(JSON.stringify({ error: 'Forbidden' }), {
+    return new NextResponse(JSON.stringify({ error: "Forbidden" }), {
       status: 403,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 
   // SECURITY: レート制限（APIルートのみ）
-  if (pathname.startsWith('/api/')) {
+  if (pathname.startsWith("/api/")) {
     if (isRateLimited(clientIP)) {
       console.warn(`[Security] Rate limit exceeded for ${clientIP}`);
-      return new NextResponse(JSON.stringify({ error: 'Too many requests' }), {
+      return new NextResponse(JSON.stringify({ error: "Too many requests" }), {
         status: 429,
         headers: {
-          'Content-Type': 'application/json',
-          'Retry-After': '60',
+          "Content-Type": "application/json",
+          "Retry-After": "60",
         },
       });
     }
@@ -113,8 +113,8 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // APIルートに適用
-    '/api/:path*',
+    "/api/:path*",
     // 静的ファイルと_nextを除外
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };

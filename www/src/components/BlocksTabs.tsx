@@ -3,9 +3,10 @@
 import useSWR from "swr";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { CheckCircleIcon, ClockIcon, SparklesIcon } from "@heroicons/react/24/outline";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function BlocksTabs() {
   const { data: stats } = useSWR(API_BASE_URL + "/api/stats", fetcher, { refreshInterval: 5000 });
@@ -15,53 +16,87 @@ export default function BlocksTabs() {
 
   const path = usePathname();
 
+  const tabs = [
+    {
+      href: "/blocks",
+      label: "Matured",
+      count: maturedCount,
+      icon: CheckCircleIcon,
+      activeColor: "blue",
+      isActive: path === "/blocks",
+    },
+    {
+      href: "/blocks/immature",
+      label: "Immature",
+      count: immatureCount,
+      icon: ClockIcon,
+      activeColor: "green",
+      isActive: path === "/blocks/immature",
+    },
+    {
+      href: "/blocks/pending",
+      label: "Pending",
+      count: pendingCount,
+      icon: SparklesIcon,
+      activeColor: "cyan",
+      isActive: path === "/blocks/pending",
+    },
+  ];
+
+  const getTabClasses = (tab: (typeof tabs)[0]) => {
+    const baseClasses =
+      "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors";
+
+    if (tab.isActive) {
+      switch (tab.activeColor) {
+        case "blue":
+          return `${baseClasses} border-blue-400 text-blue-400 bg-blue-900/20`;
+        case "green":
+          return `${baseClasses} border-green-400 text-green-400 bg-green-900/20`;
+        case "cyan":
+          return `${baseClasses} border-cyan-400 text-cyan-400 bg-cyan-900/20`;
+        default:
+          return `${baseClasses} border-blue-400 text-blue-400 bg-blue-900/20`;
+      }
+    }
+
+    return `${baseClasses} border-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-700/50`;
+  };
+
+  const getBadgeClasses = (tab: (typeof tabs)[0]) => {
+    if (tab.isActive) {
+      switch (tab.activeColor) {
+        case "blue":
+          return "bg-blue-600 text-white";
+        case "green":
+          return "bg-green-600 text-white";
+        case "cyan":
+          return "bg-cyan-600 text-white";
+        default:
+          return "bg-blue-600 text-white";
+      }
+    }
+    return "bg-gray-700 text-gray-300";
+  };
+
   return (
-    <div className="flex space-x-4 border-b border-gray-700">
-      <Link
-        href="/blocks"
-        className={`tab-link px-4 py-2 -mb-px text-sm font-medium border-b-2 ${
-          path === "/blocks"
-            ? "tab-link-active border-blue-400 text-blue-400"
-            : "tab-link-inactive border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600"
-        }`}
-      >
-        Matured
-        {maturedCount > 0 && (
-          <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-900 text-blue-200 border border-blue-700">
-            {maturedCount}
-          </span>
-        )}
-      </Link>
-      <Link
-        href="/blocks/immature"
-        className={`tab-link px-4 py-2 -mb-px text-sm font-medium border-b-2 ${
-          path === "/blocks/immature"
-            ? "tab-link-active border-green-400 text-green-400"
-            : "tab-link-inactive border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600"
-        }`}
-      >
-        Immature
-        {immatureCount > 0 && (
-          <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-green-900 text-green-200 border border-green-700">
-            {immatureCount}
-          </span>
-        )}
-      </Link>
-      <Link
-        href="/blocks/pending"
-        className={`tab-link px-4 py-2 -mb-px text-sm font-medium border-b-2 ${
-          path === "/blocks/pending"
-            ? "tab-link-active border-cyan-400 text-cyan-400"
-            : "tab-link-inactive border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600"
-        }`}
-      >
-        Pending
-        {pendingCount > 0 && (
-          <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-cyan-900 text-cyan-200 border border-cyan-700">
-            {pendingCount}
-          </span>
-        )}
-      </Link>
+    <div className="flex">
+      {tabs.map((tab) => {
+        const Icon = tab.icon;
+        return (
+          <Link key={tab.href} href={tab.href} className={getTabClasses(tab)}>
+            <Icon className="w-4 h-4" />
+            <span>{tab.label}</span>
+            {tab.count > 0 && (
+              <span
+                className={`ml-1 px-2 py-0.5 text-xs font-semibold rounded-full ${getBadgeClasses(tab)}`}
+              >
+                {tab.count.toLocaleString()}
+              </span>
+            )}
+          </Link>
+        );
+      })}
     </div>
   );
-} 
+}
