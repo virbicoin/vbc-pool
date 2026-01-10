@@ -106,6 +106,167 @@ Prevents connection floods:
 - `timeout`: Disconnects idle connections
 - `maxConn`: Maximum concurrent connections
 
+## Faucet Security
+
+The faucet module has multiple layers of security to prevent abuse and protect the faucet wallet.
+
+### Security Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     User Request                                 │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│               Frontend Rate Limiting (Next.js)                   │
+│  • In-memory IP rate limiting                                    │
+│  • Address cooldown tracking                                     │
+│  • Input validation (Ethereum address format)                    │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                Backend Rate Limiting (Go)                        │
+│  • IP-based daily request limit                                  │
+│  • Per-address cooldown enforcement                              │
+│  • Request body size limit (1KB)                                 │
+│  • CORS origin validation                                        │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                Geth Node (localhost only)                        │
+│  • Unlocked faucet account                                       │
+│  • HTTP RPC on 127.0.0.1 only                                    │
+│  • No external network access                                    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Configuration
+
+```json
+{
+  "faucet": {
+    "enabled": true,
+    "amount": 10000000000000000,
+    "cooldownMinutes": 1440,
+    "maxDailyPerIP": 10,
+    "address": "0x...",
+    "daemon": "http://127.0.0.1:8329",
+    "timeout": "10s",
+    "gas": "0x5208",
+    "gasPrice": "0x3B9ACA00",
+    "autoGas": true,
+    "allowedOrigins": ["https://pool.digitalregion.jp"],
+    "trustProxy": true
+  }
+}
+```
+
+| Setting | Description | Security Impact |
+|---------|-------------|-----------------|
+| `amount` | Wei per request | Limit financial exposure |
+| `cooldownMinutes` | Per-address cooldown | Prevent address farming |
+| `maxDailyPerIP` | Daily requests per IP | Prevent IP-based abuse |
+| `allowedOrigins` | CORS whitelist | Prevent cross-site abuse |
+| `trustProxy` | Trust X-Forwarded-For | Only enable behind proxy |
+
+### Security Measures Implemented
+
+#### 1. Dual-Layer Rate Limiting
+
+Both frontend and backend enforce rate limits independently:
+
+- **Frontend**: In-memory tracking (protects against casual abuse)
+- **Backend**: Authoritative rate limiting (protects against bypasses)
+
+#### 2. IP Spoofing Protection
+
+```go
+// Only trust proxy headers if explicitly configured
+func (f *FaucetServer) getClientIP(r *http.Request, requestIP string) string {
+    if f.config.TrustProxy {
+        // Trust forwarded IP only when behind a trusted proxy
+        if requestIP != "" {
+            return requestIP
+        }
+        // ... check X-Forwarded-For, X-Real-IP
+    }
+    // Always fall back to direct connection IP
+    return r.RemoteAddr
+}
+```
+
+**Warning**: Only set `trustProxy: true` when the faucet is behind a trusted reverse proxy (nginx, AWS ALB, etc.).
+
+#### 3. Request Body Size Limit
+
+```go
+// Limit request body to 1KB to prevent DoS
+r.Body = http.MaxBytesReader(w, r.Body, 1024)
+```
+
+#### 4. CORS Origin Validation
+
+```go
+// Only allow requests from whitelisted origins
+func (f *FaucetServer) setCORSHeaders(w http.ResponseWriter, r *http.Request) {
+    origin := r.Header.Get("Origin")
+    if len(f.config.AllowedOrigins) > 0 {
+        for _, allowed := range f.config.AllowedOrigins {
+            if origin == allowed {
+                w.Header().Set("Access-Control-Allow-Origin", origin)
+                break
+            }
+        }
+    }
+}
+```
+
+#### 5. Memory Leak Prevention
+
+```go
+// Periodic cleanup of expired entries (runs every hour)
+func (f *FaucetServer) cleanupLoop() {
+    ticker := time.NewTicker(1 * time.Hour)
+    for range ticker.C {
+        f.cleanupExpiredEntries()
+    }
+}
+```
+
+#### 6. Geth Node Security
+
+The faucet wallet is secured by running geth with:
+
+```bash
+geth --http.addr '127.0.0.1' \
+     --allow-insecure-unlock \
+     --unlock '0xFaucetAddress'
+```
+
+- **localhost only**: RPC is not exposed to network
+- **Faucet must run on same server as geth**: Network requests to geth are not supported
+
+### Attack Vectors and Mitigations
+
+| Attack | Mitigation |
+|--------|------------|
+| IP spoofing | `trustProxy` flag controls header trust |
+| Address farming | Per-address cooldown (24 hours default) |
+| DoS via large payloads | 1KB request body limit |
+| Cross-site abuse | CORS origin whitelist |
+| Memory exhaustion | Automatic cleanup of expired entries |
+| Geth credential theft | localhost-only RPC, no network exposure |
+
+### Monitoring Recommendations
+
+1. **Log Analysis**: Monitor for repeated 429 responses from same IPs
+2. **Balance Alerts**: Alert when faucet balance drops below threshold
+3. **Rate Anomalies**: Track requests/hour for unusual patterns
+4. **Memory Usage**: Monitor Go process memory for leaks
+
 ## Frontend Security (Next.js)
 
 ### API Proxy Architecture
@@ -282,6 +443,7 @@ We aim to respond within 48 hours and will coordinate disclosure timing with you
 
 | Date | Scope | Result |
 |------|-------|--------|
+| January 11, 2026 | Faucet Security Audit | Security hardening implemented |
 | January 10, 2026 | Security Fixes Implementation | Critical/High issues fixed |
 | January 10, 2026 | Comprehensive Security Audit | 42 findings identified |
 | January 10, 2026 | Frontend npm dependencies | 0 vulnerabilities |

@@ -113,22 +113,30 @@ in order to customise the frontend.
 
 We take security seriously. See [docs/SECURITY.md](docs/SECURITY.md) for comprehensive security documentation.
 
-#### Latest Security Audit (January 10, 2026)
+#### Latest Security Audit (January 11, 2026)
 
 | Severity | Count | Fixed |
 |----------|-------|-------|
-| 🔴 Critical | 2 | 1 |
-| 🟠 High | 6 | 2 |
-| 🟡 Medium | 13 | 4 |
-| 🟢 Low | 11 | 1 |
+| 🔴 Critical | 2 | 2 |
+| 🟠 High | 6 | 4 |
+| 🟡 Medium | 13 | 6 |
+| 🟢 Low | 11 | 3 |
 | ℹ️ Info | 10 | - |
 
 **Key Findings & Status:**
 *   ✅ **Command Injection Risk**: IP validation added to banning system - *Fixed*
 *   ✅ **CORS Strictification**: Origin whitelist implemented - *Fixed*
 *   ✅ **Security Headers**: CSP, X-Frame-Options, HSTS added - *Fixed*
+*   ✅ **Faucet Security**: IP spoofing protection, request size limits - *Fixed*
 *   ⚠️ **No TLS by Default**: Deploy behind reverse proxy with TLS - *Documented*
 *   ✅ **Frontend npm audit**: 0 vulnerabilities found
+
+#### Documentation
+*   [docs/SECURITY.md](docs/SECURITY.md) - Comprehensive security guide
+*   [docs/FAUCET.md](docs/FAUCET.md) - Faucet setup and configuration
+*   [docs/PAYOUTS.md](docs/PAYOUTS.md) - Payout system documentation
+*   [docs/STRATUM.md](docs/STRATUM.md) - Stratum protocol details
+*   [docs/POLICIES.md](docs/POLICIES.md) - Policy configuration
 
 #### Dependency Security
 *   **Frontend (`www`)**: Audited January 10, 2026 - **0 vulnerabilities** found

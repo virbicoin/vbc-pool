@@ -17,16 +17,18 @@ import (
 )
 
 type FaucetConfig struct {
-	Enabled         bool   `json:"enabled"`
-	Amount          int64  `json:"amount"`          // Amount in Shannon (1e9 = 1 coin)
-	CooldownMinutes int64  `json:"cooldownMinutes"` // Cooldown per address in minutes
-	MaxDailyPerIP   int    `json:"maxDailyPerIP"`   // Max requests per IP per day
-	Address         string `json:"address"`         // Faucet wallet address
-	Daemon          string `json:"daemon"`          // RPC endpoint
-	Timeout         string `json:"timeout"`
-	Gas             string `json:"gas"`
-	GasPrice        string `json:"gasPrice"`
-	AutoGas         bool   `json:"autoGas"`
+	Enabled         bool     `json:"enabled"`
+	Amount          int64    `json:"amount"`          // Amount in wei (1e18 = 1 coin)
+	CooldownMinutes int64    `json:"cooldownMinutes"` // Cooldown per address in minutes
+	MaxDailyPerIP   int      `json:"maxDailyPerIP"`   // Max requests per IP per day
+	Address         string   `json:"address"`         // Faucet wallet address
+	Daemon          string   `json:"daemon"`          // RPC endpoint
+	Timeout         string   `json:"timeout"`
+	Gas             string   `json:"gas"`
+	GasPrice        string   `json:"gasPrice"`
+	AutoGas         bool     `json:"autoGas"`
+	AllowedOrigins  []string `json:"allowedOrigins"`  // CORS allowed origins (empty = allow all)
+	TrustProxy      bool     `json:"trustProxy"`      // Trust X-Forwarded-For header
 }
 
 type FaucetServer struct {
@@ -71,13 +73,52 @@ func NewFaucetServer(cfg *FaucetConfig, backend *storage.RedisClient) *FaucetSer
 	}
 	if cfg.Enabled {
 		f.rpc = rpc.NewRPCClient("Faucet", cfg.Daemon, cfg.Timeout)
+		// Start cleanup goroutine to prevent memory leaks
+		go f.cleanupLoop()
 	}
 	return f
 }
 
+// cleanupLoop periodically removes expired entries from rate limiting maps
+func (f *FaucetServer) cleanupLoop() {
+	ticker := time.NewTicker(1 * time.Hour)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		f.cleanupExpiredEntries()
+	}
+}
+
+// cleanupExpiredEntries removes old IP and address entries
+func (f *FaucetServer) cleanupExpiredEntries() {
+	now := time.Now().Unix()
+	dayStart := now - (now % 86400)
+
+	// Cleanup IP requests
+	f.ipRequestsMu.Lock()
+	for ip, info := range f.ipRequests {
+		if info.resetTime < dayStart {
+			delete(f.ipRequests, ip)
+		}
+	}
+	f.ipRequestsMu.Unlock()
+
+	// Cleanup address cooldowns
+	cooldownSeconds := f.config.CooldownMinutes * 60
+	f.addrCooldownMu.Lock()
+	for addr, lastRequest := range f.addrCooldowns {
+		if now-lastRequest > cooldownSeconds {
+			delete(f.addrCooldowns, addr)
+		}
+	}
+	f.addrCooldownMu.Unlock()
+
+	log.Printf("Faucet cleanup: IP entries=%d, Address entries=%d", len(f.ipRequests), len(f.addrCooldowns))
+}
+
 func (f *FaucetServer) GetStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	f.setCORSHeaders(w, r)
 	w.Header().Set("Cache-Control", "no-cache")
 	w.WriteHeader(http.StatusOK)
 
@@ -92,9 +133,27 @@ func (f *FaucetServer) GetStatus(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(reply)
 }
 
+// setCORSHeaders sets appropriate CORS headers based on configuration
+func (f *FaucetServer) setCORSHeaders(w http.ResponseWriter, r *http.Request) {
+	origin := r.Header.Get("Origin")
+	if len(f.config.AllowedOrigins) == 0 {
+		// No restriction configured, allow all (development mode)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+	} else {
+		// Check if origin is in allowed list
+		for _, allowed := range f.config.AllowedOrigins {
+			if origin == allowed {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Vary", "Origin")
+				break
+			}
+		}
+	}
+}
+
 func (f *FaucetServer) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	f.setCORSHeaders(w, r)
 	w.Header().Set("Cache-Control", "no-cache")
 
 	// Handle CORS preflight
@@ -117,6 +176,9 @@ func (f *FaucetServer) HandleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Limit request body size to prevent DoS (max 1KB)
+	r.Body = http.MaxBytesReader(w, r.Body, 1024)
+
 	// Parse request
 	var req FaucetRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -133,11 +195,8 @@ func (f *FaucetServer) HandleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get client IP
-	ip := req.IP
-	if ip == "" {
-		ip = getClientIP(r)
-	}
+	// Get client IP - only trust proxy headers if configured
+	ip := f.getClientIP(r, req.IP)
 
 	// Check IP rate limit
 	remaining, limited := f.checkIPRateLimit(ip)
@@ -278,21 +337,31 @@ func (f *FaucetServer) recordRequest(ip string, address string) {
 	f.addrCooldownMu.Unlock()
 }
 
-func getClientIP(r *http.Request) string {
-	// Check X-Forwarded-For header
-	forwarded := r.Header.Get("X-Forwarded-For")
-	if forwarded != "" {
-		parts := strings.Split(forwarded, ",")
-		return strings.TrimSpace(parts[0])
+// getClientIP extracts client IP with security considerations
+// Only trusts proxy headers (X-Forwarded-For, X-Real-IP) if TrustProxy is enabled
+// When TrustProxy is false, always uses direct connection IP
+func (f *FaucetServer) getClientIP(r *http.Request, requestIP string) string {
+	// If TrustProxy is enabled, trust the IP from the request body (from frontend proxy)
+	if f.config.TrustProxy {
+		if requestIP != "" {
+			return requestIP
+		}
+
+		// Check X-Forwarded-For header
+		forwarded := r.Header.Get("X-Forwarded-For")
+		if forwarded != "" {
+			parts := strings.Split(forwarded, ",")
+			return strings.TrimSpace(parts[0])
+		}
+
+		// Check X-Real-IP header
+		realIP := r.Header.Get("X-Real-IP")
+		if realIP != "" {
+			return realIP
+		}
 	}
 
-	// Check X-Real-IP header
-	realIP := r.Header.Get("X-Real-IP")
-	if realIP != "" {
-		return realIP
-	}
-
-	// Fall back to RemoteAddr
+	// Fall back to RemoteAddr (direct connection IP)
 	addr := r.RemoteAddr
 	if idx := strings.LastIndex(addr, ":"); idx != -1 {
 		return addr[:idx]
