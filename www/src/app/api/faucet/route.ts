@@ -119,8 +119,30 @@ export async function GET() {
       next: { revalidate: 60 }, // Cache for 1 minute
     });
 
+    // If backend returns 404, faucet endpoint doesn't exist yet
+    if (response.status === 404) {
+      return NextResponse.json({
+        enabled: false,
+        backendNotReady: true,
+        amount: poolConfig.faucet.amount,
+        symbol: poolConfig.coin.symbol,
+        cooldownHours: poolConfig.faucet.cooldownHours,
+      });
+    }
+
     if (response.ok) {
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        // Invalid JSON response, use frontend config
+        return NextResponse.json({
+          enabled: poolConfig.faucet.enabled,
+          amount: poolConfig.faucet.amount,
+          symbol: poolConfig.coin.symbol,
+          cooldownHours: poolConfig.faucet.cooldownHours,
+        });
+      }
       return NextResponse.json({
         enabled: data.enabled ?? poolConfig.faucet.enabled,
         amount: data.amount ? data.amount / 1e9 : poolConfig.faucet.amount, // Convert Shannon to coin
@@ -217,7 +239,23 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    const data = await response.json();
+    // Handle 404 - backend faucet not deployed yet
+    if (response.status === 404) {
+      return NextResponse.json(
+        { error: "Faucet service is not yet available. Please check back later." },
+        { status: 503 }
+      );
+    }
+
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid response from faucet service" },
+        { status: 502 }
+      );
+    }
 
     if (!response.ok) {
       // Backend returned an error

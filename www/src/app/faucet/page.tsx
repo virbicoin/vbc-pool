@@ -7,6 +7,7 @@ import { isValidEthereumAddress } from "@/lib/formatters";
 
 interface FaucetStatus {
   enabled: boolean;
+  backendNotReady?: boolean;
   amount?: number;
   symbol?: string;
   cooldownHours?: number;
@@ -121,6 +122,7 @@ export default function FaucetPage() {
   }
 
   if (!status.enabled) {
+    const isBackendNotReady = status.backendNotReady;
     return (
       <div>
         <div className="bg-gray-800 border-b border-gray-700">
@@ -142,12 +144,25 @@ export default function FaucetPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-lg mx-auto bg-gray-800 rounded-lg p-6 border border-gray-700">
             <div className="text-center">
-              <XCircleIcon className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-100 mb-2">Faucet Disabled</h2>
-              <p className="text-gray-400">
-                The faucet is currently not available. Please check back later or join our community
-                for updates.
-              </p>
+              {isBackendNotReady ? (
+                <>
+                  <ClockIcon className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                  <h2 className="text-xl font-semibold text-gray-100 mb-2">Coming Soon</h2>
+                  <p className="text-gray-400">
+                    The faucet service is being set up. Please check back later or join our community
+                    for updates on when it will be available.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <XCircleIcon className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                  <h2 className="text-xl font-semibold text-gray-100 mb-2">Faucet Disabled</h2>
+                  <p className="text-gray-400">
+                    The faucet is currently not available. Please check back later or join our community
+                    for updates.
+                  </p>
+                </>
+              )}
               {poolConfig.links.discord && (
                 <a
                   href={poolConfig.links.discord}
