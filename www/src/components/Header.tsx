@@ -8,8 +8,6 @@ import {
   QuestionMarkCircleIcon,
   InformationCircleIcon,
   CurrencyDollarIcon,
-  GlobeAltIcon,
-  MagnifyingGlassIcon,
   CalculatorIcon,
   CubeIcon,
   Bars3Icon,
@@ -19,8 +17,11 @@ import HeaderStats from "./HeaderStats";
 import { useState } from "react";
 import poolConfig from "@/lib/poolConfig";
 
-// Dynamic import for BlockNotification to avoid SSR issues
+// Dynamic imports for client-side components
 const BlockNotification = dynamic(() => import("@/components/BlockNotification"), {
+  ssr: false,
+});
+const FavoritesPanel = dynamic(() => import("@/components/FavoritesPanel"), {
   ssr: false,
 });
 
@@ -79,31 +80,9 @@ export default function Header() {
           <li>
             <HeaderStats />
           </li>
-          {poolConfig.links.explorer && (
-            <li>
-              <Link
-                href={poolConfig.links.explorer}
-                target="_blank"
-                className="nav-link text-gray-200 flex items-center gap-1"
-              >
-                <MagnifyingGlassIcon className="w-5 h-5" />
-                <span>Explorer</span>
-              </Link>
-            </li>
-          )}
-          {poolConfig.links.network && (
-            <li>
-              <a
-                href={poolConfig.links.network}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="nav-link text-gray-200 flex items-center gap-1"
-              >
-                <GlobeAltIcon className="w-5 h-5" />
-                <span>Network</span>
-              </a>
-            </li>
-          )}
+          <li>
+            <FavoritesPanel />
+          </li>
           <li>
             <BlockNotification />
           </li>
@@ -185,34 +164,6 @@ export default function Header() {
                 <span>About</span>
               </Link>
             </li>
-            {(poolConfig.links.explorer || poolConfig.links.network) && (
-              <li className="border-t border-gray-800 pt-2 mt-2">
-                {poolConfig.links.explorer && (
-                  <a
-                    href={poolConfig.links.explorer}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
-                  >
-                    <MagnifyingGlassIcon className="w-5 h-5" />
-                    <span>Block Explorer</span>
-                  </a>
-                )}
-              </li>
-            )}
-            {poolConfig.links.network && (
-              <li>
-                <a
-                  href={poolConfig.links.network}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
-                >
-                  <GlobeAltIcon className="w-5 h-5" />
-                  <span>Network Stats</span>
-                </a>
-              </li>
-            )}
           </ul>
         </div>
       )}

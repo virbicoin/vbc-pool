@@ -10,6 +10,8 @@ import AccountTabs from "@/components/AccountTabs";
 import Countdown from "@/components/Countdown";
 import TimeAgo from "@/components/TimeAgo";
 import WalletQRCode from "@/components/WalletQRCode";
+import { FavoriteButton } from "@/components/FavoritesPanel";
+import ShareEstimator from "@/components/ShareEstimator";
 import { AccountWorker } from "@/lib/api";
 import {
   UserIcon,
@@ -220,6 +222,7 @@ export default function AccountPage() {
                   </a>
                 )}
                 <WalletQRCode address={address} />
+                <FavoriteButton address={address} />
               </div>
             </div>
           </div>
@@ -332,6 +335,15 @@ export default function AccountPage() {
             />
           </div>
         </div>
+
+        {/* Share Estimator */}
+        {accountRoundShares > 0 && (
+          <ShareEstimator
+            accountRoundShares={accountRoundShares}
+            poolRoundShares={poolRoundShares}
+            className="mb-6"
+          />
+        )}
 
         {/* Info Banner */}
         <div className="mb-6 p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg">
