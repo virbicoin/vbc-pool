@@ -32,6 +32,11 @@ interface PoolConfigType {
     minPayout: number;
     fee: number;
     payoutInterval: string;
+    address: string;
+  };
+  company: {
+    name: string;
+    startYear: number;
   };
   block: {
     reward: number;
@@ -48,6 +53,8 @@ interface PoolConfigType {
     twitter: string;
     github: string;
     discord: string;
+    telegram: string;
+    bitcointalk: string;
   };
   stratum: {
     host: string;
@@ -83,6 +90,11 @@ export const poolConfig: PoolConfigType = {
     minPayout: configJson.pool?.minPayout || 0.1,
     fee: configJson.pool?.fee || 1,
     payoutInterval: configJson.pool?.payoutInterval || "2 Hours",
+    address: configJson.pool?.address || "",
+  },
+  company: {
+    name: configJson.company?.name || "",
+    startYear: configJson.company?.startYear || new Date().getFullYear(),
   },
   block: {
     reward: configJson.block?.reward || 2,
@@ -99,6 +111,8 @@ export const poolConfig: PoolConfigType = {
     twitter: configJson.links?.twitter || "",
     github: configJson.links?.github || "",
     discord: configJson.links?.discord || "",
+    telegram: configJson.links?.telegram || "",
+    bitcointalk: configJson.links?.bitcointalk || "",
   },
   stratum: {
     host: configJson.stratum?.host || "stratum.example.com",

@@ -48,8 +48,30 @@ export default function CalculatorPage() {
     }
   }, [hashrate, unit]);
 
-  // Get network stats
-  const networkHashrate = statsData?.stats?.networkHashrate || statsData?.networkHashrate || 0;
+  // Get network stats - calculate from nodes difficulty
+  const networkHashrate = useMemo(() => {
+    // Try direct networkHashrate first
+    if (statsData?.stats?.networkHashrate) return statsData.stats.networkHashrate;
+    if (statsData?.networkHashrate) return statsData.networkHashrate;
+
+    // Calculate from nodes difficulty
+    if (statsData?.nodes && statsData.nodes.length > 0) {
+      // Get max difficulty from nodes
+      let maxDifficulty = 0;
+      for (const node of statsData.nodes) {
+        const diff = parseFloat(node.difficulty);
+        if (!isNaN(diff) && diff > maxDifficulty) {
+          maxDifficulty = diff;
+        }
+      }
+      // Network Hashrate = Difficulty / Block Time
+      if (maxDifficulty > 0) {
+        return maxDifficulty / poolConfig.block.time;
+      }
+    }
+    return 0;
+  }, [statsData]);
+
   const poolHashrate = statsData?.hashrate || 0;
 
   // Calculate mining rewards

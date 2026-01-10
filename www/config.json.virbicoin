@@ -10,7 +10,12 @@
     "description": "Official VirBiCoin Mining Pool - High performance, low fees, and reliable payouts",
     "minPayout": 0.1,
     "fee": 1,
-    "payoutInterval": "2 Hours"
+    "payoutInterval": "2 Hours",
+    "address": ""
+  },
+  "company": {
+    "name": "Digitalregion, Inc.",
+    "startYear": 2024
   },
   "block": {
     "reward": 8,
@@ -26,7 +31,9 @@
     "network": "https://stats.digitalregion.jp",
     "twitter": "https://x.com/VirBiCoin",
     "github": "https://github.com/virbicoin/open-virbicoin-pool",
-    "discord": "https://discord.digitalregion.jp"
+    "discord": "https://discord.digitalregion.jp",
+    "telegram": "",
+    "bitcointalk": "https://bitcointalk.org/index.php?topic=5546988"
   },
   "stratum": {
     "host": "stratum.digitalregion.jp",

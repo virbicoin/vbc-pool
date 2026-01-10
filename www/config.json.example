@@ -10,7 +10,12 @@
     "description": "High performance mining pool",
     "minPayout": 0.1,
     "fee": 1,
-    "payoutInterval": "2 Hours"
+    "payoutInterval": "2 Hours",
+    "address": ""
+  },
+  "company": {
+    "name": "Your Company",
+    "startYear": 2024
   },
   "block": {
     "reward": 2,
@@ -26,7 +31,9 @@
     "network": "",
     "twitter": "",
     "github": "",
-    "discord": ""
+    "discord": "",
+    "telegram": "",
+    "bitcointalk": ""
   },
   "stratum": {
     "host": "stratum.example.com",
