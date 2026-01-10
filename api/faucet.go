@@ -27,8 +27,8 @@ type FaucetConfig struct {
 	Gas             string   `json:"gas"`
 	GasPrice        string   `json:"gasPrice"`
 	AutoGas         bool     `json:"autoGas"`
-	AllowedOrigins  []string `json:"allowedOrigins"`  // CORS allowed origins (empty = allow all)
-	TrustProxy      bool     `json:"trustProxy"`      // Trust X-Forwarded-For header
+	AllowedOrigins  []string `json:"allowedOrigins"` // CORS allowed origins (empty = allow all)
+	TrustProxy      bool     `json:"trustProxy"`     // Trust X-Forwarded-For header
 }
 
 type FaucetServer struct {
