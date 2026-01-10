@@ -1,3 +1,4 @@
+//go:build go1.9
 // +build go1.9
 
 package main
@@ -28,7 +29,12 @@ func startProxy() {
 }
 
 func startApi() {
-	s := api.NewApiServer(&cfg.Api, backend)
+	var s *api.ApiServer
+	if cfg.Faucet.Enabled {
+		s = api.NewApiServerWithFaucet(&cfg.Api, &cfg.Faucet, backend)
+	} else {
+		s = api.NewApiServer(&cfg.Api, backend)
+	}
 	s.Start()
 }
 

@@ -115,19 +115,20 @@ We take security seriously. See [docs/SECURITY.md](docs/SECURITY.md) for compreh
 
 #### Latest Security Audit (January 10, 2026)
 
-| Severity | Count |
-|----------|-------|
-| 🔴 Critical | 2 |
-| 🟠 High | 6 |
-| 🟡 Medium | 13 |
-| 🟢 Low | 11 |
-| ℹ️ Info | 10 |
+| Severity | Count | Fixed |
+|----------|-------|-------|
+| 🔴 Critical | 2 | 1 |
+| 🟠 High | 6 | 2 |
+| 🟡 Medium | 13 | 4 |
+| 🟢 Low | 11 | 1 |
+| ℹ️ Info | 10 | - |
 
 **Key Findings & Status:**
-*   ⚠️ **Command Injection Risk**: IP validation in banning system - *Documented, requires careful deployment*
+*   ✅ **Command Injection Risk**: IP validation added to banning system - *Fixed*
+*   ✅ **CORS Strictification**: Origin whitelist implemented - *Fixed*
+*   ✅ **Security Headers**: CSP, X-Frame-Options, HSTS added - *Fixed*
 *   ⚠️ **No TLS by Default**: Deploy behind reverse proxy with TLS - *Documented*
 *   ✅ **Frontend npm audit**: 0 vulnerabilities found
-*   ✅ **API Proxy Security**: Whitelist validation, path traversal prevention implemented
 
 #### Dependency Security
 *   **Frontend (`www`)**: Audited January 10, 2026 - **0 vulnerabilities** found

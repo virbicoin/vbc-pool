@@ -140,8 +140,9 @@ npm start
 ## Notes for AI Assistants
 
 1. Always run `npm run check` after making changes
-2. Use `pools.json` for pool server configuration
+2. Use `config.json` for all pool configuration (coin, servers, API, branding, links)
 3. Follow existing component patterns
 4. Use TypeScript interfaces for props
 5. Keep components in `src/components/`
-6. Use Japanese for user-facing text where appropriate
+6. Maintain security practices (input validation, CORS, CSP)
+7. Footer link order: GitHub | Pool Address | X Bitcointalk Discord Telegram | Explorer Network

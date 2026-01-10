@@ -91,6 +91,12 @@ interface PoolConfigType {
   api: {
     baseUrl: string;
   };
+  faucet: {
+    enabled: boolean;
+    amount: number;
+    cooldownHours: number;
+    maxDailyRequests: number;
+  };
   servers: PoolServer[];
   storage: {
     favorites: string;
@@ -157,6 +163,12 @@ export const poolConfig: PoolConfigType = {
   },
   api: {
     baseUrl: configJson.api?.baseUrl || "",
+  },
+  faucet: {
+    enabled: configJson.faucet?.enabled ?? false,
+    amount: configJson.faucet?.amount || 0.1,
+    cooldownHours: configJson.faucet?.cooldownHours || 24,
+    maxDailyRequests: configJson.faucet?.maxDailyRequests || 100,
   },
   servers: configJson.servers || [],
   storage: {

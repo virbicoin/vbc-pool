@@ -38,6 +38,7 @@ type ApiServer struct {
 	miners              map[string]*Entry
 	minersMu            sync.RWMutex
 	statsIntv           time.Duration
+	faucet              *FaucetServer
 }
 
 type Entry struct {
@@ -55,6 +56,12 @@ func NewApiServer(cfg *ApiConfig, backend *storage.RedisClient) *ApiServer {
 		hashrateLargeWindow: hashrateLargeWindow,
 		miners:              make(map[string]*Entry),
 	}
+}
+
+func NewApiServerWithFaucet(cfg *ApiConfig, faucetCfg *FaucetConfig, backend *storage.RedisClient) *ApiServer {
+	s := NewApiServer(cfg, backend)
+	s.faucet = NewFaucetServer(faucetCfg, backend)
+	return s
 }
 
 func (s *ApiServer) Start() {
@@ -108,6 +115,8 @@ func (s *ApiServer) listen() {
 	r.HandleFunc("/api/blocks", s.BlocksIndex)
 	r.HandleFunc("/api/payments", s.PaymentsIndex)
 	r.HandleFunc("/api/accounts/{login:0x[0-9a-fA-F]{40}}", s.AccountIndex)
+	r.HandleFunc("/api/faucet", s.FaucetStatus).Methods("GET")
+	r.HandleFunc("/api/faucet", s.FaucetRequest).Methods("POST", "OPTIONS")
 	r.NotFoundHandler = http.HandlerFunc(notFound)
 	err := http.ListenAndServe(s.config.Listen, r)
 	if err != nil {
@@ -316,4 +325,27 @@ func (s *ApiServer) getStats() map[string]interface{} {
 		return stats.(map[string]interface{})
 	}
 	return nil
+}
+
+// Faucet handlers
+func (s *ApiServer) FaucetStatus(w http.ResponseWriter, r *http.Request) {
+	if s.faucet == nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]interface{}{"enabled": false})
+		return
+	}
+	s.faucet.GetStatus(w, r)
+}
+
+func (s *ApiServer) FaucetRequest(w http.ResponseWriter, r *http.Request) {
+	if s.faucet == nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.WriteHeader(http.StatusServiceUnavailable)
+		json.NewEncoder(w).Encode(map[string]interface{}{"error": "Faucet is not configured"})
+		return
+	}
+	s.faucet.HandleRequest(w, r)
 }

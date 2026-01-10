@@ -12,6 +12,7 @@ import {
   Bars3Icon,
   XMarkIcon,
   UsersIcon,
+  BeakerIcon,
 } from "@heroicons/react/24/outline";
 import HeaderStats from "./HeaderStats";
 import { useState } from "react";
@@ -56,6 +57,14 @@ export default function Header() {
               <span>Calculator</span>
             </Link>
           </li>
+          {poolConfig.faucet.enabled && (
+            <li>
+              <Link href="/faucet" className="nav-link text-gray-200 flex items-center gap-1">
+                <BeakerIcon className="w-5 h-5" />
+                <span>Faucet</span>
+              </Link>
+            </li>
+          )}
           <li>
             <Link href="/help" className="nav-link text-gray-200 flex items-center gap-1">
               <QuestionMarkCircleIcon className="w-5 h-5" />
@@ -132,6 +141,18 @@ export default function Header() {
                 <span>Calculator</span>
               </Link>
             </li>
+            {poolConfig.faucet.enabled && (
+              <li>
+                <Link
+                  href="/faucet"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
+                >
+                  <BeakerIcon className="w-5 h-5" />
+                  <span>Faucet</span>
+                </Link>
+              </li>
+            )}
             <li>
               <Link
                 href="/help"

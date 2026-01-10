@@ -715,7 +715,7 @@ srv := &http.Server{
 
 ## Recommended Security Headers
 
-Add to `www/next.config.ts`:
+These headers are **already implemented** in `www/next.config.ts`. Review and customize for your deployment:
 
 ```typescript
 async headers() {
@@ -750,30 +750,32 @@ async headers() {
 
 ## Priority Remediation Order
 
-### Immediate (Critical)
+### ✅ Completed (Critical/High)
 
-1. Fix command injection in `doBan()` - validate IP format strictly
-2. Move sensitive config to environment variables
+1. ~~Fix command injection in `doBan()` - validate IP format strictly~~ ✅
+2. ~~Configure strict CORS origins~~ ✅
+3. ~~Implement CSP headers~~ ✅
+4. ~~Strengthen address validation~~ ✅
+5. ~~Sanitize error messages in production~~ ✅
 
-### Short-term (High)
+### Recommended (High - Infrastructure)
 
-3. Implement TLS for all communications
-4. Configure strict CORS origins
-5. Add API authentication for admin endpoints
-6. Protect RPC endpoints from public access
+6. Move sensitive config to environment variables
+7. Implement TLS for all communications (reverse proxy)
+8. Add API authentication for admin endpoints
+9. Protect RPC endpoints from public access
 
-### Medium-term (Medium)
+### Recommended (Medium)
 
-7. Enable rate limiting by default
-8. Add HTTP server timeouts
-9. Implement CSP headers
-10. Strengthen address validation
+10. Enable rate limiting by default
+11. Add HTTP server timeouts
+12. Implement Redis-based rate limiting for production
 
 ### Long-term (Low/Info)
 
-11. Update dependencies (`go-redis/v9`)
-12. Audit and standardize error handling
-13. Implement comprehensive logging with masking
+13. Update dependencies (`go-redis/v9`)
+14. Audit and standardize error handling
+15. Implement comprehensive logging with masking
 
 ---
 

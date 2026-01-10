@@ -2,7 +2,6 @@
 	"threads": 1,
 	"coin": "vbc",
 	"name": "main",
-
 	"proxy": {
 		"enabled": true,
 		"listen": "0.0.0.0:8888",
@@ -13,22 +12,18 @@
 		"stateUpdateInterval": "3s",
 		"difficulty": 2000000000,
 		"hashrateExpiration": "3h",
-
 		"healthCheck": true,
 		"maxFails": 100,
-
 		"stratum": {
 			"enabled": true,
 			"listen": "0.0.0.0:8008",
 			"timeout": "120s",
 			"maxConn": 8192
 		},
-
 		"policy": {
 			"workers": 8,
 			"resetInterval": "60m",
 			"refreshInterval": "1m",
-
 			"banning": {
 				"enabled": false,
 				"ipset": "blacklist",
@@ -45,7 +40,6 @@
 			}
 		}
 	},
-
 	"api": {
 		"enabled": false,
 		"purgeOnly": false,
@@ -54,11 +48,14 @@
 		"statsCollectInterval": "5s",
 		"hashrateWindow": "30m",
 		"hashrateLargeWindow": "3h",
-		"luckWindow": [64, 128, 256],
+		"luckWindow": [
+			64,
+			128,
+			256
+		],
 		"payments": 30,
 		"blocks": 50
 	},
-
 	"upstreamCheckInterval": "5s",
 	"upstream": [
 		{
@@ -72,14 +69,12 @@
 			"timeout": "10s"
 		}
 	],
-
 	"redis": {
 		"endpoint": "127.0.0.1:6379",
 		"poolSize": 10,
 		"database": 0,
 		"password": ""
 	},
-
 	"unlocker": {
 		"enabled": false,
 		"poolFee": 1.0,
@@ -92,7 +87,6 @@
 		"daemon": "http://127.0.0.1:8329",
 		"timeout": "10s"
 	},
-
 	"payouts": {
 		"enabled": false,
 		"requirePeers": 2,
@@ -106,7 +100,18 @@
 		"threshold": 500000000,
 		"bgsave": false
 	},
-
+	"faucet": {
+		"enabled": false,
+		"amount": 10000000000000000,
+		"cooldownMinutes": 1440,
+		"maxDailyPerIP": 10,
+		"address": "0x0",
+		"daemon": "http://127.0.0.1:8329",
+		"timeout": "10s",
+		"gas": "21000",
+		"gasPrice": "50000000000",
+		"autoGas": true
+	},
 	"newrelicEnabled": false,
 	"newrelicName": "MyEtherProxy",
 	"newrelicKey": "SECRET_KEY",

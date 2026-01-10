@@ -99,6 +99,9 @@ A comprehensive security audit was conducted covering both backend (Go) and fron
 
 #### Frontend - January 10, 2026
 
+- **Footer**: Added Explorer and Network Stats links with icons
+- **Footer**: Removed Bitcoin icon orange color, using default gray
+- **Footer**: Reorganized link order: GitHub | Pool Address | X Bitcointalk Discord Telegram | Explorer Network
 - **Header Navigation**: Reorganized navigation order
   - Desktop/Mobile: Blocks → Miners → Payments → Calculator → Help → About
   - Removed "Home" link (logo links to home)

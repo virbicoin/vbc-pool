@@ -124,6 +124,7 @@ This application implements multiple layers of security. For comprehensive secur
 
 | Category           | Issue                   | Status    | Details                             |
 | ------------------ | ----------------------- | --------- | ----------------------------------- |
+| Command Injection  | IP validation in doBan  | ✅ Fixed  | `net.ParseIP()` validation added    |
 | CORS               | Overly permissive (`*`) | ✅ Fixed  | Origin whitelist implemented        |
 | CSP                | Not configured          | ✅ Fixed  | Comprehensive headers added         |
 | Address Validation | Basic validation        | ✅ Fixed  | Strict regex + sanitization         |
@@ -214,12 +215,12 @@ The following data is stored in localStorage:
 
 ### Production Checklist
 
-- [ ] Configure specific CORS origins (not `*`)
-- [ ] Add Content Security Policy headers
-- [ ] Implement Redis-based rate limiting
-- [ ] Review `config.json` - ensure no secrets
+- [x] Configure specific CORS origins (not `*`)
+- [x] Add Content Security Policy headers
+- [ ] Implement Redis-based rate limiting (optional for scale)
+- [x] Review `config.json` - ensure no secrets
 - [ ] Enable HTTPS via reverse proxy
-- [ ] Set `Strict-Transport-Security` header
+- [x] Set `Strict-Transport-Security` header
 
 ## License
 
