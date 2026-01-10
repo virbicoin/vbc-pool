@@ -18,6 +18,7 @@ import { isValidEthereumAddress } from "@/lib/formatters";
 interface FaucetStats {
   totalRequests: number;
   totalSent: number;
+  totalSentFormatted?: string;
   uniqueAddresses: number;
 }
 
@@ -28,8 +29,10 @@ interface FaucetStatus {
   amountFormatted?: string;
   symbol?: string;
   cooldownHours?: number;
+  cooldownMinutes?: number;
   maxDailyPerIP?: number;
-  balance?: number;
+  balance?: string;
+  balanceFormatted?: string;
   stats?: FaucetStats;
 }
 
@@ -239,14 +242,6 @@ export default function FaucetPage() {
     return coins.toFixed(6);
   };
 
-  const formatBalance = (balance?: number): string => {
-    if (!balance) return "0";
-    const coins = balance / 1e18;
-    if (coins >= 1000) return `${(coins / 1000).toFixed(2)}K`;
-    if (coins >= 1) return coins.toFixed(2);
-    return coins.toFixed(4);
-  };
-
   const displayAmount = formatAmount(status?.amount, status?.amountFormatted);
   const symbol = status?.symbol || poolConfig.coin.symbol;
 
@@ -365,7 +360,7 @@ export default function FaucetPage() {
                   Balance
                 </div>
                 <div className="text-xl font-bold text-blue-400">
-                  {formatBalance(status.balance)} {symbol}
+                  {status.balanceFormatted || "N/A"} {status.balanceFormatted ? symbol : ""}
                 </div>
               </div>
               <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
@@ -374,7 +369,7 @@ export default function FaucetPage() {
                   Total Sent
                 </div>
                 <div className="text-xl font-bold text-purple-400">
-                  {formatBalance(status.stats.totalSent)} {symbol}
+                  {status.stats?.totalSentFormatted || "0"} {symbol}
                 </div>
               </div>
               <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
@@ -401,7 +396,15 @@ export default function FaucetPage() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">Cooldown</span>
-                <span className="text-gray-100">{status.cooldownHours} hours</span>
+                <span className="text-gray-100">
+                  {status.cooldownMinutes 
+                    ? status.cooldownMinutes >= 60 
+                      ? `${Math.floor(status.cooldownMinutes / 60)} hour${Math.floor(status.cooldownMinutes / 60) !== 1 ? "s" : ""}${status.cooldownMinutes % 60 > 0 ? ` ${status.cooldownMinutes % 60} min` : ""}`
+                      : `${status.cooldownMinutes} minutes`
+                    : status.cooldownHours 
+                      ? `${status.cooldownHours} hours`
+                      : "N/A"}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">Daily limit per IP</span>
@@ -593,7 +596,16 @@ export default function FaucetPage() {
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-600 text-white text-sm font-bold flex-shrink-0">
                   5
                 </span>
-                <span>You can request again after {status.cooldownHours} hours</span>
+                <span>
+                  You can request again after{" "}
+                  {status.cooldownMinutes 
+                    ? status.cooldownMinutes >= 60 
+                      ? `${Math.floor(status.cooldownMinutes / 60)} hour${Math.floor(status.cooldownMinutes / 60) !== 1 ? "s" : ""}`
+                      : `${status.cooldownMinutes} minutes`
+                    : status.cooldownHours 
+                      ? `${status.cooldownHours} hours`
+                      : "the cooldown period"}
+                </span>
               </li>
             </ol>
 

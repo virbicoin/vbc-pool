@@ -140,12 +140,18 @@ func (f *FaucetServer) GetStatus(w http.ResponseWriter, r *http.Request) {
 		reply["symbol"] = f.config.Symbol
 		reply["maxDailyPerIP"] = f.config.MaxDailyPerIP
 
+		// Format amount for display (convert from wei to coins)
+		amountBig := big.NewInt(f.config.Amount)
+		reply["amountFormatted"] = formatWeiToCoins(amountBig)
+
 		// Add statistics
 		f.statsMu.RLock()
+		totalSentBig := big.NewInt(f.totalSent)
 		reply["stats"] = map[string]interface{}{
-			"totalRequests":   f.totalRequests,
-			"totalSent":       f.totalSent,
-			"uniqueAddresses": len(f.uniqueAddresses),
+			"totalRequests":     f.totalRequests,
+			"totalSent":         f.totalSent,
+			"totalSentFormatted": formatWeiToCoins(totalSentBig),
+			"uniqueAddresses":   len(f.uniqueAddresses),
 		}
 		f.statsMu.RUnlock()
 
@@ -153,12 +159,35 @@ func (f *FaucetServer) GetStatus(w http.ResponseWriter, r *http.Request) {
 		if f.rpc != nil {
 			balance, err := f.rpc.GetBalance(f.config.Address)
 			if err == nil {
-				reply["balance"] = balance.Int64()
+				reply["balance"] = balance.String() // Use string to avoid int64 overflow
+				reply["balanceFormatted"] = formatWeiToCoins(balance)
 			}
 		}
 	}
 
 	json.NewEncoder(w).Encode(reply)
+}
+
+// formatWeiToCoins converts wei (big.Int) to human-readable coin format
+func formatWeiToCoins(wei *big.Int) string {
+	if wei == nil {
+		return "0"
+	}
+	// 1 coin = 1e18 wei
+	ether := new(big.Float).SetInt(wei)
+	divisor := new(big.Float).SetInt(big.NewInt(1e18))
+	result := new(big.Float).Quo(ether, divisor)
+	
+	// Format with appropriate precision
+	f64, _ := result.Float64()
+	if f64 >= 1000 {
+		return fmt.Sprintf("%.2f", f64)
+	} else if f64 >= 1 {
+		return fmt.Sprintf("%.4f", f64)
+	} else if f64 >= 0.0001 {
+		return fmt.Sprintf("%.6f", f64)
+	}
+	return fmt.Sprintf("%.8f", f64)
 }
 
 // setCORSHeaders sets appropriate CORS headers based on configuration
