@@ -57,6 +57,7 @@ type FaucetResponse struct {
 	Error             string `json:"error,omitempty"`
 	TxHash            string `json:"txHash,omitempty"`
 	Amount            int64  `json:"amount,omitempty"`
+	AmountFormatted   string `json:"amountFormatted,omitempty"`
 	RemainingRequests int    `json:"remainingRequests,omitempty"`
 	CooldownSeconds   int64  `json:"cooldownSeconds,omitempty"`
 }
@@ -172,14 +173,17 @@ func (f *FaucetServer) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	// Record the request
 	f.recordRequest(ip, address)
 
-	log.Printf("Faucet: sent %d Shannon to %s, tx: %s", f.config.Amount, address, txHash)
+	// Convert wei to coin units for display (1 coin = 1e18 wei)
+	amountInCoins := float64(f.config.Amount) / 1e18
+	log.Printf("Faucet: sent %.6f coins to %s, tx: %s", amountInCoins, address, txHash)
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(FaucetResponse{
 		Success:           true,
-		Message:           fmt.Sprintf("Successfully sent %d Shannon to %s", f.config.Amount, address),
+		Message:           fmt.Sprintf("Successfully sent %.6f coins to %s", amountInCoins, address),
 		TxHash:            txHash,
 		Amount:            f.config.Amount,
+		AmountFormatted:   fmt.Sprintf("%.6f", amountInCoins),
 		RemainingRequests: remaining - 1,
 	})
 }

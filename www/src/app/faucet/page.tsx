@@ -9,6 +9,7 @@ interface FaucetStatus {
   enabled: boolean;
   backendNotReady?: boolean;
   amount?: number;
+  amountFormatted?: string;
   symbol?: string;
   cooldownHours?: number;
 }
@@ -19,6 +20,7 @@ interface FaucetResponse {
   message?: string;
   txHash?: string;
   amount?: number;
+  amountFormatted?: string;
   symbol?: string;
   remainingRequests?: number;
   nextRequestTime?: number;
@@ -111,6 +113,20 @@ export default function FaucetPage() {
     return `${minutes}m`;
   };
 
+  // Format amount to display nicely (handles both raw and formatted amounts)
+  const formatAmount = (amount?: number, formatted?: string): string => {
+    if (formatted) return formatted;
+    if (!amount) return "0";
+    // Convert Shannon to VBC (1 VBC = 1e18 Shannon)
+    const vbc = amount / 1e18;
+    if (vbc >= 1) return vbc.toFixed(2);
+    if (vbc >= 0.001) return vbc.toFixed(4);
+    return vbc.toFixed(6);
+  };
+
+  // Get display amount for the faucet
+  const displayAmount = formatAmount(status?.amount, status?.amountFormatted);
+
   if (!status) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -149,8 +165,8 @@ export default function FaucetPage() {
                   <ClockIcon className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
                   <h2 className="text-xl font-semibold text-gray-100 mb-2">Coming Soon</h2>
                   <p className="text-gray-400">
-                    The faucet service is being set up. Please check back later or join our community
-                    for updates on when it will be available.
+                    The faucet service is being set up. Please check back later or join our
+                    community for updates on when it will be available.
                   </p>
                 </>
               ) : (
@@ -158,8 +174,8 @@ export default function FaucetPage() {
                   <XCircleIcon className="w-16 h-16 text-gray-500 mx-auto mb-4" />
                   <h2 className="text-xl font-semibold text-gray-100 mb-2">Faucet Disabled</h2>
                   <p className="text-gray-400">
-                    The faucet is currently not available. Please check back later or join our community
-                    for updates.
+                    The faucet is currently not available. Please check back later or join our
+                    community for updates.
                   </p>
                 </>
               )}
@@ -206,8 +222,8 @@ export default function FaucetPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">Amount per request</span>
-                <span className="text-green-400 font-mono">
-                  {status.amount} {status.symbol}
+                <span className="text-green-400 font-mono font-semibold">
+                  {displayAmount} {status.symbol}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -259,7 +275,7 @@ export default function FaucetPage() {
                 ) : (
                   <>
                     <BeakerIcon className="w-5 h-5" />
-                    Request {status.amount} {status.symbol}
+                    Request {displayAmount} {status.symbol}
                   </>
                 )}
               </button>

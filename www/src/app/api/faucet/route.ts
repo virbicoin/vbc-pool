@@ -112,7 +112,7 @@ export async function GET() {
 
   // Determine backend URL (use faucet-specific URL if configured, otherwise fall back to api.baseUrl)
   const faucetBackendUrl = poolConfig.faucet.backendUrl || poolConfig.api.baseUrl;
-  
+
   // Try to get status from backend
   try {
     const backendUrl = `${faucetBackendUrl}/api/faucet`;
@@ -142,13 +142,17 @@ export async function GET() {
         return NextResponse.json({
           enabled: poolConfig.faucet.enabled,
           amount: poolConfig.faucet.amount,
+          amountFormatted: poolConfig.faucet.amount.toString(),
           symbol: poolConfig.coin.symbol,
           cooldownHours: poolConfig.faucet.cooldownHours,
         });
       }
+      // Calculate formatted amount from backend response
+      const amountInCoins = data.amount ? data.amount / 1e18 : poolConfig.faucet.amount;
       return NextResponse.json({
         enabled: data.enabled ?? poolConfig.faucet.enabled,
-        amount: data.amount ? data.amount / 1e9 : poolConfig.faucet.amount, // Convert Shannon to coin
+        amount: data.amount || poolConfig.faucet.amount,
+        amountFormatted: data.amountFormatted || amountInCoins.toFixed(4),
         symbol: poolConfig.coin.symbol,
         cooldownHours: data.cooldownMinutes
           ? data.cooldownMinutes / 60
@@ -256,10 +260,7 @@ export async function POST(request: NextRequest) {
     try {
       data = await response.json();
     } catch {
-      return NextResponse.json(
-        { error: "Invalid response from faucet service" },
-        { status: 502 }
-      );
+      return NextResponse.json({ error: "Invalid response from faucet service" }, { status: 502 });
     }
 
     if (!response.ok) {
@@ -277,13 +278,16 @@ export async function POST(request: NextRequest) {
     // Success - record in frontend cache too
     recordRequest(clientIP, address);
 
+    // Use backend's formatted message if available
+    const amountInCoins = data.amount ? data.amount / 1e18 : poolConfig.faucet.amount;
     return NextResponse.json({
       success: true,
       message:
         data.message ||
-        `Successfully sent ${poolConfig.faucet.amount} ${poolConfig.coin.symbol} to ${address}`,
+        `Successfully sent ${amountInCoins.toFixed(4)} ${poolConfig.coin.symbol} to ${address}`,
       txHash: data.txHash,
-      amount: data.amount ? data.amount / 1e9 : poolConfig.faucet.amount, // Convert Shannon to coin
+      amount: data.amount || poolConfig.faucet.amount,
+      amountFormatted: data.amountFormatted || amountInCoins.toFixed(4),
       symbol: poolConfig.coin.symbol,
       remainingRequests: data.remainingRequests ?? ipCheck.remainingRequests - 1,
       nextRequestTime: Date.now() + poolConfig.faucet.cooldownHours * 60 * 60 * 1000,
