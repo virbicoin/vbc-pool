@@ -29,6 +29,7 @@ type FaucetConfig struct {
 	AutoGas         bool     `json:"autoGas"`
 	AllowedOrigins  []string `json:"allowedOrigins"` // CORS allowed origins (empty = allow all)
 	TrustProxy      bool     `json:"trustProxy"`     // Trust X-Forwarded-For header
+	Symbol          string   `json:"symbol"`         // Coin symbol (e.g., "VBC")
 }
 
 type FaucetServer struct {
@@ -41,6 +42,12 @@ type FaucetServer struct {
 	ipRequestsMu   sync.RWMutex
 	addrCooldowns  map[string]int64
 	addrCooldownMu sync.RWMutex
+
+	// Statistics
+	totalRequests   int64
+	totalSent       int64 // in wei
+	uniqueAddresses map[string]bool
+	statsMu         sync.RWMutex
 }
 
 type ipRequestInfo struct {
@@ -60,16 +67,18 @@ type FaucetResponse struct {
 	TxHash            string `json:"txHash,omitempty"`
 	Amount            int64  `json:"amount,omitempty"`
 	AmountFormatted   string `json:"amountFormatted,omitempty"`
+	Symbol            string `json:"symbol,omitempty"`
 	RemainingRequests int    `json:"remainingRequests,omitempty"`
 	CooldownSeconds   int64  `json:"cooldownSeconds,omitempty"`
 }
 
 func NewFaucetServer(cfg *FaucetConfig, backend *storage.RedisClient) *FaucetServer {
 	f := &FaucetServer{
-		config:        cfg,
-		backend:       backend,
-		ipRequests:    make(map[string]*ipRequestInfo),
-		addrCooldowns: make(map[string]int64),
+		config:          cfg,
+		backend:         backend,
+		ipRequests:      make(map[string]*ipRequestInfo),
+		addrCooldowns:   make(map[string]int64),
+		uniqueAddresses: make(map[string]bool),
 	}
 	if cfg.Enabled {
 		f.rpc = rpc.NewRPCClient("Faucet", cfg.Daemon, cfg.Timeout)
@@ -128,6 +137,25 @@ func (f *FaucetServer) GetStatus(w http.ResponseWriter, r *http.Request) {
 	if f.config.Enabled {
 		reply["amount"] = f.config.Amount
 		reply["cooldownMinutes"] = f.config.CooldownMinutes
+		reply["symbol"] = f.config.Symbol
+		reply["maxDailyPerIP"] = f.config.MaxDailyPerIP
+
+		// Add statistics
+		f.statsMu.RLock()
+		reply["stats"] = map[string]interface{}{
+			"totalRequests":   f.totalRequests,
+			"totalSent":       f.totalSent,
+			"uniqueAddresses": len(f.uniqueAddresses),
+		}
+		f.statsMu.RUnlock()
+
+		// Get faucet wallet balance
+		if f.rpc != nil {
+			balance, err := f.rpc.GetBalance(f.config.Address)
+			if err == nil {
+				reply["balance"] = balance.Int64()
+			}
+		}
 	}
 
 	json.NewEncoder(w).Encode(reply)
@@ -234,15 +262,20 @@ func (f *FaucetServer) HandleRequest(w http.ResponseWriter, r *http.Request) {
 
 	// Convert wei to coin units for display (1 coin = 1e18 wei)
 	amountInCoins := float64(f.config.Amount) / 1e18
-	log.Printf("Faucet: sent %.6f coins to %s, tx: %s", amountInCoins, address, txHash)
+	symbol := f.config.Symbol
+	if symbol == "" {
+		symbol = "coins" // fallback if not configured
+	}
+	log.Printf("Faucet: sent %.6f %s to %s, tx: %s", amountInCoins, symbol, address, txHash)
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(FaucetResponse{
 		Success:           true,
-		Message:           fmt.Sprintf("Successfully sent %.6f coins to %s", amountInCoins, address),
+		Message:           fmt.Sprintf("Successfully sent %.6f %s to %s", amountInCoins, symbol, address),
 		TxHash:            txHash,
 		Amount:            f.config.Amount,
 		AmountFormatted:   fmt.Sprintf("%.6f", amountInCoins),
+		Symbol:            symbol,
 		RemainingRequests: remaining - 1,
 	})
 }
@@ -335,6 +368,13 @@ func (f *FaucetServer) recordRequest(ip string, address string) {
 	f.addrCooldownMu.Lock()
 	f.addrCooldowns[address] = now
 	f.addrCooldownMu.Unlock()
+
+	// Update statistics
+	f.statsMu.Lock()
+	f.totalRequests++
+	f.totalSent += f.config.Amount
+	f.uniqueAddresses[address] = true
+	f.statsMu.Unlock()
 }
 
 // getClientIP extracts client IP with security considerations

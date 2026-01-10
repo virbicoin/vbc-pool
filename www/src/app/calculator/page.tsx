@@ -10,12 +10,249 @@ import {
   BoltIcon,
   ChartBarIcon,
   FireIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import { formatHashrate } from "@/lib/formatters";
 import poolConfig from "@/lib/poolConfig";
 import { API_BASE_URL } from "@/lib/api";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+// GPU Database with Ethash hashrates and power consumption
+interface GPUData {
+  name: string;
+  hashrate: number;
+  unit: "MH/s" | "GH/s" | "TH/s";
+  power: number;
+}
+
+interface GPUCategory {
+  name: string;
+  color: string;
+  gpus: GPUData[];
+}
+
+const GPU_DATABASE: GPUCategory[] = [
+  {
+    name: "NVIDIA RTX 5000 Series",
+    color: "bg-green-600",
+    gpus: [
+      { name: "RTX 5090", hashrate: 180, unit: "MH/s", power: 450 },
+      { name: "RTX 5080", hashrate: 130, unit: "MH/s", power: 320 },
+      { name: "RTX 5070 Ti", hashrate: 95, unit: "MH/s", power: 285 },
+      { name: "RTX 5070", hashrate: 75, unit: "MH/s", power: 220 },
+      { name: "RTX 5060 Ti", hashrate: 55, unit: "MH/s", power: 180 },
+      { name: "RTX 5060", hashrate: 42, unit: "MH/s", power: 150 },
+    ],
+  },
+  {
+    name: "NVIDIA RTX 4000 Series",
+    color: "bg-green-500",
+    gpus: [
+      { name: "RTX 4090", hashrate: 135, unit: "MH/s", power: 350 },
+      { name: "RTX 4080 Super", hashrate: 105, unit: "MH/s", power: 320 },
+      { name: "RTX 4080", hashrate: 98, unit: "MH/s", power: 300 },
+      { name: "RTX 4070 Ti Super", hashrate: 82, unit: "MH/s", power: 285 },
+      { name: "RTX 4070 Ti", hashrate: 75, unit: "MH/s", power: 270 },
+      { name: "RTX 4070 Super", hashrate: 68, unit: "MH/s", power: 220 },
+      { name: "RTX 4070", hashrate: 58, unit: "MH/s", power: 200 },
+      { name: "RTX 4060 Ti 16GB", hashrate: 42, unit: "MH/s", power: 165 },
+      { name: "RTX 4060 Ti 8GB", hashrate: 38, unit: "MH/s", power: 160 },
+      { name: "RTX 4060", hashrate: 32, unit: "MH/s", power: 115 },
+    ],
+  },
+  {
+    name: "NVIDIA RTX 3000 Series",
+    color: "bg-green-400",
+    gpus: [
+      { name: "RTX 3090 Ti", hashrate: 130, unit: "MH/s", power: 350 },
+      { name: "RTX 3090", hashrate: 120, unit: "MH/s", power: 300 },
+      { name: "RTX 3080 Ti", hashrate: 95, unit: "MH/s", power: 290 },
+      { name: "RTX 3080 12GB", hashrate: 102, unit: "MH/s", power: 280 },
+      { name: "RTX 3080 10GB", hashrate: 95, unit: "MH/s", power: 270 },
+      { name: "RTX 3070 Ti", hashrate: 62, unit: "MH/s", power: 220 },
+      { name: "RTX 3070", hashrate: 60, unit: "MH/s", power: 200 },
+      { name: "RTX 3060 Ti", hashrate: 60, unit: "MH/s", power: 180 },
+      { name: "RTX 3060 12GB", hashrate: 48, unit: "MH/s", power: 140 },
+      { name: "RTX 3050", hashrate: 25, unit: "MH/s", power: 115 },
+    ],
+  },
+  {
+    name: "NVIDIA RTX Pro / Quadro",
+    color: "bg-teal-500",
+    gpus: [
+      { name: "RTX 6000 Ada", hashrate: 140, unit: "MH/s", power: 300 },
+      { name: "RTX 5000 Ada", hashrate: 95, unit: "MH/s", power: 250 },
+      { name: "RTX 4500 Ada", hashrate: 75, unit: "MH/s", power: 210 },
+      { name: "RTX 4000 Ada", hashrate: 55, unit: "MH/s", power: 130 },
+      { name: "RTX A6000", hashrate: 98, unit: "MH/s", power: 300 },
+      { name: "RTX A5500", hashrate: 82, unit: "MH/s", power: 230 },
+      { name: "RTX A5000", hashrate: 78, unit: "MH/s", power: 230 },
+      { name: "RTX A4500", hashrate: 70, unit: "MH/s", power: 200 },
+      { name: "RTX A4000", hashrate: 58, unit: "MH/s", power: 140 },
+      { name: "RTX A2000", hashrate: 28, unit: "MH/s", power: 70 },
+    ],
+  },
+  {
+    name: "AMD Radeon RX 7000 Series",
+    color: "bg-red-500",
+    gpus: [
+      { name: "RX 7900 XTX", hashrate: 85, unit: "MH/s", power: 320 },
+      { name: "RX 7900 XT", hashrate: 75, unit: "MH/s", power: 285 },
+      { name: "RX 7900 GRE", hashrate: 65, unit: "MH/s", power: 245 },
+      { name: "RX 7800 XT", hashrate: 52, unit: "MH/s", power: 200 },
+      { name: "RX 7700 XT", hashrate: 45, unit: "MH/s", power: 180 },
+      { name: "RX 7600 XT", hashrate: 32, unit: "MH/s", power: 150 },
+      { name: "RX 7600", hashrate: 28, unit: "MH/s", power: 130 },
+    ],
+  },
+  {
+    name: "AMD Radeon RX 6000 Series",
+    color: "bg-red-400",
+    gpus: [
+      { name: "RX 6950 XT", hashrate: 60, unit: "MH/s", power: 280 },
+      { name: "RX 6900 XT", hashrate: 58, unit: "MH/s", power: 260 },
+      { name: "RX 6800 XT", hashrate: 55, unit: "MH/s", power: 250 },
+      { name: "RX 6800", hashrate: 50, unit: "MH/s", power: 220 },
+      { name: "RX 6750 XT", hashrate: 40, unit: "MH/s", power: 180 },
+      { name: "RX 6700 XT", hashrate: 38, unit: "MH/s", power: 170 },
+      { name: "RX 6650 XT", hashrate: 30, unit: "MH/s", power: 130 },
+      { name: "RX 6600 XT", hashrate: 28, unit: "MH/s", power: 120 },
+      { name: "RX 6600", hashrate: 25, unit: "MH/s", power: 110 },
+      { name: "RX 6500 XT", hashrate: 15, unit: "MH/s", power: 80 },
+    ],
+  },
+  {
+    name: "AMD Radeon Pro",
+    color: "bg-orange-500",
+    gpus: [
+      { name: "Radeon Pro W7900", hashrate: 80, unit: "MH/s", power: 295 },
+      { name: "Radeon Pro W7800", hashrate: 65, unit: "MH/s", power: 260 },
+      { name: "Radeon Pro W7700", hashrate: 48, unit: "MH/s", power: 190 },
+      { name: "Radeon Pro W7600", hashrate: 35, unit: "MH/s", power: 150 },
+      { name: "Radeon Pro W6800", hashrate: 52, unit: "MH/s", power: 250 },
+      { name: "Radeon Pro W6600", hashrate: 28, unit: "MH/s", power: 100 },
+    ],
+  },
+  {
+    name: "Intel Arc",
+    color: "bg-blue-500",
+    gpus: [
+      { name: "Arc A770 16GB", hashrate: 42, unit: "MH/s", power: 225 },
+      { name: "Arc A770 8GB", hashrate: 38, unit: "MH/s", power: 225 },
+      { name: "Arc A750", hashrate: 35, unit: "MH/s", power: 200 },
+      { name: "Arc A580", hashrate: 25, unit: "MH/s", power: 150 },
+      { name: "Arc A380", hashrate: 12, unit: "MH/s", power: 75 },
+    ],
+  },
+  {
+    name: "Mining Rigs (Multi-GPU)",
+    color: "bg-purple-500",
+    gpus: [
+      { name: "6x RTX 4090 Rig", hashrate: 810, unit: "MH/s", power: 2400 },
+      { name: "8x RTX 4070 Rig", hashrate: 464, unit: "MH/s", power: 1800 },
+      { name: "6x RTX 3080 Rig", hashrate: 570, unit: "MH/s", power: 1800 },
+      { name: "8x RTX 3070 Rig", hashrate: 480, unit: "MH/s", power: 1700 },
+      { name: "6x RX 7900 XTX Rig", hashrate: 510, unit: "MH/s", power: 2100 },
+      { name: "Small Farm (1 GH/s)", hashrate: 1, unit: "GH/s", power: 4000 },
+      { name: "Medium Farm (5 GH/s)", hashrate: 5, unit: "GH/s", power: 18000 },
+      { name: "Large Farm (10 GH/s)", hashrate: 10, unit: "GH/s", power: 35000 },
+    ],
+  },
+];
+
+// GPU Selector Component
+interface GPUSelectorProps {
+  onSelect: (gpu: GPUData) => void;
+}
+
+function GPUSelector({ onSelect }: GPUSelectorProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="mt-4">
+      <label className="block text-sm text-gray-400 mb-2">Select GPU</label>
+
+      {/* Category Buttons */}
+      <div className="flex flex-wrap gap-2 mb-3">
+        {GPU_DATABASE.map((category) => (
+          <button
+            key={category.name}
+            onClick={() => {
+              setSelectedCategory(selectedCategory === category.name ? null : category.name);
+              setIsOpen(true);
+            }}
+            className={`px-3 py-1.5 text-sm rounded-lg transition-colors flex items-center gap-1 ${
+              selectedCategory === category.name
+                ? `${category.color} text-white`
+                : "bg-gray-700 hover:bg-gray-600 text-gray-300"
+            }`}
+          >
+            {category.name.replace("NVIDIA ", "").replace("AMD ", "").replace("Series", "").trim()}
+            <ChevronDownIcon
+              className={`w-4 h-4 transition-transform ${selectedCategory === category.name ? "rotate-180" : ""}`}
+            />
+          </button>
+        ))}
+      </div>
+
+      {/* GPU List for Selected Category */}
+      {isOpen && selectedCategory && (
+        <div className="bg-gray-900 border border-gray-600 rounded-lg p-3 max-h-64 overflow-y-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {GPU_DATABASE.find((c) => c.name === selectedCategory)?.gpus.map((gpu) => (
+              <button
+                key={gpu.name}
+                onClick={() => {
+                  onSelect(gpu);
+                  setIsOpen(false);
+                  setSelectedCategory(null);
+                }}
+                className="flex items-center justify-between p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-left"
+              >
+                <div>
+                  <p className="text-sm font-medium text-white">{gpu.name}</p>
+                  <p className="text-xs text-gray-400">
+                    {gpu.hashrate} {gpu.unit} • {gpu.power}W
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-green-400">
+                    {(gpu.hashrate / (gpu.power / 1000)).toFixed(1)}
+                  </p>
+                  <p className="text-xs text-gray-500">MH/W</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Quick Popular GPUs */}
+      {!isOpen && (
+        <div className="flex flex-wrap gap-2">
+          <span className="text-xs text-gray-500">Popular:</span>
+          {[
+            GPU_DATABASE[1].gpus[0], // RTX 4090
+            GPU_DATABASE[1].gpus[6], // RTX 4070
+            GPU_DATABASE[2].gpus[1], // RTX 3090
+            GPU_DATABASE[4].gpus[0], // RX 7900 XTX
+            GPU_DATABASE[0].gpus[0], // RTX 5090
+          ].map((gpu) => (
+            <button
+              key={gpu.name}
+              onClick={() => onSelect(gpu)}
+              className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+            >
+              {gpu.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface CalculatorResult {
   hourly: number;
@@ -204,28 +441,14 @@ export default function CalculatorPage() {
             </div>
           </div>
 
-          {/* Quick presets */}
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="text-sm text-gray-400">Quick select:</span>
-            {[
-              { value: "30", unit: "MH/s" as const, label: "30 MH/s (RTX 3060)" },
-              { value: "60", unit: "MH/s" as const, label: "60 MH/s (RTX 3080)" },
-              { value: "120", unit: "MH/s" as const, label: "120 MH/s (RTX 3090)" },
-              { value: "500", unit: "MH/s" as const, label: "500 MH/s (Small Rig)" },
-              { value: "1", unit: "GH/s" as const, label: "1 GH/s" },
-            ].map((preset) => (
-              <button
-                key={preset.label}
-                onClick={() => {
-                  setHashrate(preset.value);
-                  setUnit(preset.unit);
-                }}
-                className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
-              >
-                {preset.label}
-              </button>
-            ))}
-          </div>
+          {/* GPU Selector */}
+          <GPUSelector
+            onSelect={(gpu) => {
+              setHashrate(gpu.hashrate.toString());
+              setUnit(gpu.unit);
+              setPowerConsumption(gpu.power.toString());
+            }}
+          />
         </div>
 
         {/* Electricity Cost Section */}
