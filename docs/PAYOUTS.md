@@ -42,9 +42,11 @@ After payout session, payment module will perform `BGSAVE` (background saving) o
 
 ## Resolving Failed Payments (automatic)
 
-If your payout is not logged and not confirmed by Ethereum network you can resolve it automatically. You need to payouts in maintenance mode by setting up `RESOLVE_PAYOUT=1` or `RESOLVE_PAYOUT=True` environment variable:
+If your payout is not logged and not confirmed by the network you can resolve it automatically. You need to run payouts in maintenance mode by setting up `RESOLVE_PAYOUT=1` or `RESOLVE_PAYOUT=True` environment variable:
 
-`RESOLVE_PAYOUT=1 ./build/bin/open-ethereum-pool payouts.json`.
+```bash
+RESOLVE_PAYOUT=1 ./open-virbicoin-pool payouts.json
+```
 
 Payout module will fetch all rows from Redis with key `eth:payments:pending` and credit balance back to miners. Usually you will have only single entry there.
 

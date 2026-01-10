@@ -38,6 +38,9 @@ Mining Pool Frontend - A configurable Next.js 16 application for cryptocurrency 
 www/
 ├── src/
 │   ├── app/           # Pages (App Router)
+│   │   ├── calculator/  # Mining calculator with GPU database
+│   │   ├── faucet/      # Faucet page with MetaMask integration
+│   │   └── ...          # Other pages
 │   ├── components/    # React components
 │   └── lib/           # Utilities (poolConfig.ts, api.ts, formatters.ts)
 ├── public/            # Static assets
@@ -73,6 +76,24 @@ www/
 1. Create folder in `src/app/`
 2. Add `page.tsx` file
 3. Use consistent header pattern with icons
+
+### Faucet Page
+
+The faucet page (`/faucet`) includes:
+- MetaMask wallet connection
+- Real-time cooldown countdown
+- Statistics display (balance, total sent, unique users)
+- Copy to clipboard and share on Twitter
+- "Add network to MetaMask" button
+
+### Calculator Page
+
+The calculator page (`/calculator`) includes:
+- 80+ GPU presets (NVIDIA, AMD, Intel)
+- Category-based GPU selection
+- Power efficiency display (MH/W)
+- Profitability calculation with electricity costs
+- Real-time network statistics
 
 ### Component Patterns
 

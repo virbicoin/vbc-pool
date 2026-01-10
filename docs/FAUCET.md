@@ -173,7 +173,7 @@ location /api/faucet {
 
 ### GET /api/faucet
 
-Returns faucet status and configuration.
+Returns faucet status, configuration, and statistics.
 
 **Response:**
 
@@ -181,7 +181,18 @@ Returns faucet status and configuration.
 {
   "enabled": true,
   "amount": 10000000000000000,
-  "cooldownMinutes": 1440
+  "amountFormatted": "0.0100",
+  "symbol": "VBC",
+  "cooldownMinutes": 1440,
+  "maxDailyPerIP": 10,
+  "balance": "1000000000000000000",
+  "balanceFormatted": "1.0000",
+  "stats": {
+    "totalRequests": 42,
+    "totalSent": 420000000000000000,
+    "totalSentFormatted": "0.4200",
+    "uniqueAddresses": 35
+  }
 }
 ```
 

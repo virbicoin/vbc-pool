@@ -16,8 +16,8 @@ https://camo.githubusercontent.com/2063f3f9554951409bbfe24df02fdb42654b032b1f130
 * Failover gvbc instances: gvbc high availability built in
 * Modern beautiful Next.js frontend
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
-* JSON-API for stats
-
+* JSON-API for stats* 🧮 Mining calculator with 80+ GPU presets (NVIDIA RTX 3000/4000/5000, AMD Radeon RX 6000/7000, Intel Arc, Pro series)
+* 🚰 Faucet service for distributing free test coins (with MetaMask integration)
 #### Proxies
 
 * [Ether-Proxy](https://github.com/sammy007/ether-proxy) HTTP proxy with web interface
@@ -113,7 +113,7 @@ in order to customise the frontend.
 
 We take security seriously. See [docs/SECURITY.md](docs/SECURITY.md) for comprehensive security documentation.
 
-#### Latest Security Audit (January 11, 2026)
+#### Latest Security Audit (January 2026)
 
 | Severity | Count | Fixed |
 |----------|-------|-------|
@@ -134,9 +134,11 @@ We take security seriously. See [docs/SECURITY.md](docs/SECURITY.md) for compreh
 #### Documentation
 *   [docs/SECURITY.md](docs/SECURITY.md) - Comprehensive security guide
 *   [docs/FAUCET.md](docs/FAUCET.md) - Faucet setup and configuration
+*   [docs/CALCULATOR.md](docs/CALCULATOR.md) - Mining calculator with GPU database
 *   [docs/PAYOUTS.md](docs/PAYOUTS.md) - Payout system documentation
 *   [docs/STRATUM.md](docs/STRATUM.md) - Stratum protocol details
 *   [docs/POLICIES.md](docs/POLICIES.md) - Policy configuration
+*   [www/README.md](www/README.md) - Frontend documentation
 
 #### Dependency Security
 *   **Frontend (`www`)**: Audited January 10, 2026 - **0 vulnerabilities** found

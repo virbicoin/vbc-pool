@@ -8,6 +8,8 @@ Modern, responsive frontend application for cryptocurrency mining pools built wi
 - 👥 Miner dashboard with individual worker tracking
 - 💰 Payment history and pending balance display
 - 🔍 Block explorer with matured/immature/pending blocks
+- 🧮 Mining calculator with 80+ GPU presets (RTX 5000/4000/3000, Radeon RX 7000/6000, Pro series, Intel Arc)
+- 🚰 Faucet for distributing free test coins (with MetaMask integration)
 - 🌍 Multi-region pool server support
 - 📱 Fully responsive design
 - 🎨 Dark theme with modern UI
@@ -102,9 +104,10 @@ www/
 │   ├── app/                 # Next.js App Router pages
 │   │   ├── about/           # About page
 │   │   ├── account/         # Account details page
-│   │   ├── api/             # API routes
+│   │   ├── api/             # API routes (proxy, faucet, health)
 │   │   ├── blocks/          # Blocks pages (matured/immature/pending)
-│   │   ├── calculator/      # Mining calculator
+│   │   ├── calculator/      # Mining calculator with GPU presets
+│   │   ├── faucet/          # Faucet page with MetaMask integration
 │   │   ├── help/            # Getting started guide
 │   │   ├── miners/          # Miners list page
 │   │   └── payments/        # Payments page
