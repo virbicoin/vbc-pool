@@ -1,5 +1,5 @@
 import { SiGithub, SiDiscord, SiX, SiTelegram } from "react-icons/si";
-import { FaBitcoin } from "react-icons/fa";
+import { FaBitcoin, FaChartLine, FaSearch } from "react-icons/fa";
 import { poolConfig } from "@/lib/poolConfig";
 
 export default function Footer() {
@@ -61,6 +61,30 @@ export default function Footer() {
             </>
           )}
 
+          {poolConfig.links.explorer && (
+            <a
+              href={poolConfig.links.explorer}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-100 transition-colors inline-flex items-center gap-1"
+              title="Explorer"
+            >
+              <FaSearch className="w-4 h-4" />
+            </a>
+          )}
+
+          {poolConfig.links.network && (
+            <a
+              href={poolConfig.links.network}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-100 transition-colors inline-flex items-center gap-1"
+              title="Network Stats"
+            >
+              <FaChartLine className="w-4 h-4" />
+            </a>
+          )}
+
           {poolConfig.links.bitcointalk && (
             <a
               href={poolConfig.links.bitcointalk}
@@ -68,7 +92,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="hover:text-gray-100 transition-colors"
             >
-              <FaBitcoin className="w-4 h-4 text-orange-400" />
+              <FaBitcoin className="w-4 h-4" />
             </a>
           )}
 
