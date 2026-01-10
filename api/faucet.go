@@ -148,10 +148,10 @@ func (f *FaucetServer) GetStatus(w http.ResponseWriter, r *http.Request) {
 		f.statsMu.RLock()
 		totalSentBig := big.NewInt(f.totalSent)
 		reply["stats"] = map[string]interface{}{
-			"totalRequests":     f.totalRequests,
-			"totalSent":         f.totalSent,
+			"totalRequests":      f.totalRequests,
+			"totalSent":          f.totalSent,
 			"totalSentFormatted": formatWeiToCoins(totalSentBig),
-			"uniqueAddresses":   len(f.uniqueAddresses),
+			"uniqueAddresses":    len(f.uniqueAddresses),
 		}
 		f.statsMu.RUnlock()
 
@@ -177,7 +177,7 @@ func formatWeiToCoins(wei *big.Int) string {
 	ether := new(big.Float).SetInt(wei)
 	divisor := new(big.Float).SetInt(big.NewInt(1e18))
 	result := new(big.Float).Quo(ether, divisor)
-	
+
 	// Format with appropriate precision
 	f64, _ := result.Float64()
 	if f64 >= 1000 {
