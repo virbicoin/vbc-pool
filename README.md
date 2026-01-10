@@ -111,12 +111,29 @@ in order to customise the frontend.
 
 ### Security
 
-We take security seriously.
+We take security seriously. See [docs/SECURITY.md](docs/SECURITY.md) for comprehensive security documentation.
+
+#### Latest Security Audit (January 10, 2026)
+
+| Severity | Count |
+|----------|-------|
+| 🔴 Critical | 2 |
+| 🟠 High | 6 |
+| 🟡 Medium | 13 |
+| 🟢 Low | 11 |
+| ℹ️ Info | 10 |
+
+**Key Findings & Status:**
+*   ⚠️ **Command Injection Risk**: IP validation in banning system - *Documented, requires careful deployment*
+*   ⚠️ **No TLS by Default**: Deploy behind reverse proxy with TLS - *Documented*
+*   ✅ **Frontend npm audit**: 0 vulnerabilities found
+*   ✅ **API Proxy Security**: Whitelist validation, path traversal prevention implemented
 
 #### Dependency Security
-*   **Frontend (`www`)**: Audited January 2026 - **0 vulnerabilities** found
+*   **Frontend (`www`)**: Audited January 10, 2026 - **0 vulnerabilities** found
 *   **Backend (Go)**: Uses standard library and well-maintained packages
-*   Run `npm audit` (frontend) and check Go dependencies regularly
+    * Consider upgrading `gopkg.in/redis.v3` to `github.com/go-redis/redis/v9`
+*   Run `npm audit` (frontend) and review Go dependencies regularly
 
 #### Reporting Vulnerabilities
 If you find a security vulnerability, please **do not open a public issue**. Instead:
@@ -137,6 +154,7 @@ If you find a security vulnerability, please **do not open a public issue**. Ins
 *   **Rate Limiting**: 100 requests/minute/IP with automatic cleanup
 
 #### Production Deployment Checklist
+- [ ] Read [docs/SECURITY.md](docs/SECURITY.md) completely
 - [ ] Change all default passwords in `config.json`
 - [ ] Set strong Redis password (not empty)
 - [ ] Never expose Redis to public network
@@ -144,7 +162,8 @@ If you find a security vulnerability, please **do not open a public issue**. Ins
 - [ ] Run behind reverse proxy (nginx) with TLS
 - [ ] Enable `banning` in production for DDoS protection
 - [ ] Set `behindReverseProxy: true` if using nginx/CloudFlare
-- [ ] Review and restrict `CORS` headers as needed
+- [ ] Restrict CORS to specific origins in production
+- [ ] Validate IP address format before banning operations
 
 ### Configuration
 

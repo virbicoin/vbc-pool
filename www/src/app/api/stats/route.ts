@@ -89,7 +89,10 @@ export async function GET() {
     return NextResponse.json(
       {
         error: "Internal stats API error",
-        details: error instanceof Error ? error.message : "Unknown error",
+        // SECURITY: Do not expose internal error details in production
+        ...(process.env.NODE_ENV === "development" && {
+          details: error instanceof Error ? error.message : "Unknown error",
+        }),
       },
       { status: 500 }
     );

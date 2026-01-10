@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -297,15 +296,20 @@ func (s *PolicyServer) InWhiteList(ip string) bool {
 }
 
 func (s *PolicyServer) doBan(ip string) {
-	set, timeout := s.config.Banning.IPSet, s.config.Banning.Timeout
-	cmd := fmt.Sprintf("sudo ipset add %s %s timeout %v -!", set, ip, timeout)
-	args := strings.Fields(cmd)
-	head := args[0]
-	args = args[1:]
+	// SECURITY: Validate IP address format to prevent command injection
+	if !util.IsValidIPAddress(ip) {
+		log.Printf("SECURITY: Rejected invalid IP address format for banning: %s", ip)
+		return
+	}
 
+	set, timeout := s.config.Banning.IPSet, s.config.Banning.Timeout
+
+	// SECURITY: Use exec.Command with separate arguments instead of shell string
+	// This prevents shell injection attacks
 	log.Printf("Banned %v with timeout %v on ipset %s", ip, timeout, set)
 
-	_, err := exec.Command(head, args...).Output()
+	cmd := exec.Command("sudo", "ipset", "add", set, ip, "timeout", fmt.Sprintf("%d", timeout), "-!")
+	_, err := cmd.Output()
 	if err != nil {
 		log.Printf("CMD Error: %s", err)
 	}

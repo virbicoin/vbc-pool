@@ -11,6 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 import { poolConfig } from "@/lib/poolConfig";
+import { isValidEthereumAddress, sanitizeAddress } from "@/lib/formatters";
 
 const MAX_FAVORITES = 5;
 
@@ -44,12 +45,15 @@ export default function AccountLookupForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (address) {
-      router.push(`/account/${address}`);
+    // SECURITY: Sanitize and validate address before navigation
+    const sanitized = sanitizeAddress(address);
+    if (sanitized && isValidEthereumAddress(sanitized)) {
+      router.push(`/account/${sanitized}`);
     }
   };
 
-  const isValidAddress = address.length === 42 && address.startsWith("0x");
+  // SECURITY: Use strict validation
+  const isValidAddress = isValidEthereumAddress(address);
 
   const isFavorite = favorites.some((f) => f.address.toLowerCase() === address.toLowerCase());
 

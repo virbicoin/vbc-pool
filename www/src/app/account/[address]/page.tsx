@@ -35,6 +35,7 @@ import {
   SignalIcon,
   SignalSlashIcon,
 } from "@heroicons/react/24/outline";
+import { isValidEthereumAddress, sanitizeAddress } from "@/lib/formatters";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -68,15 +69,23 @@ function StatCard({ title, value, subtext, className, icon, iconBgColor }: StatC
 
 export default function AccountPage() {
   const params = useParams();
-  const address = params["address"] as string;
+  const rawAddress = params["address"] as string;
+
+  // SECURITY: Validate and sanitize address from URL
+  const address = sanitizeAddress(rawAddress);
+  const isAddressValid = isValidEthereumAddress(address);
 
   const {
     data: accountData,
     isLoading,
     mutate: mutateAccount,
-  } = useSWR(address ? API_BASE_URL + `/api/accounts/${address}` : null, fetcher, {
-    refreshInterval: 5000,
-  });
+  } = useSWR(
+    address && isAddressValid ? API_BASE_URL + `/api/accounts/${address}` : null,
+    fetcher,
+    {
+      refreshInterval: 5000,
+    }
+  );
   const { data: statsData, mutate: mutateStats } = useSWR(API_BASE_URL + "/api/stats", fetcher, {
     refreshInterval: 5000,
   });
@@ -120,6 +129,43 @@ export default function AccountPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // SECURITY: Invalid address format
+  if (!isAddressValid) {
+    return (
+      <div>
+        <div className="bg-gray-800 border-b border-gray-700">
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-red-600/20 rounded-lg">
+                <ExclamationTriangleIcon className="w-8 h-8 text-red-400" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-100">Invalid Address</h1>
+                <p className="text-gray-400 text-sm mt-1">
+                  The address format is invalid. Please check and try again.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="container mx-auto px-4 py-8">
+          <div className="bg-red-900/20 border border-red-800 rounded-lg p-6">
+            <p className="text-red-400">
+              A valid Ethereum address must be 42 characters starting with 0x followed by 40
+              hexadecimal characters.
+            </p>
+            <Link
+              href="/"
+              className="inline-block mt-4 text-blue-400 hover:text-blue-300 hover:underline"
+            >
+              ← Return to Home
+            </Link>
           </div>
         </div>
       </div>

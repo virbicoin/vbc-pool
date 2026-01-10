@@ -118,7 +118,45 @@ www/
 
 ## Security
 
-This application implements multiple layers of security:
+This application implements multiple layers of security. For comprehensive security documentation, see [../docs/SECURITY.md](../docs/SECURITY.md).
+
+### Security Fixes Implemented (January 10, 2026)
+
+| Category           | Issue                   | Status    | Details                             |
+| ------------------ | ----------------------- | --------- | ----------------------------------- |
+| CORS               | Overly permissive (`*`) | ✅ Fixed  | Origin whitelist implemented        |
+| CSP                | Not configured          | ✅ Fixed  | Comprehensive headers added         |
+| Address Validation | Basic validation        | ✅ Fixed  | Strict regex + sanitization         |
+| Error Exposure     | Details leaked          | ✅ Fixed  | Hidden in production                |
+| Hostname           | Exposed in /health      | ✅ Fixed  | Removed from response               |
+| Rate Limiting      | In-memory only          | ⚠️ Note   | Consider Redis-based for production |
+| npm Dependencies   | 0 vulnerabilities       | ✅ Passed | Audited January 10, 2026            |
+
+### Implemented Security Headers
+
+The following headers are now applied to all responses via `next.config.ts`:
+
+```typescript
+{
+  "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; ...",
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains" // Production only
+}
+```
+
+### CORS Configuration
+
+CORS is now restricted to specific origins. Configure for your deployment in `src/app/api/[...slug]/route.ts`:
+
+```typescript
+const ALLOWED_ORIGINS = new Set([
+  "https://pool.yourdomain.com",
+  // Add your domains here
+]);
+```
 
 ### API Security
 
@@ -131,9 +169,11 @@ This application implements multiple layers of security:
 
 - **In-memory Rate Limiting**: 100 requests per minute per IP address
 - **429 Response**: Excessive requests receive "Too Many Requests" with `Retry-After` header
+- **Production Note**: In-memory rate limiting is not shared across serverless instances. For production, consider using Redis-based rate limiting (e.g., Upstash).
 
 ### Input Validation
 
+- **Address Validation**: Strict regex `/^0x[a-fA-F0-9]{40}$/` with sanitization
 - **Suspicious Pattern Detection**: Blocks requests containing:
   - Command injection patterns (`wget`, `curl`, `;`, `|`, backticks)
   - Path traversal attempts (`../`, `%2e%2e`)
@@ -141,28 +181,45 @@ This application implements multiple layers of security:
   - Protocol smuggling (`file:`, `gopher:`, `dict:`)
 - **URL Decoding**: All URLs are decoded before validation to catch encoded attacks
 
+### Error Handling
+
+- **Production**: Returns generic error messages to clients
+- **Development**: Full error details for debugging
+- **Logging**: All errors logged server-side regardless of environment
+
 ### Configuration Security
 
 - All configuration is managed through `config.json`
+- `config.json` is exposed to the client - **NEVER include secrets**
 - Sensitive configuration (Redis passwords, private keys) must be kept in server-side config only
-- `config.json` is exposed to the client, so never include secrets
+- Use `config.json.example` as a template for new deployments
 
-### Headers
+### localStorage Usage
 
-- CORS headers are set explicitly on API responses
-- `Access-Control-Allow-Origin: *` for public API access
+The following data is stored in localStorage:
+
+- Favorite wallet addresses
+- Notification settings
+- Alert thresholds
+- Theme preferences
+- Auto-refresh settings
+
+**Note**: localStorage is accessible via XSS. Ensure CSP is properly configured and avoid storing sensitive data.
 
 ### Dependency Security
 
-- **Last Audit**: January 2026 - 0 vulnerabilities found
+- **Last Audit**: January 10, 2026 - 0 vulnerabilities found
 - Run `npm audit` regularly to check for new vulnerabilities
 - Keep dependencies updated with `npx npm-check-updates -u`
 
-### Best Practices
+### Production Checklist
 
-- Never commit files containing secrets
-- Review `config.json` before production deployment
-- Use `config.json.example` as a template for new deployments
+- [ ] Configure specific CORS origins (not `*`)
+- [ ] Add Content Security Policy headers
+- [ ] Implement Redis-based rate limiting
+- [ ] Review `config.json` - ensure no secrets
+- [ ] Enable HTTPS via reverse proxy
+- [ ] Set `Strict-Transport-Security` header
 
 ## License
 

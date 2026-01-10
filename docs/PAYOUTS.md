@@ -1,5 +1,11 @@
 **First of all make sure your Redis instance and backups are configured properly http://redis.io/topics/persistence.**
 
+> ⚠️ **Security Note**: Payout operations involve real cryptocurrency transfers. See [SECURITY.md](SECURITY.md) for security best practices including:
+> - Set a strong Redis password (never leave empty)
+> - Run payouts module on a separate, secured server
+> - Never expose Redis to public networks
+> - Validate addresses before sending transactions
+
 Keep in mind that pool maintains all balances in **Shannon**.
 
 # Processing and Resolving Payouts

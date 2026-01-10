@@ -10,6 +10,34 @@ import { GET as checkPortGET } from "../check-port/route";
 // handler uses the "net" module which is Node-only.
 export const runtime = "nodejs";
 
+// SECURITY: Allowed origins for CORS (configure for your deployment)
+const ALLOWED_ORIGINS: ReadonlySet<string> = new Set([
+  // Production domains
+  "https://pool.digitalregion.jp",
+  "https://*.digitalregion.jp",
+  // Development
+  ...(process.env.NODE_ENV === "development"
+    ? ["http://localhost:3000", "http://127.0.0.1:3000"]
+    : []),
+]);
+
+// SECURITY: Get allowed origin or default
+function getAllowedOrigin(requestOrigin: string | null): string {
+  if (requestOrigin && ALLOWED_ORIGINS.has(requestOrigin)) {
+    return requestOrigin;
+  }
+  // In development, allow any localhost origin
+  if (
+    process.env.NODE_ENV === "development" &&
+    requestOrigin &&
+    (requestOrigin.startsWith("http://localhost:") || requestOrigin.startsWith("http://127.0.0.1:"))
+  ) {
+    return requestOrigin;
+  }
+  // Return first allowed origin as default (for same-origin requests)
+  return ALLOWED_ORIGINS.values().next().value || "";
+}
+
 // SECURITY: 許可されたAPIパスのホワイトリスト（パストラバーサル防止）
 const ALLOWED_API_PATHS: ReadonlySet<string> = new Set([
   "stats",
@@ -170,12 +198,16 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
       data = { status: "ok" };
     }
 
-    // CORS headers
+    // SECURITY: CORS headers with specific origin
+    const origin = _req.headers.get("origin");
+    const allowedOrigin = getAllowedOrigin(origin);
+
     const headers = new Headers({
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Origin": allowedOrigin,
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Max-Age": "86400", // 24 hours
       // Duration header for optional debugging
       "X-Proxy-Duration": duration.toString(),
       "X-Proxy-Latency": duration.toString(),
@@ -194,20 +226,27 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
     return NextResponse.json(
       {
         error: "Internal proxy error",
-        details: error instanceof Error ? error.message : "Unknown error",
+        // SECURITY: Do not expose internal error details in production
+        ...(process.env.NODE_ENV === "development" && {
+          details: error instanceof Error ? error.message : "Unknown error",
+        }),
       },
       { status: 500 }
     );
   }
 }
 
-export async function OPTIONS() {
+export async function OPTIONS(req: NextRequest) {
+  const origin = req.headers.get("origin");
+  const allowedOrigin = getAllowedOrigin(origin);
+
   return new NextResponse(null, {
     status: 200,
     headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Origin": allowedOrigin,
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Max-Age": "86400",
     },
   });
 }

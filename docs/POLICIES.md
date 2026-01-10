@@ -113,10 +113,14 @@ redis-cli HGETALL eth:policy:stats
 
 ## Security Considerations
 
+> ⚠️ **Security Audit Finding (January 2026)**: The IP banning system uses shell commands via `exec.Command()`. Ensure IP addresses are validated before being passed to the banning function. See [SECURITY.md](SECURITY.md) for details.
+
 - **Enable in Production**: Always enable banning for public-facing pools
 - **Tune Parameters**: Adjust `invalidPercent` based on your network conditions
 - **Monitor Logs**: Watch for patterns that might indicate attacks
 - **Regular Review**: Periodically review banned IPs and adjust whitelist
+- **X-Forwarded-For**: If behind reverse proxy, configure `behindReverseProxy: true` and ensure only trusted proxies can set this header
+- **IP Validation**: The pool validates IPs before banning, but always monitor for unusual patterns
 
 For comprehensive security guidance, see [SECURITY.md](SECURITY.md).
 

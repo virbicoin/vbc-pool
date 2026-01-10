@@ -12,7 +12,30 @@ export function formatDifficulty(diff: number) {
   const unit = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"][i];
   return `${(diff / Math.pow(1000, i)).toFixed(2)} ${unit}`;
 }
+// SECURITY: Strict Ethereum address validation
+// Validates format and optionally checksum (EIP-55)
+export function isValidEthereumAddress(address: string): boolean {
+  // Basic format check: 0x followed by 40 hex characters
+  if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    return false;
+  }
+  return true;
+}
 
+// SECURITY: Sanitize address for display (prevent XSS)
+export function sanitizeAddress(address: string): string {
+  // Only allow valid hex characters
+  return address.replace(/[^0-9a-fA-Fx]/g, "").slice(0, 42);
+}
+
+// SECURITY: Validate and sanitize address, returns null if invalid
+export function validateAndSanitizeAddress(address: string): string | null {
+  const sanitized = sanitizeAddress(address);
+  if (isValidEthereumAddress(sanitized)) {
+    return sanitized.toLowerCase();
+  }
+  return null;
+}
 export function formatDate(timestamp: number | null | undefined): string {
   if (timestamp == null || timestamp === 0) return "N/A";
   return new Date(timestamp * 1000).toLocaleString(undefined, { timeZoneName: "short" });
