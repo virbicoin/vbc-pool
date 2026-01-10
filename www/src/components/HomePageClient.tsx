@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import useSWR from "swr";
 import DashboardStats from "@/components/DashboardStats";
 import AccountLookupForm from "@/components/AccountLookupForm";
 import Announcements from "@/components/Announcements";
+import MinerLeaderboard from "@/components/MinerLeaderboard";
 import poolConfig from "@/lib/poolConfig";
+import { API_BASE_URL } from "@/lib/api";
 import {
   HomeIcon,
   CubeIcon,
@@ -14,6 +17,8 @@ import {
   QuestionMarkCircleIcon,
   CalculatorIcon,
 } from "@heroicons/react/24/outline";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 // Dynamic import for HashrateChart to avoid SSR issues with Chart.js
 const HashrateChart = dynamic(() => import("@/components/HashrateChart"), {
@@ -146,13 +151,40 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
           </Link>
         </div>
 
-        {/* Account Lookup Section */}
-        <div className="mt-8">
+        {/* Two Column Layout: Leaderboard + Account Lookup */}
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Miner Leaderboard */}
+          <MinerLeaderboardSection />
+
+          {/* Account Lookup Section */}
           <AccountLookupForm />
         </div>
       </div>
     </div>
   );
 };
+
+// Separate component for miner leaderboard to handle data fetching
+interface MinerData {
+  hr: number;
+  offline: boolean;
+  lastBeat: number;
+}
+
+function MinerLeaderboardSection() {
+  const { data } = useSWR(API_BASE_URL + "/api/miners", fetcher, {
+    refreshInterval: 10000,
+  });
+
+  const minersObject: Record<string, MinerData> = data?.miners || {};
+  const minersArray = Object.entries(minersObject).map(([address, miner]) => ({
+    address,
+    hr: miner.hr || 0,
+    offline: miner.offline || false,
+    lastBeat: miner.lastBeat || 0,
+  }));
+
+  return <MinerLeaderboard miners={minersArray} limit={10} />;
+}
 
 export default HomePageClient;

@@ -12,6 +12,7 @@ import {
   CubeIcon,
   Bars3Icon,
   XMarkIcon,
+  UsersIcon,
 } from "@heroicons/react/24/outline";
 import HeaderStats from "./HeaderStats";
 import { useState } from "react";
@@ -60,6 +61,9 @@ export default function Header() {
             </Link>
           </li>
           <li>
+            <HeaderStats />
+          </li>
+          <li>
             <Link href="/calculator" className="nav-link text-gray-200 flex items-center gap-1">
               <CalculatorIcon className="w-5 h-5" />
               <span>Calculator</span>
@@ -78,10 +82,7 @@ export default function Header() {
             </Link>
           </li>
           <li>
-            <HeaderStats />
-          </li>
-          <li>
-            <FavoritesPanel />
+            <FavoritesPanel iconOnly />
           </li>
           <li>
             <BlockNotification />
@@ -136,6 +137,26 @@ export default function Header() {
             </li>
             <li>
               <Link
+                href="/blocks"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
+              >
+                <CubeIcon className="w-5 h-5" />
+                <span>Pool Blocks</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/miners"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
+              >
+                <UsersIcon className="w-5 h-5" />
+                <span>Miners</span>
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/calculator"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
@@ -151,7 +172,7 @@ export default function Header() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
               >
                 <QuestionMarkCircleIcon className="w-5 h-5" />
-                <span>Getting Started</span>
+                <span>Help</span>
               </Link>
             </li>
             <li>

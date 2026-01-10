@@ -86,7 +86,7 @@ export function FavoriteButton({ address, size = "md" }: { address: string; size
 }
 
 // Favorites dropdown/panel component
-export function FavoritesPanel() {
+export function FavoritesPanel({ iconOnly = false }: { iconOnly?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState("");
@@ -122,10 +122,11 @@ export function FavoritesPanel() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+        className={`flex items-center gap-2 ${iconOnly ? "p-2" : "px-3 py-2"} bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors`}
+        title="Favorites"
       >
         <StarIconSolid className="w-4 h-4 text-yellow-400" />
-        <span className="text-sm text-gray-200">Favorites</span>
+        {!iconOnly && <span className="text-sm text-gray-200">Favorites</span>}
         {favorites.length > 0 && (
           <span className="bg-yellow-500 text-black text-xs font-bold px-1.5 py-0.5 rounded-full">
             {favorites.length}

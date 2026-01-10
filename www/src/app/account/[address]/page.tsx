@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import Link from "next/link";
@@ -12,6 +12,9 @@ import TimeAgo from "@/components/TimeAgo";
 import WalletQRCode from "@/components/WalletQRCode";
 import { FavoriteButton } from "@/components/FavoritesPanel";
 import ShareEstimator from "@/components/ShareEstimator";
+import HashrateAlert from "@/components/HashrateAlert";
+import WorkerStatusGrid from "@/components/WorkerStatusGrid";
+import AutoRefreshSettings from "@/components/AutoRefreshSettings";
 import { AccountWorker } from "@/lib/api";
 import {
   UserIcon,
@@ -67,14 +70,21 @@ export default function AccountPage() {
   const params = useParams();
   const address = params["address"] as string;
 
-  const { data: accountData, isLoading } = useSWR(
-    address ? API_BASE_URL + `/api/accounts/${address}` : null,
-    fetcher,
-    { refreshInterval: 5000 }
-  );
-  const { data: statsData } = useSWR(API_BASE_URL + "/api/stats", fetcher, {
+  const {
+    data: accountData,
+    isLoading,
+    mutate: mutateAccount,
+  } = useSWR(address ? API_BASE_URL + `/api/accounts/${address}` : null, fetcher, {
     refreshInterval: 5000,
   });
+  const { data: statsData, mutate: mutateStats } = useSWR(API_BASE_URL + "/api/stats", fetcher, {
+    refreshInterval: 5000,
+  });
+
+  const handleRefresh = useCallback(() => {
+    mutateAccount();
+    mutateStats();
+  }, [mutateAccount, mutateStats]);
 
   // Hooks must be called at top level, before any conditional returns
   // Get pool stats from API response - pools object has coin name as key
@@ -188,6 +198,11 @@ export default function AccountPage() {
             <div>
               <h1 className="text-3xl font-bold text-gray-100">Account Details</h1>
               <p className="text-gray-400 text-sm mt-1">View your mining statistics and payouts</p>
+            </div>
+            {/* Auto Refresh & Hashrate Alert */}
+            <div className="flex items-center gap-2 ml-auto">
+              <AutoRefreshSettings onRefresh={handleRefresh} />
+              <HashrateAlert currentHashrate={accountData?.currentHashrate || 0} />
             </div>
           </div>
 
@@ -343,6 +358,17 @@ export default function AccountPage() {
             poolRoundShares={poolRoundShares}
             className="mb-6"
           />
+        )}
+
+        {/* Worker Status Grid */}
+        {workerList.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+              <CpuChipIcon className="w-5 h-5 text-green-400" />
+              Worker Status
+            </h2>
+            <WorkerStatusGrid workers={workerList} />
+          </div>
         )}
 
         {/* Info Banner */}
