@@ -61,30 +61,6 @@ export default function Footer() {
             </>
           )}
 
-          {poolConfig.links.explorer && (
-            <a
-              href={poolConfig.links.explorer}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-gray-100 transition-colors inline-flex items-center gap-1"
-              title="Explorer"
-            >
-              <FaSearch className="w-4 h-4" />
-            </a>
-          )}
-
-          {poolConfig.links.network && (
-            <a
-              href={poolConfig.links.network}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-gray-100 transition-colors inline-flex items-center gap-1"
-              title="Network Stats"
-            >
-              <FaChartLine className="w-4 h-4" />
-            </a>
-          )}
-
           {poolConfig.links.bitcointalk && (
             <a
               href={poolConfig.links.bitcointalk}
@@ -115,6 +91,32 @@ export default function Footer() {
               className="hover:text-gray-100 transition-colors"
             >
               <SiTelegram className="w-4 h-4" />
+            </a>
+          )}
+
+          {(poolConfig.links.explorer || poolConfig.links.network) && <span>|</span>}
+
+          {poolConfig.links.explorer && (
+            <a
+              href={poolConfig.links.explorer}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-100 transition-colors inline-flex items-center gap-1"
+              title="Explorer"
+            >
+              <FaSearch className="w-4 h-4" />
+            </a>
+          )}
+
+          {poolConfig.links.network && (
+            <a
+              href={poolConfig.links.network}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-100 transition-colors inline-flex items-center gap-1"
+              title="Network Stats"
+            >
+              <FaChartLine className="w-4 h-4" />
             </a>
           )}
         </div>

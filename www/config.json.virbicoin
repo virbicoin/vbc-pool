@@ -11,7 +11,7 @@
     "minPayout": 0.1,
     "fee": 1,
     "payoutInterval": "2 Hours",
-    "address": ""
+    "address": "0x950302976387b43e042aea242ae8dab8e5c204d1"
   },
   "company": {
     "name": "Digitalregion, Inc.",
