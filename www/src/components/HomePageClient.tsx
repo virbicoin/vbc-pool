@@ -4,6 +4,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import DashboardStats from "@/components/DashboardStats";
 import AccountLookupForm from "@/components/AccountLookupForm";
+import Announcements from "@/components/Announcements";
 import poolConfig from "@/lib/poolConfig";
 import {
   HomeIcon,
@@ -56,6 +57,9 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Announcements */}
+        <Announcements />
+
         {/* Dashboard Stats */}
         <DashboardStats stats={dashboardStats} />
 

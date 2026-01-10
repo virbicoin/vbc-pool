@@ -9,6 +9,7 @@ import {
   CubeIcon,
   BoltIcon,
   ChartBarIcon,
+  FireIcon,
 } from "@heroicons/react/24/outline";
 import { formatHashrate } from "@/lib/formatters";
 import poolConfig from "@/lib/poolConfig";
@@ -25,9 +26,23 @@ interface CalculatorResult {
   blocksPerDay: number;
 }
 
+interface ProfitResult {
+  dailyRevenue: number;
+  dailyCost: number;
+  dailyProfit: number;
+  monthlyProfit: number;
+}
+
 export default function CalculatorPage() {
   const [hashrate, setHashrate] = useState<string>("100");
   const [unit, setUnit] = useState<"MH/s" | "GH/s" | "TH/s">("MH/s");
+  const [powerConsumption, setPowerConsumption] = useState<string>(
+    poolConfig.calculator.defaultPowerConsumption.toString()
+  );
+  const [electricityCost, setElectricityCost] = useState<string>(
+    poolConfig.calculator.defaultElectricityCost.toString()
+  );
+  const [coinPrice, setCoinPrice] = useState<string>("0.01");
 
   const { data: statsData } = useSWR(API_BASE_URL + "/api/stats", fetcher, {
     refreshInterval: 30000,
@@ -108,6 +123,24 @@ export default function CalculatorPage() {
       blocksPerDay: expectedBlocksPerDay,
     };
   }, [hashrateInHs, networkHashrate]);
+
+  // Profitability calculation
+  const profitResults: ProfitResult = useMemo(() => {
+    const price = parseFloat(coinPrice) || 0;
+    const power = parseFloat(powerConsumption) || 0;
+    const elecCost = parseFloat(electricityCost) || 0;
+
+    const dailyRevenue = results.daily * price;
+    const dailyCost = (power / 1000) * 24 * elecCost; // kWh * hours * cost
+    const dailyProfit = dailyRevenue - dailyCost;
+
+    return {
+      dailyRevenue,
+      dailyCost,
+      dailyProfit,
+      monthlyProfit: dailyProfit * 30,
+    };
+  }, [results.daily, coinPrice, powerConsumption, electricityCost]);
 
   // Pool share calculation
   const poolShare = useMemo(() => {
@@ -192,6 +225,84 @@ export default function CalculatorPage() {
                 {preset.label}
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Electricity Cost Section */}
+        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+            <FireIcon className="w-5 h-5 text-orange-400" />
+            Profitability Calculator
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">Power Consumption (W)</label>
+              <input
+                type="number"
+                value={powerConsumption}
+                onChange={(e) => setPowerConsumption(e.target.value)}
+                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                placeholder="200"
+                min="0"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">Electricity Cost ($/kWh)</label>
+              <input
+                type="number"
+                value={electricityCost}
+                onChange={(e) => setElectricityCost(e.target.value)}
+                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                placeholder="0.10"
+                min="0"
+                step="0.01"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">{coinSymbol} Price (USD)</label>
+              <input
+                type="number"
+                value={coinPrice}
+                onChange={(e) => setCoinPrice(e.target.value)}
+                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                placeholder="0.01"
+                min="0"
+                step="0.001"
+              />
+            </div>
+          </div>
+
+          {/* Profitability Results */}
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+              <p className="text-sm text-gray-400">Daily Revenue</p>
+              <p className="text-lg font-bold text-green-400">
+                ${profitResults.dailyRevenue.toFixed(2)}
+              </p>
+            </div>
+            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+              <p className="text-sm text-gray-400">Daily Electricity</p>
+              <p className="text-lg font-bold text-red-400">
+                -${profitResults.dailyCost.toFixed(2)}
+              </p>
+            </div>
+            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+              <p className="text-sm text-gray-400">Daily Profit</p>
+              <p
+                className={`text-lg font-bold ${profitResults.dailyProfit >= 0 ? "text-green-400" : "text-red-400"}`}
+              >
+                ${profitResults.dailyProfit.toFixed(2)}
+              </p>
+            </div>
+            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+              <p className="text-sm text-gray-400">Monthly Profit</p>
+              <p
+                className={`text-lg font-bold ${profitResults.monthlyProfit >= 0 ? "text-green-400" : "text-red-400"}`}
+              >
+                ${profitResults.monthlyProfit.toFixed(2)}
+              </p>
+            </div>
           </div>
         </div>
 

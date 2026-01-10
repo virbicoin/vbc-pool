@@ -17,6 +17,24 @@ export interface PoolServer {
   active: boolean;
 }
 
+// Announcement interface
+export interface Announcement {
+  id: string;
+  type: "info" | "warning" | "success" | "error";
+  title: string;
+  message: string;
+  enabled: boolean;
+  link?: string;
+}
+
+// Miner download interface
+export interface MinerDownload {
+  name: string;
+  url: string;
+  os: string[];
+  recommended: boolean;
+}
+
 // Config interface
 interface PoolConfigType {
   coin: {
@@ -55,6 +73,15 @@ interface PoolConfigType {
     discord: string;
     telegram: string;
     bitcointalk: string;
+  };
+  announcements: Announcement[];
+  miners: {
+    downloads: MinerDownload[];
+  };
+  calculator: {
+    defaultElectricityCost: number;
+    defaultPowerConsumption: number;
+    currencies: string[];
   };
   stratum: {
     host: string;
@@ -113,6 +140,15 @@ export const poolConfig: PoolConfigType = {
     discord: configJson.links?.discord || "",
     telegram: configJson.links?.telegram || "",
     bitcointalk: configJson.links?.bitcointalk || "",
+  },
+  announcements: configJson.announcements || [],
+  miners: {
+    downloads: configJson.miners?.downloads || [],
+  },
+  calculator: {
+    defaultElectricityCost: configJson.calculator?.defaultElectricityCost || 0.1,
+    defaultPowerConsumption: configJson.calculator?.defaultPowerConsumption || 200,
+    currencies: configJson.calculator?.currencies || ["USD"],
   },
   stratum: {
     host: configJson.stratum?.host || "stratum.example.com",

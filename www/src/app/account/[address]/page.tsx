@@ -9,6 +9,7 @@ import { API_BASE_URL } from "@/lib/api";
 import AccountTabs from "@/components/AccountTabs";
 import Countdown from "@/components/Countdown";
 import TimeAgo from "@/components/TimeAgo";
+import WalletQRCode from "@/components/WalletQRCode";
 import { AccountWorker } from "@/lib/api";
 import {
   UserIcon,
@@ -218,6 +219,7 @@ export default function AccountPage() {
                     Explorer
                   </a>
                 )}
+                <WalletQRCode address={address} />
               </div>
             </div>
           </div>

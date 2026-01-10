@@ -1,6 +1,7 @@
 "use client";
 import useSWR from "swr";
 import PaymentsTable from "@/components/PaymentsTable";
+import CSVExportButton from "@/components/CSVExportButton";
 import { poolConfig, shannonToCoin } from "@/lib/poolConfig";
 import { API_BASE_URL } from "@/lib/api";
 import {
@@ -95,12 +96,17 @@ export default function PaymentsPage() {
         {/* Payments Table */}
         <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
           <div className="p-4 border-b border-gray-700">
-            <div className="flex items-center gap-2">
-              <BanknotesIcon className="w-5 h-5 text-yellow-400" />
-              <h4 className="text-lg font-semibold text-gray-100">
-                Latest Payouts
-                <span className="ml-2 text-sm font-normal text-gray-400">(Last 100 payments)</span>
-              </h4>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <BanknotesIcon className="w-5 h-5 text-yellow-400" />
+                <h4 className="text-lg font-semibold text-gray-100">
+                  Latest Payouts
+                  <span className="ml-2 text-sm font-normal text-gray-400">
+                    (Last 100 payments)
+                  </span>
+                </h4>
+              </div>
+              <CSVExportButton payments={payments} filename="pool_payments" />
             </div>
           </div>
 
