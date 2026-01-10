@@ -96,6 +96,7 @@ interface PoolConfigType {
     amount: number;
     cooldownHours: number;
     maxDailyRequests: number;
+    backendUrl: string;
   };
   servers: PoolServer[];
   storage: {
@@ -169,6 +170,7 @@ export const poolConfig: PoolConfigType = {
     amount: configJson.faucet?.amount || 0.1,
     cooldownHours: configJson.faucet?.cooldownHours || 24,
     maxDailyRequests: configJson.faucet?.maxDailyRequests || 100,
+    backendUrl: configJson.faucet?.backendUrl || "",
   },
   servers: configJson.servers || [],
   storage: {

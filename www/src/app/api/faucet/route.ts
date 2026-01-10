@@ -110,9 +110,12 @@ export async function GET() {
     return NextResponse.json({ enabled: false });
   }
 
+  // Determine backend URL (use faucet-specific URL if configured, otherwise fall back to api.baseUrl)
+  const faucetBackendUrl = poolConfig.faucet.backendUrl || poolConfig.api.baseUrl;
+  
   // Try to get status from backend
   try {
-    const backendUrl = `${poolConfig.api.baseUrl}/api/faucet`;
+    const backendUrl = `${faucetBackendUrl}/api/faucet`;
     const response = await fetch(backendUrl, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
@@ -229,7 +232,9 @@ export async function POST(request: NextRequest) {
 
   try {
     // Call backend faucet API (pool handles the transaction)
-    const backendUrl = `${poolConfig.api.baseUrl}/api/faucet`;
+    // Use faucet-specific backend URL if configured
+    const faucetBackendUrl = poolConfig.faucet.backendUrl || poolConfig.api.baseUrl;
+    const backendUrl = `${faucetBackendUrl}/api/faucet`;
     const response = await fetch(backendUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
