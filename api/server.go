@@ -81,14 +81,16 @@ func (s *ApiServer) Start() {
 
 	sort.Ints(s.config.LuckWindow)
 
-	if s.config.PurgeOnly {
-		s.purgeStale()
-	} else {
-		s.purgeStale()
-		s.collectStats()
-	}
-
+	// Start background tasks in goroutine to not block HTTP server
 	go func() {
+		// Initial purge and stats collection
+		if s.config.PurgeOnly {
+			s.purgeStale()
+		} else {
+			s.purgeStale()
+			s.collectStats()
+		}
+
 		for {
 			select {
 			case <-statsTimer.C:
@@ -103,6 +105,7 @@ func (s *ApiServer) Start() {
 		}
 	}()
 
+	// Start HTTP server immediately (not blocked by purge/stats)
 	if !s.config.PurgeOnly {
 		s.listen()
 	}

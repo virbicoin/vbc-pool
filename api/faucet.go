@@ -1,6 +1,8 @@
 package api
 
 import (
+	"context"
+	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,29 +12,35 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/virbicoin/open-virbicoin-pool/rpc"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/virbicoin/open-virbicoin-pool/storage"
 	"github.com/virbicoin/open-virbicoin-pool/util"
 )
 
 type FaucetConfig struct {
 	Enabled         bool   `json:"enabled"`
-	Amount          int64  `json:"amount"`          // Amount in Shannon (1e9 = 1 coin)
+	Amount          int64  `json:"amount"`          // Amount in Wei
 	CooldownMinutes int64  `json:"cooldownMinutes"` // Cooldown per address in minutes
 	MaxDailyPerIP   int    `json:"maxDailyPerIP"`   // Max requests per IP per day
 	Address         string `json:"address"`         // Faucet wallet address
+	PrivateKey      string `json:"privateKey"`      // Private key for signing transactions
 	Daemon          string `json:"daemon"`          // RPC endpoint
 	Timeout         string `json:"timeout"`
 	Gas             string `json:"gas"`
 	GasPrice        string `json:"gasPrice"`
 	AutoGas         bool   `json:"autoGas"`
+	ChainID         int64  `json:"chainId"` // Chain ID for EIP-155
 }
 
 type FaucetServer struct {
-	config  *FaucetConfig
-	backend *storage.RedisClient
-	rpc     *rpc.RPCClient
+	config     *FaucetConfig
+	backend    *storage.RedisClient
+	ethClient  *ethclient.Client
+	privateKey *ecdsa.PrivateKey
+	chainID    *big.Int
 
 	// Rate limiting
 	ipRequests     map[string]*ipRequestInfo
@@ -69,7 +77,44 @@ func NewFaucetServer(cfg *FaucetConfig, backend *storage.RedisClient) *FaucetSer
 		addrCooldowns: make(map[string]int64),
 	}
 	if cfg.Enabled {
-		f.rpc = rpc.NewRPCClient("Faucet", cfg.Daemon, cfg.Timeout)
+		// Parse private key
+		if cfg.PrivateKey != "" {
+			privateKey, err := crypto.HexToECDSA(strings.TrimPrefix(cfg.PrivateKey, "0x"))
+			if err != nil {
+				log.Fatalf("Failed to parse faucet private key: %v", err)
+			}
+			f.privateKey = privateKey
+
+			// Verify address matches private key
+			publicKey := privateKey.Public()
+			publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+			if !ok {
+				log.Fatal("Failed to get public key from private key")
+			}
+			derivedAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+			if !strings.EqualFold(derivedAddress.Hex(), cfg.Address) {
+				log.Printf("Warning: Faucet address %s doesn't match derived address %s", cfg.Address, derivedAddress.Hex())
+			}
+		}
+
+		// Set chain ID
+		if cfg.ChainID > 0 {
+			f.chainID = big.NewInt(cfg.ChainID)
+		} else {
+			f.chainID = big.NewInt(329) // Default VirBiCoin chain ID
+		}
+
+		// Connect to Ethereum client
+		timeout := util.MustParseDuration(cfg.Timeout)
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+
+		client, err := ethclient.DialContext(ctx, cfg.Daemon)
+		if err != nil {
+			log.Printf("Warning: Failed to connect to Ethereum client: %v", err)
+		} else {
+			f.ethClient = client
+		}
 	}
 	return f
 }
@@ -185,34 +230,61 @@ func (f *FaucetServer) HandleRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func (f *FaucetServer) sendFaucetTransaction(to string) (string, error) {
-	// Get gas limit
-	gas := util.String2Big(f.config.Gas)
+	if f.privateKey == nil {
+		return "", fmt.Errorf("private key not configured")
+	}
+	if f.ethClient == nil {
+		return "", fmt.Errorf("ethereum client not connected")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	fromAddress := crypto.PubkeyToAddress(f.privateKey.PublicKey)
+	toAddress := common.HexToAddress(to)
+
+	// Get nonce
+	nonce, err := f.ethClient.PendingNonceAt(ctx, fromAddress)
+	if err != nil {
+		return "", fmt.Errorf("failed to get nonce: %v", err)
+	}
 
 	// Get gas price
 	var gasPrice *big.Int
 	if f.config.AutoGas {
-		gasPrice = big.NewInt(0) // Will be auto-determined by node
+		gasPrice, err = f.ethClient.SuggestGasPrice(ctx)
+		if err != nil {
+			return "", fmt.Errorf("failed to suggest gas price: %v", err)
+		}
 	} else {
 		gasPrice = util.String2Big(f.config.GasPrice)
 	}
 
-	// Amount to send
-	amount := big.NewInt(f.config.Amount)
-
-	// Send transaction using pool's address (configured in faucet config)
-	txHash, err := f.rpc.SendTransaction(
-		f.config.Address,
-		to,
-		hexutil.EncodeBig(gas),
-		hexutil.EncodeBig(gasPrice),
-		hexutil.EncodeBig(amount),
-		f.config.AutoGas,
-	)
-	if err != nil {
-		return "", err
+	// Gas limit
+	gasLimit := uint64(21000)
+	if f.config.Gas != "" {
+		gasLimit = util.String2Big(f.config.Gas).Uint64()
 	}
 
-	return txHash, nil
+	// Amount
+	amount := big.NewInt(f.config.Amount)
+
+	// Create transaction
+	tx := types.NewTransaction(nonce, toAddress, amount, gasLimit, gasPrice, nil)
+
+	// Sign transaction
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(f.chainID), f.privateKey)
+	if err != nil {
+		return "", fmt.Errorf("failed to sign transaction: %v", err)
+	}
+
+	// Send transaction
+	err = f.ethClient.SendTransaction(ctx, signedTx)
+	if err != nil {
+		return "", fmt.Errorf("failed to send transaction: %v", err)
+	}
+
+	return signedTx.Hash().Hex(), nil
 }
 
 func (f *FaucetServer) checkIPRateLimit(ip string) (remaining int, limited bool) {
