@@ -49,7 +49,7 @@ const HeaderStats = () => {
     <div className="flex items-center space-x-2">
       <NavLink href="/blocks" badge={poolBlocksBadge} badgeColor="bg-green-600">
         <CubeIcon className="w-5 h-5 mr-1" />
-        Pool Blocks
+        Blocks
       </NavLink>
       <NavLink href="/miners" badge={minersTotal} badgeColor="bg-blue-500">
         <UsersIcon className="w-5 h-5 mr-1" />

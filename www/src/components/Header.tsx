@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import {
-  HomeIcon,
   QuestionMarkCircleIcon,
   InformationCircleIcon,
   CurrencyDollarIcon,
@@ -43,25 +42,13 @@ export default function Header() {
         {/* Desktop Navigation */}
         <ul className="hidden lg:flex items-center space-x-4">
           <li>
-            <Link href="/" className="nav-link text-gray-200 flex items-center gap-1">
-              <HomeIcon className="w-5 h-5" />
-              <span>Home</span>
-            </Link>
-          </li>
-          <li>
-            <Link href="/blocks" className="nav-link text-gray-200 flex items-center gap-1">
-              <CubeIcon className="w-5 h-5" />
-              <span>Blocks</span>
-            </Link>
+            <HeaderStats />
           </li>
           <li>
             <Link href="/payments" className="nav-link text-gray-200 flex items-center gap-1">
               <CurrencyDollarIcon className="w-5 h-5" />
               <span>Payments</span>
             </Link>
-          </li>
-          <li>
-            <HeaderStats />
           </li>
           <li>
             <Link href="/calculator" className="nav-link text-gray-200 flex items-center gap-1">
@@ -107,16 +94,6 @@ export default function Header() {
           <ul className="space-y-2">
             <li>
               <Link
-                href="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
-              >
-                <HomeIcon className="w-5 h-5" />
-                <span>Home</span>
-              </Link>
-            </li>
-            <li>
-              <Link
                 href="/blocks"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
@@ -127,32 +104,22 @@ export default function Header() {
             </li>
             <li>
               <Link
-                href="/payments"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
-              >
-                <CurrencyDollarIcon className="w-5 h-5" />
-                <span>Payments</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/blocks"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
-              >
-                <CubeIcon className="w-5 h-5" />
-                <span>Pool Blocks</span>
-              </Link>
-            </li>
-            <li>
-              <Link
                 href="/miners"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
               >
                 <UsersIcon className="w-5 h-5" />
                 <span>Miners</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/payments"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
+              >
+                <CurrencyDollarIcon className="w-5 h-5" />
+                <span>Payments</span>
               </Link>
             </li>
             <li>
