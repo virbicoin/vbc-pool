@@ -1,6 +1,8 @@
 "use client";
 import useSWR from "swr";
 import PaymentsTable from "@/components/PaymentsTable";
+import { poolConfig, shannonToCoin } from "@/lib/poolConfig";
+import { API_BASE_URL } from "@/lib/api";
 import {
   BanknotesIcon,
   CurrencyDollarIcon,
@@ -9,7 +11,6 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function PaymentsPage() {
@@ -19,8 +20,10 @@ export default function PaymentsPage() {
   const payments = data.payments || [];
 
   // Calculate total paid from payments
-  const totalPaidFromPayments =
-    payments.reduce((sum: number, p: { amount: number }) => sum + (p.amount || 0), 0) / 1e9;
+  const totalPaidFromPayments = payments.reduce(
+    (sum: number, p: { amount: number }) => sum + (p.amount || 0),
+    0
+  );
   const paymentsCount = payments.length;
 
   return (
@@ -56,7 +59,7 @@ export default function PaymentsPage() {
                 <p className="text-gray-400 text-sm">Total Paid (Recent)</p>
               </div>
               <p className="text-2xl font-bold text-green-400">
-                {totalPaidFromPayments.toFixed(4)} VBC
+                {shannonToCoin(totalPaidFromPayments).toFixed(4)} {poolConfig.coin.symbol}
               </p>
             </div>
             <div className="text-center">
@@ -76,7 +79,11 @@ export default function PaymentsPage() {
             <div className="text-sm text-gray-300">
               <p className="mb-1">
                 <strong className="text-yellow-400">Automatic payouts</strong> are processed every 2
-                hours for balances above <strong className="text-yellow-400">0.1 VBC</strong>.
+                hours for balances above{" "}
+                <strong className="text-yellow-400">
+                  {poolConfig.pool.minPayout} {poolConfig.coin.symbol}
+                </strong>
+                .
               </p>
               <p className="text-gray-400">
                 Click on any transaction hash to view it on the blockchain explorer.

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   HomeIcon,
   QuestionMarkCircleIcon,
@@ -7,10 +10,23 @@ import {
   CurrencyDollarIcon,
   GlobeAltIcon,
   MagnifyingGlassIcon,
+  CalculatorIcon,
+  CubeIcon,
+  Bars3Icon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import HeaderStats from "./HeaderStats";
+import { useState } from "react";
+import poolConfig from "@/lib/poolConfig";
+
+// Dynamic import for BlockNotification to avoid SSR issues
+const BlockNotification = dynamic(() => import("@/components/BlockNotification"), {
+  ssr: false,
+});
 
 export default function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <header className="bg-gray-900 border-b border-gray-800">
       <nav className="container mx-auto px-2 flex items-center justify-between h-14">
@@ -18,24 +34,23 @@ export default function Header() {
           href="/"
           className="flex items-center gap-2 text-xl font-bold nav-link text-gray-100 hover:text-green-400 transition-colors"
         >
-          <Image src="/VBC.svg" alt="VirBiCoin" width={32} height={32} />
-          <span className="hidden sm:inline">VirBiCoin Pool</span>
+          <Image src={poolConfig.branding.logo} alt={poolConfig.coin.name} width={32} height={32} />
+          <span className="hidden sm:inline">{poolConfig.pool.name}</span>
         </Link>
-        <ul className="flex items-center space-x-4">
+
+        {/* Desktop Navigation */}
+        <ul className="hidden lg:flex items-center space-x-4">
           <li>
             <Link href="/" className="nav-link text-gray-200 flex items-center gap-1">
               <HomeIcon className="w-5 h-5" />
-              <span className="hidden sm:inline">Home</span>
+              <span>Home</span>
             </Link>
           </li>
           <li>
-            <Link href="/help" className="nav-link text-gray-200 flex items-center gap-1">
-              <QuestionMarkCircleIcon className="w-5 h-5" />
-              <span className="hidden sm:inline">Getting Started</span>
+            <Link href="/blocks" className="nav-link text-gray-200 flex items-center gap-1">
+              <CubeIcon className="w-5 h-5" />
+              <span>Blocks</span>
             </Link>
-          </li>
-          <li>
-            <HeaderStats />
           </li>
           <li>
             <Link href="/payments" className="nav-link text-gray-200 flex items-center gap-1">
@@ -44,34 +59,157 @@ export default function Header() {
             </Link>
           </li>
           <li>
-            <Link href="/about" className="nav-link text-gray-200 flex items-center gap-1">
-              <InformationCircleIcon className="w-5 h-5" />
-              <span>About</span>
+            <Link href="/calculator" className="nav-link text-gray-200 flex items-center gap-1">
+              <CalculatorIcon className="w-5 h-5" />
+              <span>Calculator</span>
             </Link>
           </li>
           <li>
-            <Link
-              href="https://explorer.digitalregion.jp/"
-              target="_blank"
-              className="nav-link text-gray-200 flex items-center gap-1"
-            >
-              <MagnifyingGlassIcon className="w-5 h-5" />
-              <span className="hidden sm:inline">Explorer</span>
+            <Link href="/help" className="nav-link text-gray-200 flex items-center gap-1">
+              <QuestionMarkCircleIcon className="w-5 h-5" />
+              <span>Help</span>
             </Link>
           </li>
           <li>
-            <a
-              href="https://stats.digitalregion.jp/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="nav-link text-gray-200 flex items-center gap-1"
-            >
-              <GlobeAltIcon className="w-5 h-5" />
-              <span>Network</span>
-            </a>
+            <HeaderStats />
+          </li>
+          {poolConfig.links.explorer && (
+            <li>
+              <Link
+                href={poolConfig.links.explorer}
+                target="_blank"
+                className="nav-link text-gray-200 flex items-center gap-1"
+              >
+                <MagnifyingGlassIcon className="w-5 h-5" />
+                <span>Explorer</span>
+              </Link>
+            </li>
+          )}
+          {poolConfig.links.network && (
+            <li>
+              <a
+                href={poolConfig.links.network}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="nav-link text-gray-200 flex items-center gap-1"
+              >
+                <GlobeAltIcon className="w-5 h-5" />
+                <span>Network</span>
+              </a>
+            </li>
+          )}
+          <li>
+            <BlockNotification />
           </li>
         </ul>
+
+        {/* Mobile Menu Button */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <BlockNotification />
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700"
+          >
+            {mobileMenuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
+          </button>
+        </div>
       </nav>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden bg-gray-900 border-t border-gray-800 px-4 py-3">
+          <ul className="space-y-2">
+            <li>
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
+              >
+                <HomeIcon className="w-5 h-5" />
+                <span>Home</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/blocks"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
+              >
+                <CubeIcon className="w-5 h-5" />
+                <span>Blocks</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/payments"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
+              >
+                <CurrencyDollarIcon className="w-5 h-5" />
+                <span>Payments</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/calculator"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
+              >
+                <CalculatorIcon className="w-5 h-5" />
+                <span>Calculator</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/help"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
+              >
+                <QuestionMarkCircleIcon className="w-5 h-5" />
+                <span>Getting Started</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/about"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
+              >
+                <InformationCircleIcon className="w-5 h-5" />
+                <span>About</span>
+              </Link>
+            </li>
+            {(poolConfig.links.explorer || poolConfig.links.network) && (
+              <li className="border-t border-gray-800 pt-2 mt-2">
+                {poolConfig.links.explorer && (
+                  <a
+                    href={poolConfig.links.explorer}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
+                  >
+                    <MagnifyingGlassIcon className="w-5 h-5" />
+                    <span>Block Explorer</span>
+                  </a>
+                )}
+              </li>
+            )}
+            {poolConfig.links.network && (
+              <li>
+                <a
+                  href={poolConfig.links.network}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
+                >
+                  <GlobeAltIcon className="w-5 h-5" />
+                  <span>Network Stats</span>
+                </a>
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
     </header>
   );
 }

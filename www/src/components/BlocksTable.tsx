@@ -1,6 +1,7 @@
 "use client";
 import TimeAgo from "@/components/TimeAgo";
 import { formatDifficulty } from "@/lib/formatters";
+import { poolConfig } from "@/lib/poolConfig";
 import { CubeIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 export type Block = {
@@ -80,7 +81,7 @@ function RewardBadge({
     <span
       className={`inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium ${badgeClass} border`}
     >
-      {rewardAmount.toFixed(4)} VBC
+      {rewardAmount.toFixed(4)} {poolConfig.coin.symbol}
     </span>
   );
 }
@@ -133,15 +134,22 @@ export default function BlocksTable({ blocks, type }: BlocksTableProps) {
               className={`hover:bg-gray-700/30 transition-colors ${index % 2 === 0 ? "bg-gray-800/30" : "bg-gray-800/10"}`}
             >
               <td className="px-4 py-3">
-                <a
-                  href={`https://explorer.digitalregion.jp/block/${block.height}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors font-mono"
-                >
-                  <CubeIcon className="w-4 h-4" />
-                  {block.height.toLocaleString()}
-                </a>
+                {poolConfig.links.explorer ? (
+                  <a
+                    href={`${poolConfig.links.explorer}/block/${block.height}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors font-mono"
+                  >
+                    <CubeIcon className="w-4 h-4" />
+                    {block.height.toLocaleString()}
+                  </a>
+                ) : (
+                  <span className="inline-flex items-center gap-2 font-mono">
+                    <CubeIcon className="w-4 h-4 text-gray-400" />
+                    {block.height.toLocaleString()}
+                  </span>
+                )}
               </td>
               {type !== "pending" && (
                 <td className="px-4 py-3">
@@ -150,9 +158,9 @@ export default function BlocksTable({ blocks, type }: BlocksTableProps) {
                       <ExclamationTriangleIcon className="w-4 h-4" />
                       Orphan
                     </span>
-                  ) : (
+                  ) : poolConfig.links.explorer ? (
                     <a
-                      href={`https://explorer.digitalregion.jp/block/${block.hash}`}
+                      href={`${poolConfig.links.explorer}/block/${block.hash}`}
                       className="font-mono text-sm text-gray-400 hover:text-gray-200 transition-colors"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -162,6 +170,13 @@ export default function BlocksTable({ blocks, type }: BlocksTableProps) {
                         {block.hash.slice(0, 16)}...{block.hash.slice(-8)}
                       </span>
                     </a>
+                  ) : (
+                    <span className="font-mono text-sm text-gray-400">
+                      <span className="hidden lg:inline">{block.hash}</span>
+                      <span className="lg:hidden">
+                        {block.hash.slice(0, 16)}...{block.hash.slice(-8)}
+                      </span>
+                    </span>
                   )}
                 </td>
               )}

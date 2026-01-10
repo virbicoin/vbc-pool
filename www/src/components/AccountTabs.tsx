@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AccountWorker, AccountPayment } from "@/lib/api";
 import { formatHashrate } from "@/lib/formatters";
+import { poolConfig, shannonToCoin } from "@/lib/poolConfig";
 import TimeAgo from "./TimeAgo";
 
 type AccountTabsProps = {
@@ -122,17 +123,25 @@ const AccountTabs = ({ workers, payments }: AccountTabsProps) => {
                         })}
                       </td>
                       <td className="px-4 py-3 text-green-400">
-                        {(payout.amount / 1e9).toFixed(4)} VBC
+                        {shannonToCoin(payout.amount).toFixed(4)} {poolConfig.coin.symbol}
                       </td>
                       <td className="px-4 py-3 font-mono text-sm text-gray-400">
-                        <a
-                          href={`https://explorer.digitalregion.jp/tx/${payout.tx}`}
-                          className="text-blue-400 hover:text-blue-300 transition-colors break-all"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {payout.tx.substring(0, 10)}...{payout.tx.substring(payout.tx.length - 8)}
-                        </a>
+                        {poolConfig.links.explorer ? (
+                          <a
+                            href={`${poolConfig.links.explorer}/tx/${payout.tx}`}
+                            className="text-blue-400 hover:text-blue-300 transition-colors break-all"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {payout.tx.substring(0, 10)}...
+                            {payout.tx.substring(payout.tx.length - 8)}
+                          </a>
+                        ) : (
+                          <span className="break-all">
+                            {payout.tx.substring(0, 10)}...
+                            {payout.tx.substring(payout.tx.length - 8)}
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}

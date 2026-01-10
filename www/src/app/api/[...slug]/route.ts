@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import poolConfig, { getPoolServers } from "@/lib/poolConfig";
 // Import the specific port-check handler so we can delegate when the
 // catch-all route accidentally captures /api/check-port. This avoids 404
 // responses in production where routing precedence can vary between
@@ -8,18 +9,6 @@ import { GET as checkPortGET } from "../check-port/route";
 // Ensure this route always executes in the Node.js runtime; the delegated
 // handler uses the "net" module which is Node-only.
 export const runtime = "nodejs";
-
-// SECURITY: 許可されたプールIDのホワイトリスト
-// 環境変数から動的に構築するのではなく、明示的にリスト化
-const ALLOWED_POOL_IDS: ReadonlySet<string> = new Set([
-  "pool",
-  "pool1",
-  "pool2",
-  "pool3",
-  "pool4",
-  "pool5",
-  "global",
-]);
 
 // SECURITY: 許可されたAPIパスのホワイトリスト（パストラバーサル防止）
 const ALLOWED_API_PATHS: ReadonlySet<string> = new Set([
@@ -47,28 +36,35 @@ function isValidApiPath(apiPath: string): boolean {
   return ALLOWED_API_PATHS.has(rootPath);
 }
 
-// Build pool endpoints dynamically from env (NEXT_PUBLIC_POOL*_URL)
-// SECURITY: 環境変数からURLを取得するが、許可されたプールIDのみ
+// Build pool endpoints from config.json
 function getPoolEndpoints(): Record<string, string> {
   const endpoints: Record<string, string> = {};
-  if (process.env["NEXT_PUBLIC_POOL_BASE_URL"])
-    endpoints["pool"] = process.env["NEXT_PUBLIC_POOL_BASE_URL"];
-  // Check all env vars, add those that match NEXT_PUBLIC_POOL{N}_URL
-  Object.keys(process.env).forEach((key) => {
-    const match = key.match(/^NEXT_PUBLIC_POOL(\d+)_URL$/);
-    if (match && process.env[key]) {
-      const poolId = `pool${match[1]}`;
-      // SECURITY: 許可されたプールIDのみ追加
-      if (ALLOWED_POOL_IDS.has(poolId)) {
-        endpoints[poolId] = process.env[key] as string;
-      }
+  const servers = getPoolServers();
+
+  // Add base pool endpoint
+  if (poolConfig.api.baseUrl) {
+    endpoints["pool"] = poolConfig.api.baseUrl;
+  }
+
+  // Add server endpoints from config
+  servers.forEach((server, index) => {
+    if (server.apiUrl) {
+      endpoints[server.id || `pool${index + 1}`] = server.apiUrl;
     }
   });
+
   return endpoints;
 }
 
-// Use dynamic endpoints
+// Use dynamic endpoints from config
 const POOL_ENDPOINTS = getPoolEndpoints();
+
+// Build allowed pool IDs from config
+const ALLOWED_POOL_IDS: ReadonlySet<string> = new Set([
+  "pool",
+  "global",
+  ...Object.keys(POOL_ENDPOINTS),
+]);
 
 export async function GET(_req: NextRequest, context: { params: Promise<{ slug: string[] }> }) {
   const startTime = Date.now();
@@ -136,7 +132,7 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
       method: "GET",
       headers: {
         Accept: "application/json",
-        "User-Agent": "Virbicoin-Pool-Frontend/1.0",
+        "User-Agent": "Pool-Frontend/1.0",
       },
       // Route53 latency based routing ensures nearest server; 10s timeout
       signal: AbortSignal.timeout(10000),

@@ -4,12 +4,13 @@ import "./globals.css";
 import Header from "@/components/Header";
 import GlobalHealthChecker from "@/components/GlobalHealthChecker";
 import Footer from "@/components/Footer";
+import poolConfig from "@/lib/poolConfig";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "VirBiCoin Mining Pool",
-  description: "High performance VirBiCoin mining pool",
+  title: poolConfig.pool.name,
+  description: poolConfig.pool.description,
 };
 
 export const viewport: Viewport = {

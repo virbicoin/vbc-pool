@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import useSWR from "swr";
+import { API_BASE_URL } from "@/lib/api";
 import { CubeIcon, UsersIcon } from "@heroicons/react/24/outline";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface NavLinkProps {

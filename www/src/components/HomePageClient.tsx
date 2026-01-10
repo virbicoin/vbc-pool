@@ -1,15 +1,28 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import DashboardStats from "@/components/DashboardStats";
 import AccountLookupForm from "@/components/AccountLookupForm";
+import poolConfig from "@/lib/poolConfig";
 import {
   HomeIcon,
   CubeIcon,
   UserGroupIcon,
   BanknotesIcon,
   QuestionMarkCircleIcon,
+  CalculatorIcon,
 } from "@heroicons/react/24/outline";
+
+// Dynamic import for HashrateChart to avoid SSR issues with Chart.js
+const HashrateChart = dynamic(() => import("@/components/HashrateChart"), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 h-[350px] flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-400"></div>
+    </div>
+  ),
+});
 
 interface HomePageClientProps {
   dashboardStats: {
@@ -35,10 +48,8 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
               <HomeIcon className="w-8 h-8 text-green-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-100">VirBiCoin Mining Pool</h1>
-              <p className="text-gray-400 text-sm mt-1">
-                High-performance PROPS mining pool with automatic payouts
-              </p>
+              <h1 className="text-3xl font-bold text-gray-100">{poolConfig.pool.name}</h1>
+              <p className="text-gray-400 text-sm mt-1">{poolConfig.pool.description}</p>
             </div>
           </div>
         </div>
@@ -48,8 +59,13 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
         {/* Dashboard Stats */}
         <DashboardStats stats={dashboardStats} />
 
+        {/* Hashrate Chart */}
+        <div className="mt-8">
+          <HashrateChart title="Pool Hashrate History" color="#22c55e" height={250} />
+        </div>
+
         {/* Quick Links Section */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-5 gap-4">
           <Link
             href="/miners"
             className="bg-gray-800 rounded-lg border border-gray-700 p-6 hover:bg-gray-700/50 hover:border-gray-600 transition-all group"
@@ -96,12 +112,27 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
           </Link>
 
           <Link
-            href="/help"
+            href="/calculator"
             className="bg-gray-800 rounded-lg border border-gray-700 p-6 hover:bg-gray-700/50 hover:border-gray-600 transition-all group"
           >
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-600/20 rounded-lg group-hover:bg-purple-600/30 transition-colors">
-                <QuestionMarkCircleIcon className="w-6 h-6 text-purple-400" />
+                <CalculatorIcon className="w-6 h-6 text-purple-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-100">Calculator</h3>
+                <p className="text-sm text-gray-400">Estimate rewards</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/help"
+            className="bg-gray-800 rounded-lg border border-gray-700 p-6 hover:bg-gray-700/50 hover:border-gray-600 transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-cyan-600/20 rounded-lg group-hover:bg-cyan-600/30 transition-colors">
+                <QuestionMarkCircleIcon className="w-6 h-6 text-cyan-400" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-100">Getting Started</h3>

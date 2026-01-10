@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import useSWR from "swr";
 import { formatHashrate } from "@/lib/formatters";
+import { poolConfig } from "@/lib/poolConfig";
+import { API_BASE_URL } from "@/lib/api";
 import TimeAgo from "@/components/TimeAgo";
 import PoolHealthStatus from "@/components/PoolHealthStatus";
 import {
@@ -125,8 +127,7 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
     if (isDevelopment) {
       return Promise.resolve(mockData);
     }
-    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://pool.digitalregion.jp";
-    const response = await fetch(`${apiUrl}/api/stats`);
+    const response = await fetch(`${API_BASE_URL}/api/stats`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -175,7 +176,7 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
   }
 
   if (networkDifficulty > 0) {
-    const blockTime = 10;
+    const blockTime = poolConfig.block.time;
     networkHashrate = networkDifficulty / blockTime;
   }
 
@@ -283,14 +284,16 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
             title="Block Height"
             value={stats.blockHeight > 0 ? stats.blockHeight.toLocaleString() : "0"}
             subtitle={
-              <a
-                href={`https://explorer.digitalregion.jp/block/${stats.blockHeight}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300"
-              >
-                View in explorer →
-              </a>
+              poolConfig.links.explorer && (
+                <a
+                  href={`${poolConfig.links.explorer}/block/${stats.blockHeight}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:text-blue-300"
+                >
+                  View in explorer →
+                </a>
+              )
             }
             valueColor="text-orange-400"
           />
@@ -298,7 +301,7 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
             icon={<GiftIcon className="w-6 h-6 text-red-400" />}
             iconBgColor="bg-red-600/20"
             title="Block Reward"
-            value="8 VBC"
+            value={`${poolConfig.block.reward} ${poolConfig.coin.symbol}`}
             subtitle="Unlimited supply"
             valueColor="text-red-400"
           />
@@ -316,7 +319,7 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
             icon={<CurrencyDollarIcon className="w-6 h-6 text-green-400" />}
             iconBgColor="bg-green-600/20"
             title="Pool Fee"
-            value="1.0%"
+            value={`${poolConfig.pool.fee}%`}
             subtitle="Low fee"
             valueColor="text-green-400"
           />
@@ -324,7 +327,7 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
             icon={<CreditCardIcon className="w-6 h-6 text-yellow-400" />}
             iconBgColor="bg-yellow-600/20"
             title="Minimum Payout"
-            value="0.1 VBC"
+            value={`${poolConfig.pool.minPayout} ${poolConfig.coin.symbol}`}
             subtitle="Low threshold"
             valueColor="text-yellow-400"
           />

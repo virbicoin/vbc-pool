@@ -1,6 +1,7 @@
 "use client";
 import TimeAgo from "@/components/TimeAgo";
 import { Payment } from "@/lib/api";
+import { poolConfig, shannonToCoin } from "@/lib/poolConfig";
 import { ArrowTopRightOnSquareIcon, BanknotesIcon, ClockIcon } from "@heroicons/react/24/outline";
 
 interface PaymentsTableProps {
@@ -41,7 +42,7 @@ export default function PaymentsTable({ payments }: PaymentsTableProps) {
         </thead>
         <tbody className="divide-y divide-gray-700/50">
           {payments.map((payment, index) => {
-            const amount = payment.amount / 1e9;
+            const amount = shannonToCoin(payment.amount);
             return (
               <tr
                 key={payment.tx}
@@ -51,18 +52,27 @@ export default function PaymentsTable({ payments }: PaymentsTableProps) {
                   <TimeAgo timestamp={payment.timestamp} />
                 </td>
                 <td className="px-4 py-3">
-                  <a
-                    href={`https://explorer.digitalregion.jp/tx/${payment.tx}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 font-mono text-sm text-blue-400 hover:text-blue-300 transition-colors group"
-                  >
-                    <span className="hidden lg:inline">{payment.tx}</span>
-                    <span className="lg:hidden">
-                      {payment.tx.slice(0, 16)}...{payment.tx.slice(-8)}
+                  {poolConfig.links.explorer ? (
+                    <a
+                      href={`${poolConfig.links.explorer}/tx/${payment.tx}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 font-mono text-sm text-blue-400 hover:text-blue-300 transition-colors group"
+                    >
+                      <span className="hidden lg:inline">{payment.tx}</span>
+                      <span className="lg:hidden">
+                        {payment.tx.slice(0, 16)}...{payment.tx.slice(-8)}
+                      </span>
+                      <ArrowTopRightOnSquareIcon className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </a>
+                  ) : (
+                    <span className="font-mono text-sm text-gray-400">
+                      <span className="hidden lg:inline">{payment.tx}</span>
+                      <span className="lg:hidden">
+                        {payment.tx.slice(0, 16)}...{payment.tx.slice(-8)}
+                      </span>
                     </span>
-                    <ArrowTopRightOnSquareIcon className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </a>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   <span
@@ -74,7 +84,7 @@ export default function PaymentsTable({ payments }: PaymentsTableProps) {
                           : "bg-gray-700/50 text-gray-300 border-gray-600/50"
                     }`}
                   >
-                    {amount.toFixed(8)} VBC
+                    {amount.toFixed(8)} {poolConfig.coin.symbol}
                   </span>
                 </td>
               </tr>

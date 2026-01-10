@@ -1,7 +1,8 @@
 import { getStats } from "@/lib/api";
 import HomePageClient from "@/components/HomePageClient";
+import poolConfig from "@/lib/poolConfig";
 
-function calcNetworkHashrate(difficulty: number, blockTime: number = 10) {
+function calcNetworkHashrate(difficulty: number, blockTime: number) {
   // Network Hashrate = Difficulty / BlockTime
   if (!difficulty || !blockTime) return 0;
   return difficulty / blockTime;
@@ -16,8 +17,8 @@ export default async function Home() {
     ? parseFloat(latestNode.difficulty)
     : stats.stats?.networkDifficulty || 0;
   const blockHeight = latestNode ? parseInt(latestNode.height) : stats.stats?.height || 0;
-  // blockTimeは12秒で固定（VBC仕様）
-  const networkHashrate = calcNetworkHashrate(networkDifficulty, 12);
+  // Use block time from config
+  const networkHashrate = calcNetworkHashrate(networkDifficulty, poolConfig.block.time);
 
   // データの妥当性チェック - 無効なデータの場合は空のオブジェクトを渡す
   const isDataValid = networkHashrate > 1e6 && networkDifficulty > 1e6; // 最低1MH/s, 1M difficulty

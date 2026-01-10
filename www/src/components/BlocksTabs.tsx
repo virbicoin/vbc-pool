@@ -3,9 +3,9 @@
 import useSWR from "swr";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { API_BASE_URL } from "@/lib/api";
 import { CheckCircleIcon, ClockIcon, SparklesIcon } from "@heroicons/react/24/outline";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function BlocksTabs() {

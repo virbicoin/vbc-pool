@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { poolConfig } from "@/lib/poolConfig";
 import {
   InformationCircleIcon,
   ShieldCheckIcon,
@@ -63,10 +64,10 @@ export default function AboutPage() {
               <h3 className="text-xl font-semibold text-gray-100">Overview</h3>
             </div>
             <p className="text-gray-400 leading-relaxed">
-              VirBiCoin Pool (hereafter referred to as &quot;the Pool&quot;) is a service designed
-              for <strong className="text-gray-200">decentralized mining</strong>, providing users
-              with a high-performance mining environment. By using the Pool, users agree to accept
-              all terms and risks outlined below.
+              {poolConfig.pool.name} (hereafter referred to as &quot;the Pool&quot;) is a service
+              designed for <strong className="text-gray-200">decentralized mining</strong>,
+              providing users with a high-performance mining environment. By using the Pool, users
+              agree to accept all terms and risks outlined below.
             </p>
           </div>
         </div>
@@ -221,8 +222,11 @@ export default function AboutPage() {
                 <h4 className="text-gray-200 font-semibold mb-2">Minimum Payout Threshold</h4>
                 <p className="text-gray-400 text-sm">
                   Users must meet a minimum payout threshold of{" "}
-                  <strong className="text-yellow-400">0.1 VBC</strong> before rewards are
-                  distributed. This threshold may be changed at the discretion of the Pool owner.
+                  <strong className="text-yellow-400">
+                    {poolConfig.pool.minPayout} {poolConfig.coin.symbol}
+                  </strong>{" "}
+                  before rewards are distributed. This threshold may be changed at the discretion of
+                  the Pool owner.
                 </p>
               </div>
             </div>
@@ -308,23 +312,27 @@ export default function AboutPage() {
               channels:
             </p>
             <div className="flex flex-wrap gap-3">
-              <a
-                href="https://x.com/VirBiCoin"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition-colors"
-              >
-                <GlobeAltIcon className="w-5 h-5" />X (Twitter)
-              </a>
-              <a
-                href="https://discord.digitalregion.jp/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-700 hover:bg-indigo-600 text-gray-200 rounded-lg transition-colors"
-              >
-                <ChatBubbleLeftRightIcon className="w-5 h-5" />
-                Discord
-              </a>
+              {poolConfig.links.twitter && (
+                <a
+                  href={poolConfig.links.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition-colors"
+                >
+                  <GlobeAltIcon className="w-5 h-5" />X (Twitter)
+                </a>
+              )}
+              {poolConfig.links.discord && (
+                <a
+                  href={poolConfig.links.discord}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-700 hover:bg-indigo-600 text-gray-200 rounded-lg transition-colors"
+                >
+                  <ChatBubbleLeftRightIcon className="w-5 h-5" />
+                  Discord
+                </a>
+              )}
               <span
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700/50 text-gray-400 rounded-lg cursor-not-allowed"
                 title="Coming Soon"

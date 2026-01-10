@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server";
+import poolConfig from "@/lib/poolConfig";
 
 export async function GET() {
   const startTime = Date.now();
 
   try {
     // 実際のプールサーバーからstatsを取得
-    const proxyUrl = `${process.env.NEXT_PUBLIC_POOL_BASE_URL || "https://pool.digitalregion.jp"}/api/stats`;
+    const proxyUrl = `${poolConfig.api.baseUrl}/api/stats`;
 
     const response = await fetch(proxyUrl, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "User-Agent": "Virbicoin-Pool-Frontend/1.0",
+        "User-Agent": "Pool-Frontend/1.0",
       },
       // タイムアウトを設定
       signal: AbortSignal.timeout(15000),
@@ -51,7 +52,7 @@ export async function GET() {
     }
 
     // ネットワークハッシュレートを計算（difficulty / block time）
-    const blockTime = 10; // Virbicoinのブロック時間（秒）
+    const blockTime = poolConfig.block.time;
     const networkHashrate = maxDifficulty / blockTime;
 
     // roundVarianceを計算

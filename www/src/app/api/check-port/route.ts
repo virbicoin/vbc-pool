@@ -1,24 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
 import net from "net";
+import { getPoolServers } from "@/lib/poolConfig";
+import poolConfig from "@/lib/poolConfig";
 
 // Force this route to run in the Node.js runtime (required for net.Socket)
 export const runtime = "nodejs";
 
-// SECURITY: ホワイトリストで許可されたホスト/ポートのみ接続可能
-// これによりSSRF攻撃を防止
-const ALLOWED_HOSTS: ReadonlySet<string> = new Set([
-  "stratum.digitalregion.jp",
-  "stratum1.digitalregion.jp",
-  "stratum2.digitalregion.jp",
-  "stratum3.digitalregion.jp",
-  "stratum4.digitalregion.jp",
-  "stratum5.digitalregion.jp",
-]);
+// Build allowed hosts dynamically from config
+function getAllowedHosts(): Set<string> {
+  const hosts = new Set<string>();
+  const servers = getPoolServers();
+  servers.forEach((server) => {
+    if (server.stratumUrl) {
+      hosts.add(server.stratumUrl);
+    }
+  });
+  // Also add the main stratum host from config
+  if (poolConfig.stratum.host) {
+    hosts.add(poolConfig.stratum.host);
+  }
+  return hosts;
+}
 
-const ALLOWED_PORTS: ReadonlySet<number> = new Set([8002, 8004, 8009]);
+// Build allowed ports dynamically from config
+function getAllowedPorts(): Set<number> {
+  const ports = new Set<number>();
+  const servers = getPoolServers();
+  servers.forEach((server) => {
+    if (server.stratumPorts) {
+      server.stratumPorts.forEach((port) => ports.add(port));
+    }
+  });
+  // Also add main stratum ports from config
+  if (poolConfig.stratum.ports) {
+    poolConfig.stratum.ports.forEach((port) => ports.add(port));
+  }
+  return ports;
+}
 
 // TCP health check endpoint.
-// Example usage: /api/check-port?host=stratum1.digitalregion.jp&port=8002
+// Example usage: /api/check-port?host=stratum1.example.com&port=8002
 // Returns JSON: { healthy: boolean }
 // SECURITY: Only whitelisted hosts and ports are allowed to prevent SSRF attacks
 export async function GET(request: NextRequest) {
@@ -36,12 +57,15 @@ export async function GET(request: NextRequest) {
   }
 
   // SECURITY: ホワイトリストチェック - 許可されていないホスト/ポートは拒否
-  if (!ALLOWED_HOSTS.has(host)) {
+  const allowedHosts = getAllowedHosts();
+  const allowedPorts = getAllowedPorts();
+
+  if (!allowedHosts.has(host)) {
     console.warn(`[Security] Blocked request to unauthorized host: ${host}`);
     return NextResponse.json({ error: "Host not allowed" }, { status: 403 });
   }
 
-  if (!ALLOWED_PORTS.has(port)) {
+  if (!allowedPorts.has(port)) {
     console.warn(`[Security] Blocked request to unauthorized port: ${port}`);
     return NextResponse.json({ error: "Port not allowed" }, { status: 403 });
   }

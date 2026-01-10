@@ -1,6 +1,6 @@
-# VirBiCoin Pool Frontend
+# Mining Pool Frontend
 
-Modern, responsive frontend application for the VirBiCoin mining pool built with Next.js 16 and Tailwind CSS.
+Modern, responsive frontend application for cryptocurrency mining pools built with Next.js 16 and Tailwind CSS. Fully configurable for any Ethash-based coin.
 
 ## Features
 
@@ -11,6 +11,7 @@ Modern, responsive frontend application for the VirBiCoin mining pool built with
 - 🌍 Multi-region pool server support
 - 📱 Fully responsive design
 - 🎨 Dark theme with modern UI
+- ⚙️ Single config.json for all settings (no environment variables needed)
 
 ## Tech Stack
 
@@ -33,22 +34,36 @@ Modern, responsive frontend application for the VirBiCoin mining pool built with
 npm install
 ```
 
-### Environment Variables
+### Configuration
 
-Copy `.env.example` to `.env.local` and configure:
+All configuration is managed through a single `config.json` file. Copy `config.json.example` to `config.json` and customize:
 
-```bash
-# API Endpoints
-NEXT_PUBLIC_API_BASE_URL=https://api.digitalregion.jp
-NEXT_PUBLIC_POOL_BASE_URL=https://pool.digitalregion.jp
-
-# Pool Health Check URLs (Dynamic - up to 10 pools)
-NEXT_PUBLIC_POOL1_URL=https://pool1.digitalregion.jp
-NEXT_PUBLIC_POOL2_URL=https://pool2.digitalregion.jp
-NEXT_PUBLIC_POOL3_URL=https://pool3.digitalregion.jp
-NEXT_PUBLIC_POOL4_URL=https://pool4.digitalregion.jp
-NEXT_PUBLIC_POOL5_URL=https://pool5.digitalregion.jp
+```json
+{
+  "coin": {
+    "name": "YourCoin",
+    "symbol": "YCN",
+    "decimals": 18
+  },
+  "pool": {
+    "name": "YourCoin Pool",
+    "fee": "1%",
+    "payoutThreshold": "0.5 YCN"
+  },
+  "api": {
+    "baseUrl": "https://api.example.com"
+  },
+  "servers": [
+    {
+      "name": "pool1.example.com",
+      "port": 8008,
+      "region": "JP"
+    }
+  ]
+}
 ```
+
+See `config.json.virbicoin` for a VirBiCoin-specific example, or use `config.json.example` as a generic template.
 
 ### Development
 
@@ -89,44 +104,65 @@ www/
 │   │   ├── account/         # Account details page
 │   │   ├── api/             # API routes
 │   │   ├── blocks/          # Blocks pages (matured/immature/pending)
+│   │   ├── calculator/      # Mining calculator
 │   │   ├── help/            # Getting started guide
 │   │   ├── miners/          # Miners list page
 │   │   └── payments/        # Payments page
 │   ├── components/          # React components
-│   ├── lib/                 # Utility functions
-│   └── types/               # TypeScript type definitions
+│   └── lib/                 # Utility functions and config
 ├── public/                  # Static assets
-├── pools.json               # Pool server configuration
+├── config.json              # All pool configuration
+├── config.json.example      # Template for new deployments
 └── package.json
-```
-
-## Configuration
-
-### pools.json
-
-Pool server configuration is stored in `pools.json`:
-
-```json
-[
-  {
-    "id": "global",
-    "apiUrl": "https://pool.digitalregion.jp",
-    "stratumUrl": "stratum.digitalregion.jp",
-    "location": "Global",
-    "country": "GLOBAL",
-    "region": "Global",
-    "stratumPorts": [8002, 8004, 8009],
-    "active": true
-  }
-]
 ```
 
 ## Security
 
-- All API requests are proxied through Next.js API routes
-- Environment variables are validated at build time
-- No sensitive data is exposed to the client
-- CORS is handled by the middleware
+This application implements multiple layers of security:
+
+### API Security
+
+- **Proxy Pattern**: All API requests are proxied through Next.js API routes (`/api/[...slug]`) to hide backend infrastructure
+- **Whitelist Validation**: Pool IDs and API paths are validated against explicit whitelists
+- **Path Traversal Prevention**: API paths are sanitized to prevent directory traversal attacks (`..`, `//`, special characters)
+- **Request Timeout**: All upstream requests have a 10-second timeout to prevent hanging connections
+
+### Rate Limiting
+
+- **In-memory Rate Limiting**: 100 requests per minute per IP address
+- **429 Response**: Excessive requests receive "Too Many Requests" with `Retry-After` header
+
+### Input Validation
+
+- **Suspicious Pattern Detection**: Blocks requests containing:
+  - Command injection patterns (`wget`, `curl`, `;`, `|`, backticks)
+  - Path traversal attempts (`../`, `%2e%2e`)
+  - XSS attempts (`<script>`, `javascript:`)
+  - Protocol smuggling (`file:`, `gopher:`, `dict:`)
+- **URL Decoding**: All URLs are decoded before validation to catch encoded attacks
+
+### Configuration Security
+
+- All configuration is managed through `config.json`
+- Sensitive configuration (Redis passwords, private keys) must be kept in server-side config only
+- `config.json` is exposed to the client, so never include secrets
+
+### Headers
+
+- CORS headers are set explicitly on API responses
+- `Access-Control-Allow-Origin: *` for public API access
+
+### Dependency Security
+
+- **Last Audit**: January 2026 - 0 vulnerabilities found
+- Run `npm audit` regularly to check for new vulnerabilities
+- Keep dependencies updated with `npx npm-check-updates -u`
+
+### Best Practices
+
+- Never commit files containing secrets
+- Review `config.json` before production deployment
+- Use `config.json.example` as a template for new deployments
 
 ## License
 

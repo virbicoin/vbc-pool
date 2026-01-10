@@ -4,7 +4,7 @@ This file provides context and guidelines for AI assistants working on this proj
 
 ## Project Overview
 
-VirBiCoin Pool Frontend - A Next.js 16 application for the VirBiCoin mining pool.
+Mining Pool Frontend - A configurable Next.js 16 application for cryptocurrency mining pools. All coin-specific settings are managed through `config.json`.
 
 ## Key Technologies
 
@@ -39,27 +39,34 @@ www/
 ├── src/
 │   ├── app/           # Pages (App Router)
 │   ├── components/    # React components
-│   ├── lib/           # Utilities
-│   └── types/         # TypeScript types
+│   └── lib/           # Utilities (poolConfig.ts, api.ts, formatters.ts)
 ├── public/            # Static assets
-├── pools.json         # Pool configuration
+├── config.json        # All pool configuration (coin, servers, API, branding)
+├── config.json.example # Template for new deployments
 └── package.json
 ```
 
 ## Important Files
 
-- `pools.json` - Pool server configuration (used by help page)
-- `src/middleware.ts` - CORS and security headers
-- `src/lib/api.ts` - API utilities
+- `config.json` - All pool configuration (coin, API, servers, branding, links)
+- `src/lib/poolConfig.ts` - Configuration loader and typed exports
+- `src/lib/api.ts` - API utilities and base URL export
 - `src/lib/formatters.ts` - Number/date formatting
 
 ## Common Tasks
 
 ### Adding a New Pool Server
 
-1. Edit `pools.json`
-2. Add environment variable `NEXT_PUBLIC_POOLn_URL`
+1. Edit `config.json`
+2. Add new server object to the `servers` array
 3. The help page will automatically display the new server
+
+### Changing Coin Configuration
+
+1. Edit `config.json`
+2. Update `coin` section (name, symbol, chainId, rpcUrl)
+3. Update `block` section (reward, time)
+4. All components automatically use the new values
 
 ### Adding a New Page
 
@@ -75,11 +82,44 @@ www/
 
 ## Security Considerations
 
-- **Audit**: Run `npm audit` regularly to check for vulnerabilities.
-- **Secrets**: Never expose API keys, passwords, or private keys in client code or commit them to the repository.
-- **Environment Variables**: Use `NEXT_PUBLIC_` prefix only for public environment variables.
-- **API**: API requests are proxied through Next.js API routes to hide backend details.
-- **CORS**: CORS is handled by middleware to prevent unauthorized access.
+### API Security Architecture
+
+- **Proxy Pattern**: All external API calls go through `/api/[...slug]/route.ts`
+- **Whitelist Validation**: Pool IDs and API paths are restricted to valid endpoints
+- **Path Sanitization**: Prevents directory traversal (`..`, `//`, special chars)
+- **10s Timeout**: Upstream requests timeout to prevent resource exhaustion
+
+### Rate Limiting
+
+- In-memory rate limiting: 100 requests/minute/IP
+- Probabilistic cleanup to avoid memory leaks
+- Note: Not shared across serverless instances; use Redis for production scale
+
+### Input Validation
+
+- `SUSPICIOUS_PATTERNS` array blocks command injection, XSS, protocol smuggling
+- URL decoding before validation catches encoded attacks
+- Malformed URL decoding returns 403
+
+### Configuration Security
+
+- **config.json**: All configuration is client-exposed, never include secrets
+- **Sensitive Data**: Redis passwords, API keys must be in server-side config only
+- **Validation**: Pool endpoints are validated against configured servers
+
+### Dependency Management
+
+- **Audit**: Run `npm audit` before each release
+- **Update**: Use `npx npm-check-updates -u` to check for updates
+- **Last Audit**: January 2026 - 0 vulnerabilities
+
+### Security Checklist for PRs
+
+- [ ] No secrets in code or commits
+- [ ] Input validation for user data
+- [ ] API paths validated against whitelist
+- [ ] Rate limiting considered for new endpoints
+- [ ] Dependencies audited after additions
 
 ## Testing
 

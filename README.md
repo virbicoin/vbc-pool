@@ -56,11 +56,26 @@ You can use Ubuntu upstart - check for sample config in <code>upstart.conf</code
 
 Install nodejs. I suggest using LTS version >= 4.x from https://github.com/nodesource/distributions or from your Linux distribution or simply install nodejs on Ubuntu Xenial 16.04.
 
-The frontend is a single-page Ember.js application that polls the pool API to render miner stats.
+The frontend is a Next.js application that polls the pool API to render miner stats.
 
     cd www
 
-Change <code>ApiUrl: 'http://example.net'</code> in <code>www/.env</code> to match your domain name. Also don't forget to adjust other options.
+Copy <code>config.json.example</code> to <code>config.json</code> and configure for your coin:
+
+```json
+{
+  "coin": {
+    "name": "YourCoin",
+    "symbol": "YCN"
+  },
+  "api": {
+    "baseUrl": "https://api.example.com"
+  },
+  "servers": [...]
+}
+```
+
+See <code>config.json.virbicoin</code> for a complete example.
 
     npm install
     npm run build
@@ -98,9 +113,38 @@ in order to customise the frontend.
 
 We take security seriously.
 
-*   **Dependencies**: We regularly check our dependencies for vulnerabilities. The frontend (`www`) has been audited and found to have 0 vulnerabilities as of January 2026.
-*   **Reporting**: If you find a security vulnerability, please do not open an issue. Instead, please email security@virbicoin.com (or the repository owner directly).
-*   **Best Practices**: Always change default passwords and keys in `config.json` before deploying to production.
+#### Dependency Security
+*   **Frontend (`www`)**: Audited January 2026 - **0 vulnerabilities** found
+*   **Backend (Go)**: Uses standard library and well-maintained packages
+*   Run `npm audit` (frontend) and check Go dependencies regularly
+
+#### Reporting Vulnerabilities
+If you find a security vulnerability, please **do not open a public issue**. Instead:
+- Email: security@virbicoin.com
+- Or contact the repository owner directly
+
+#### Backend Security Features
+*   **IP Banning**: Configurable via `ipset` integration for firewall-level blocking
+*   **Rate Limiting**: Connection limits with grace period and progressive increase
+*   **Invalid Share Detection**: Automatic banning after threshold of invalid shares
+*   **Malformed Request Protection**: Limits on malformed requests before ban
+
+#### Frontend Security Features
+*   **API Proxy**: All requests proxied through Next.js to hide backend infrastructure
+*   **Whitelist Validation**: Pool IDs and API paths validated against explicit lists
+*   **Path Traversal Prevention**: Sanitization prevents `../` attacks
+*   **Suspicious Pattern Blocking**: Detects command injection, XSS, protocol smuggling
+*   **Rate Limiting**: 100 requests/minute/IP with automatic cleanup
+
+#### Production Deployment Checklist
+- [ ] Change all default passwords in `config.json`
+- [ ] Set strong Redis password (not empty)
+- [ ] Never expose Redis to public network
+- [ ] Configure `poolFeeAddress` before enabling payouts
+- [ ] Run behind reverse proxy (nginx) with TLS
+- [ ] Enable `banning` in production for DDoS protection
+- [ ] Set `behindReverseProxy: true` if using nginx/CloudFlare
+- [ ] Review and restrict `CORS` headers as needed
 
 ### Configuration
 

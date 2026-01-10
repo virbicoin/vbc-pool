@@ -1,11 +1,8 @@
-import { getStats } from "@/lib/api";
 import BlocksTabs from "@/components/BlocksTabs";
 import BlocksStats from "@/components/BlocksStats";
 import { CubeIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 
-export default async function BlocksLayout({ children }: { children: React.ReactNode }) {
-  const stats = await getStats();
-
+export default function BlocksLayout({ children }: { children: React.ReactNode }) {
   return (
     <div>
       <div className="bg-gray-800 border-b border-gray-700">
@@ -24,7 +21,7 @@ export default async function BlocksLayout({ children }: { children: React.React
 
       <div className="container mx-auto px-4 py-8">
         {/* Block Stats Banner */}
-        <BlocksStats stats={stats} />
+        <BlocksStats />
 
         {/* Info Banner */}
         <div className="mb-6 p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg">

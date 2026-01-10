@@ -1,9 +1,9 @@
 "use client";
 import useSWR from "swr";
+import { API_BASE_URL } from "@/lib/api";
 import BlocksTable from "@/components/BlocksTable";
 import { ClockIcon } from "@heroicons/react/24/outline";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function ImmatureBlocksPage() {

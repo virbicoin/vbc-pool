@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import poolConfig from "@/lib/poolConfig";
 
 // MetaMaskのEthereum型を定義
 interface EthereumProvider {
@@ -20,7 +21,7 @@ const MetaMaskButton = () => {
       return;
     }
 
-    const chainId = "0x149"; // 329 in decimal
+    const chainId = `0x${poolConfig.coin.chainId.toString(16)}`;
 
     try {
       await window.ethereum.request({
@@ -41,24 +42,24 @@ const MetaMaskButton = () => {
             params: [
               {
                 chainId: chainId,
-                chainName: "VirBiCoin",
+                chainName: poolConfig.coin.name,
                 nativeCurrency: {
-                  name: "VirBiCoin",
-                  symbol: "VBC",
+                  name: poolConfig.coin.name,
+                  symbol: poolConfig.coin.symbol,
                   decimals: 18,
                 },
-                rpcUrls: ["https://rpc.digitalregion.jp"],
-                blockExplorerUrls: ["https://explorer.digitalregion.jp"],
+                rpcUrls: [poolConfig.coin.rpcUrl],
+                blockExplorerUrls: poolConfig.links.explorer ? [poolConfig.links.explorer] : [],
               },
             ],
           });
         } catch (addError: unknown) {
-          console.error("Failed to add the VirBiCoin network:", addError);
-          alert("Failed to add the VirBiCoin network. See console for details.");
+          console.error(`Failed to add the ${poolConfig.coin.name} network:`, addError);
+          alert(`Failed to add the ${poolConfig.coin.name} network. See console for details.`);
         }
       } else {
-        console.error("Could not switch to the VirBiCoin network:", switchError);
-        alert("Failed to switch to the VirBiCoin network. See console for details.");
+        console.error(`Could not switch to the ${poolConfig.coin.name} network:`, switchError);
+        alert(`Failed to switch to the ${poolConfig.coin.name} network. See console for details.`);
       }
     }
   };
@@ -83,7 +84,7 @@ const MetaMaskButton = () => {
         height={20}
         style={{ marginRight: "10px" }}
       />
-      Add VirBiCoin
+      Add {poolConfig.coin.name}
     </button>
   );
 };

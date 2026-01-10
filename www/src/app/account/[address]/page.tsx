@@ -4,6 +4,8 @@ import useSWR from "swr";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { formatHashrate } from "@/lib/formatters";
+import { poolConfig, formatCoinAmount } from "@/lib/poolConfig";
+import { API_BASE_URL } from "@/lib/api";
 import AccountTabs from "@/components/AccountTabs";
 import Countdown from "@/components/Countdown";
 import TimeAgo from "@/components/TimeAgo";
@@ -28,7 +30,6 @@ import {
   SignalSlashIcon,
 } from "@heroicons/react/24/outline";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 type StatCardProps = {
@@ -73,8 +74,12 @@ export default function AccountPage() {
   });
 
   // Hooks must be called at top level, before any conditional returns
-  const currentHeight = statsData?.pools?.virbicoin?.poolStats?.poolHeight || 0;
-  const blockTime = statsData?.pools?.virbicoin?.config?.blockTime || 10;
+  // Get pool stats from API response - pools object has coin name as key
+  const poolsData = statsData?.pools || {};
+  const firstPoolKey = Object.keys(poolsData)[0];
+  const poolStats = firstPoolKey ? poolsData[firstPoolKey] : null;
+  const currentHeight = poolStats?.poolStats?.poolHeight || statsData?.stats?.height || 0;
+  const blockTime = poolStats?.config?.blockTime || poolConfig.block.time;
   const epochBlocks = 30000;
   const blocksUntilEpoch = epochBlocks - (currentHeight % epochBlocks);
   const [epochSwitchTimestamp, setEpochSwitchTimestamp] = useState(0);
@@ -202,15 +207,17 @@ export default function AccountPage() {
                     Offline
                   </span>
                 )}
-                <a
-                  href={`https://explorer.digitalregion.jp/address/${address}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition-colors"
-                >
-                  <ArrowTopRightOnSquareIcon className="w-4 h-4" />
-                  Explorer
-                </a>
+                {poolConfig.links.explorer && (
+                  <a
+                    href={`${poolConfig.links.explorer}/address/${address}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition-colors"
+                  >
+                    <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+                    Explorer
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -229,21 +236,21 @@ export default function AccountPage() {
               icon={<GiftIcon className="w-6 h-6 text-pink-400" />}
               iconBgColor="bg-pink-600/20"
               title="Immature Balance"
-              value={`${(stats.immature / 1e9).toFixed(8)} VBC`}
+              value={formatCoinAmount(stats.immature)}
               subtext="Awaiting blocks to mature"
             />
             <StatCard
               icon={<CurrencyDollarIcon className="w-6 h-6 text-green-400" />}
               iconBgColor="bg-green-600/20"
               title="Pending Balance"
-              value={`${(stats.balance / 1e9).toFixed(8)} VBC`}
+              value={formatCoinAmount(stats.balance)}
               subtext="Ready for next payout"
             />
             <StatCard
               icon={<BanknotesIcon className="w-6 h-6 text-cyan-400" />}
               iconBgColor="bg-cyan-600/20"
               title="Total Paid"
-              value={`${(stats.paid / 1e9).toFixed(8)} VBC`}
+              value={formatCoinAmount(stats.paid)}
               subtext={`${paymentsTotal || 0} payouts`}
             />
           </div>
@@ -331,7 +338,11 @@ export default function AccountPage() {
             <div className="text-sm text-gray-300">
               <p className="mb-1">
                 <strong className="text-blue-400">Automatic payouts</strong> are processed every 2
-                hours for balances above <strong className="text-blue-400">0.1 VBC</strong>.
+                hours for balances above{" "}
+                <strong className="text-blue-400">
+                  {poolConfig.pool.minPayout} {poolConfig.coin.symbol}
+                </strong>
+                .
               </p>
               <p className="text-gray-400">
                 Immature balance will become pending after blocks are confirmed (120 confirmations).

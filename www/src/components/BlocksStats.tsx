@@ -1,15 +1,16 @@
 "use client";
 
+import useSWR from "swr";
+import { API_BASE_URL } from "@/lib/api";
 import { CubeIcon, ClockIcon, CheckCircleIcon, SparklesIcon } from "@heroicons/react/24/outline";
 
-interface Stats {
-  maturedTotal?: number;
-  immatureTotal?: number;
-  candidatesTotal?: number;
-  luck?: number;
-}
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function BlocksStats({ stats }: { stats: Stats }) {
+export default function BlocksStats() {
+  const { data: stats = {} } = useSWR(API_BASE_URL + "/api/stats", fetcher, {
+    refreshInterval: 5000,
+  });
+
   const maturedCount = stats?.maturedTotal ?? 0;
   const immatureCount = stats?.immatureTotal ?? 0;
   const pendingCount = stats?.candidatesTotal ?? 0;

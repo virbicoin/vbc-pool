@@ -1,10 +1,10 @@
+import poolConfig from "./poolConfig";
+
+// Get API base URL from config
+export const API_BASE_URL = poolConfig.api.baseUrl || "";
+
 const getBaseUrl = () => {
-  // 環境変数があればそれを使う
-  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-    return process.env.NEXT_PUBLIC_API_BASE_URL;
-  }
-  // 常にHTTPS対応のメインプールを使用
-  return "https://pool.digitalregion.jp";
+  return API_BASE_URL;
 };
 
 export interface Block {
@@ -107,7 +107,9 @@ export interface StatsData {
 export async function getStats(): Promise<StatsData> {
   const baseUrl = getBaseUrl();
   try {
-    const res = await fetch(`${baseUrl}/api/stats`);
+    const res = await fetch(`${baseUrl}/api/stats`, {
+      next: { revalidate: 10 }, // Revalidate every 10 seconds
+    });
     if (!res.ok) {
       throw new Error(`Failed to fetch stats: ${res.statusText}`);
     }
