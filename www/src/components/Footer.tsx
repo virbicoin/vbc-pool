@@ -42,7 +42,18 @@ export default function Footer() {
               <span>|</span>
               <span className="text-cyan-400">
                 Pool {poolConfig.coin.symbol}:{" "}
-                <span className="font-mono">{poolConfig.pool.address}</span>
+                {poolConfig.links.explorer ? (
+                  <a
+                    href={`${poolConfig.links.explorer}/address/${poolConfig.pool.address}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono hover:text-cyan-300 transition-colors underline"
+                  >
+                    {poolConfig.pool.address}
+                  </a>
+                ) : (
+                  <span className="font-mono">{poolConfig.pool.address}</span>
+                )}
               </span>
             </>
           )}

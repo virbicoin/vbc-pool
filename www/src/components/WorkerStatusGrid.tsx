@@ -80,8 +80,6 @@ export default function WorkerStatusGrid({ workers, className = "" }: WorkerStat
 
 function WorkerCard({ worker }: { worker: Worker }) {
   const isOnline = !worker.offline;
-  // Convert lastBeat to milliseconds timestamp
-  const lastBeatMs = worker.lastBeat > 1e12 ? worker.lastBeat : worker.lastBeat * 1000;
 
   return (
     <div
@@ -108,7 +106,7 @@ function WorkerCard({ worker }: { worker: Worker }) {
         <div className="flex items-center justify-between text-xs">
           <span className="text-gray-500">Last seen</span>
           <span className={isOnline ? "text-gray-400" : "text-red-400"}>
-            <TimeAgo timestamp={lastBeatMs} />
+            <TimeAgo timestamp={worker.lastBeat} />
           </span>
         </div>
       </div>
