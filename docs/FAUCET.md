@@ -339,6 +339,18 @@ Look for:
 3. **Faucet balance**: Ensure sufficient funds
 4. **Error rate**: Monitor RPC failures
 
+### Statistics Persistence
+
+Faucet statistics are persisted to Redis and survive restarts:
+
+| Redis Key | Type | Description |
+|-----------|------|-------------|
+| `faucet:stats:totalRequests` | String (int) | Total number of faucet requests |
+| `faucet:stats:totalSent` | String (int) | Total amount sent in wei |
+| `faucet:stats:uniqueAddresses` | Set | Set of unique wallet addresses |
+
+Statistics are automatically loaded on startup and updated after each successful request.
+
 ### Example Log Output
 
 ```

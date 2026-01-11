@@ -4,6 +4,23 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const configJson = require("@/../config.json");
 
+// Supported locales
+type Locale = "en" | "ja" | "zh";
+
+// Localized string type - can be a string or an object with locale keys
+type LocalizedString = string | Record<Locale, string>;
+
+// Helper function to get localized value
+export function getLocalizedValue(
+  value: LocalizedString | undefined,
+  locale: string,
+  fallback: string = ""
+): string {
+  if (!value) return fallback;
+  if (typeof value === "string") return value;
+  return value[locale as Locale] || value.en || fallback;
+}
+
 // Pool server interface
 export interface PoolServer {
   id: string;
@@ -17,12 +34,12 @@ export interface PoolServer {
   active: boolean;
 }
 
-// Announcement interface
+// Announcement interface (with localized strings)
 export interface Announcement {
   id: string;
   type: "info" | "warning" | "success" | "error";
-  title: string;
-  message: string;
+  title: LocalizedString;
+  message: LocalizedString;
   enabled: boolean;
   link?: string;
 }
@@ -45,8 +62,8 @@ interface PoolConfigType {
     rpcUrl: string;
   };
   pool: {
-    name: string;
-    description: string;
+    name: LocalizedString;
+    description: LocalizedString;
     minPayout: number;
     fee: number;
     payoutInterval: string;

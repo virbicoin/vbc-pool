@@ -3,7 +3,8 @@
 import { useState, useCallback, useMemo } from "react";
 import { ShareIcon, ClipboardIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { FaXTwitter, FaTelegram, FaReddit } from "react-icons/fa6";
-import poolConfig from "@/lib/poolConfig";
+import poolConfig, { getLocalizedValue } from "@/lib/poolConfig";
+import { useTranslation } from "@/components/I18nProvider";
 
 interface SocialShareProps {
   title?: string;
@@ -22,6 +23,7 @@ export default function SocialShare({
   hashtags = [poolConfig.coin.symbol, "mining", "crypto"],
   className = "",
 }: SocialShareProps) {
+  const { locale } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -82,7 +84,7 @@ export default function SocialShare({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: title || poolConfig.pool.name,
+          title: title || getLocalizedValue(poolConfig.pool.name, locale),
           text: text,
           url: url,
         });
@@ -95,7 +97,7 @@ export default function SocialShare({
     } else {
       setIsOpen(true);
     }
-  }, [title, text, url]);
+  }, [title, text, url, locale]);
 
   return (
     <div className={`relative ${className}`}>

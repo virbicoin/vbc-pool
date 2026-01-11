@@ -277,6 +277,55 @@ The application supports multiple languages using a client-side translation syst
 | Japanese | ja   | `messages/ja.json` | ✅ Complete |
 | Chinese  | zh   | `messages/zh.json` | ✅ Complete |
 
+### config.json Localization
+
+Some values in `config.json` support localization directly:
+
+```json
+{
+  "pool": {
+    "name": {
+      "en": "VirBiCoin Pool",
+      "ja": "VirBiCoin プール",
+      "zh": "VirBiCoin 矿池"
+    },
+    "description": {
+      "en": "Official Mining Pool",
+      "ja": "公式マイニングプール",
+      "zh": "官方矿池"
+    }
+  },
+  "announcements": [
+    {
+      "id": "welcome",
+      "title": {
+        "en": "Welcome!",
+        "ja": "ようこそ！",
+        "zh": "欢迎！"
+      },
+      "message": {
+        "en": "Thank you for mining.",
+        "ja": "マイニングにご参加ください。",
+        "zh": "感谢您挖矿。"
+      }
+    }
+  ]
+}
+```
+
+Use `getLocalizedValue()` from `poolConfig.ts` to retrieve localized values:
+
+```tsx
+import poolConfig, { getLocalizedValue } from "@/lib/poolConfig";
+import { useTranslation } from "@/components/I18nProvider";
+
+function MyComponent() {
+  const { locale } = useTranslation();
+  const poolName = getLocalizedValue(poolConfig.pool.name, locale);
+  return <h1>{poolName}</h1>;
+}
+```
+
 ### Using Translations in Components
 
 ```tsx

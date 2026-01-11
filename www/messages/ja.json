@@ -50,6 +50,22 @@
     "minPayout": "最小支払額",
     "payoutInterval": "支払い間隔"
   },
+  "poolHealth": {
+    "title": "プールの稼働状況",
+    "poolsOnline": "{healthy}/{total} プールがオンライン",
+    "uptime": "稼働率 {percent}%",
+    "operational": "正常稼働",
+    "degraded": "一部障害",
+    "down": "停止中",
+    "online": "オンライン",
+    "offline": "オフライン",
+    "checking": "確認中",
+    "comingSoon": "近日公開",
+    "latency": "応答時間",
+    "stratumPorts": "Stratumポート",
+    "lastUpdated": "最終更新:",
+    "globalHealth": "全体の稼働状況"
+  },
   "blocks": {
     "title": "プールブロック",
     "mature": "成熟済み",
@@ -423,5 +439,9 @@
   },
   "footer": {
     "pool": "プール"
+  },
+  "announcements": {
+    "learnMore": "詳細を見る →",
+    "dismiss": "閉じる"
   }
 }

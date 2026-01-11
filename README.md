@@ -14,10 +14,11 @@ https://camo.githubusercontent.com/2063f3f9554951409bbfe24df02fdb42654b032b1f130
 * Support for HTTP and Stratum mining
 * Detailed block stats with luck percentage and full reward
 * Failover gvbc instances: gvbc high availability built in
-* Modern beautiful Next.js frontend
+* Modern beautiful Next.js frontend with multi-language support (English, Japanese, Chinese)
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
-* JSON-API for stats* 🧮 Mining calculator with 80+ GPU presets (NVIDIA RTX 3000/4000/5000, AMD Radeon RX 6000/7000, Intel Arc, Pro series)
-* 🚰 Faucet service for distributing free test coins (with MetaMask integration)
+* JSON-API for stats
+* 🧮 Mining calculator with 80+ GPU presets (NVIDIA RTX 3000/4000/5000, AMD Radeon RX 6000/7000, Intel Arc, Pro series)
+* 🚰 Faucet service for distributing free test coins (with MetaMask integration, Redis-persistent statistics)
 #### Proxies
 
 * [Ether-Proxy](https://github.com/sammy007/ether-proxy) HTTP proxy with web interface
@@ -68,12 +69,26 @@ Copy <code>config.json.example</code> to <code>config.json</code> and configure 
     "name": "YourCoin",
     "symbol": "YCN"
   },
+  "pool": {
+    "name": {
+      "en": "YourCoin Pool",
+      "ja": "YourCoin プール",
+      "zh": "YourCoin 矿池"
+    },
+    "description": {
+      "en": "Official Mining Pool",
+      "ja": "公式マイニングプール",
+      "zh": "官方矿池"
+    }
+  },
   "api": {
     "baseUrl": "https://api.example.com"
   },
   "servers": [...]
 }
 ```
+
+**Note**: `pool.name`, `pool.description`, and `announcements[].title/message` support localization by providing an object with locale keys (`en`, `ja`, `zh`).
 
 See <code>config.json.virbicoin</code> for a complete example.
 

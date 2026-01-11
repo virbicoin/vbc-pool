@@ -50,6 +50,22 @@
     "minPayout": "Min Payout",
     "payoutInterval": "Payout Interval"
   },
+  "poolHealth": {
+    "title": "Pool Health Status",
+    "poolsOnline": "{healthy}/{total} pools online",
+    "uptime": "{percent}% uptime",
+    "operational": "Operational",
+    "degraded": "Degraded",
+    "down": "Down",
+    "online": "Online",
+    "offline": "Offline",
+    "checking": "Checking",
+    "comingSoon": "Coming Soon",
+    "latency": "Latency",
+    "stratumPorts": "Stratum Ports",
+    "lastUpdated": "Last updated:",
+    "globalHealth": "Global Health"
+  },
   "blocks": {
     "title": "Pool Blocks",
     "mature": "Mature",
@@ -423,5 +439,9 @@
   },
   "footer": {
     "pool": "Pool"
+  },
+  "announcements": {
+    "learnMore": "Learn more →",
+    "dismiss": "Dismiss"
   }
 }

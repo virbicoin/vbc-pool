@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { poolConfig } from "@/lib/poolConfig";
+import { poolConfig, getLocalizedValue } from "@/lib/poolConfig";
 import { useTranslation } from "@/components/I18nProvider";
 import {
   InformationCircleIcon,
@@ -16,7 +16,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 export default function AboutPage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   return (
     <div>
@@ -67,7 +67,10 @@ export default function AboutPage() {
               <h3 className="text-xl font-semibold text-gray-100">{t("about.overview")}</h3>
             </div>
             <p className="text-gray-400 leading-relaxed">
-              {t("about.overviewDesc").replace("{poolName}", poolConfig.pool.name)}
+              {t("about.overviewDesc").replace(
+                "{poolName}",
+                getLocalizedValue(poolConfig.pool.name, locale)
+              )}
             </p>
           </div>
         </div>

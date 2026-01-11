@@ -3,7 +3,8 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Locale, locales, defaultLocale } from "@/i18n";
 
-type Messages = Record<string, Record<string, string> | string>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Messages = Record<string, any>;
 
 interface I18nContextType {
   locale: Locale;

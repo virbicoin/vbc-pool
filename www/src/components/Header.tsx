@@ -18,7 +18,7 @@ import HeaderStats from "./HeaderStats";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslation } from "./I18nProvider";
 import { useState } from "react";
-import poolConfig from "@/lib/poolConfig";
+import poolConfig, { getLocalizedValue } from "@/lib/poolConfig";
 
 // Dynamic imports for client-side components
 const BlockNotification = dynamic(() => import("@/components/BlockNotification"), {
@@ -30,7 +30,7 @@ const FavoritesPanel = dynamic(() => import("@/components/FavoritesPanel"), {
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   return (
     <header className="bg-gray-900 border-b border-gray-800">
@@ -40,7 +40,9 @@ export default function Header() {
           className="flex items-center gap-2 text-xl font-bold nav-link text-gray-100 hover:text-green-400 transition-colors"
         >
           <Image src={poolConfig.branding.logo} alt={poolConfig.coin.name} width={32} height={32} />
-          <span className="hidden sm:inline">{poolConfig.pool.name}</span>
+          <span className="hidden sm:inline">
+            {getLocalizedValue(poolConfig.pool.name, locale)}
+          </span>
         </Link>
 
         {/* Desktop Navigation */}

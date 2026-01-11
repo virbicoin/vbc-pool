@@ -29,7 +29,7 @@
     "faucet": "水龙头"
   },
   "home": {
-    "title": "仪表板",
+    "title": "仪表盘",
     "poolStats": "矿池统计",
     "networkStats": "网络统计",
     "recentBlocks": "最近区块",
@@ -49,6 +49,22 @@
     "poolFee": "矿池费率",
     "minPayout": "最低支付",
     "payoutInterval": "支付间隔"
+  },
+  "poolHealth": {
+    "title": "矿池健康状态",
+    "poolsOnline": "{healthy}/{total} 个矿池在线",
+    "uptime": "正常运行率 {percent}%",
+    "operational": "正常运行",
+    "degraded": "部分故障",
+    "down": "已停止",
+    "online": "在线",
+    "offline": "离线",
+    "checking": "检查中",
+    "comingSoon": "即将上线",
+    "latency": "延迟",
+    "stratumPorts": "Stratum端口",
+    "lastUpdated": "最后更新:",
+    "globalHealth": "全局健康"
   },
   "blocks": {
     "title": "矿池区块",
@@ -423,5 +439,9 @@
   },
   "footer": {
     "pool": "矿池"
+  },
+  "announcements": {
+    "learnMore": "了解更多 →",
+    "dismiss": "关闭"
   }
 }

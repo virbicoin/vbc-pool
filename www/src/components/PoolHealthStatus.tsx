@@ -4,6 +4,7 @@ import useSWR from "swr";
 import Image from "next/image";
 import { ServerIcon, GlobeAltIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useTranslation } from "@/components/I18nProvider";
 
 interface PoolNode {
   apiUrl: string;
@@ -103,6 +104,7 @@ interface HealthCheck extends PoolNode {
 }
 
 export default function PoolHealthStatus({ className = "" }: PoolHealthStatusProps) {
+  const { t } = useTranslation();
   const { pools } = usePools();
   const activePools = useMemo(() => pools?.filter((p) => p.active) || [], [pools]);
   const inactivePools = useMemo(() => pools?.filter((p) => !p.active) || [], [pools]);
@@ -240,10 +242,10 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
             )}
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-300">Pool Health Status</h3>
+            <h3 className="text-lg font-semibold text-gray-300">{t("poolHealth.title")}</h3>
             <p className="text-sm text-gray-400">
-              {healthyPoolCount}/{totalPoolCount} pools online • {healthPercentage.toFixed(0)}%
-              uptime
+              {t("poolHealth.poolsOnline", { healthy: healthyPoolCount, total: totalPoolCount })} •{" "}
+              {t("poolHealth.uptime", { percent: healthPercentage.toFixed(0) })}
             </p>
           </div>
         </div>
@@ -258,7 +260,11 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
                 : "bg-red-400/20 text-red-400"
           }`}
         >
-          {globalHealthy === globalTotal ? "Operational" : globalHealthy > 0 ? "Degraded" : "Down"}
+          {globalHealthy === globalTotal
+            ? t("poolHealth.operational")
+            : globalHealthy > 0
+              ? t("poolHealth.degraded")
+              : t("poolHealth.down")}
         </div>
       </div>
 
@@ -321,12 +327,12 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
                       >
                         {/* Always show "Coming Soon" for inactive pools, regardless of loading state */}
                         {inactivePools.some((node) => node.apiUrl === pool.apiUrl)
-                          ? "Coming Soon"
+                          ? t("poolHealth.comingSoon")
                           : pool.isLoading
-                            ? "Checking"
+                            ? t("poolHealth.checking")
                             : pool.healthData.isHealthy
-                              ? "Online"
-                              : "Offline"}
+                              ? t("poolHealth.online")
+                              : t("poolHealth.offline")}
                       </span>
                     </div>
 
@@ -336,7 +342,7 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
                   {/* メトリクス行 */}
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div className="flex flex-col items-center p-2.5 bg-gray-800/50 rounded-lg min-w-0">
-                      <span className="text-gray-400 text-xs mb-1">Latency</span>
+                      <span className="text-gray-400 text-xs mb-1">{t("poolHealth.latency")}</span>
                       <span
                         className={`font-mono font-medium text-xs ${
                           pool.healthData.latency
@@ -354,7 +360,9 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
                       </span>
                     </div>
                     <div className="col-span-2 w-full flex flex-col items-center p-2.5 bg-gray-800/50 rounded-lg min-w-0">
-                      <span className="text-gray-400 text-xs mb-1">Stratum Ports</span>
+                      <span className="text-gray-400 text-xs mb-1">
+                        {t("poolHealth.stratumPorts")}
+                      </span>
                       <div className="flex justify-center gap-1">
                         {inactivePools.some((node) => node.apiUrl === pool.apiUrl) ? (
                           <span className="text-gray-500 font-medium text-xs">---</span>
@@ -394,7 +402,7 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
 
       <div className="mt-6 pt-4 border-t border-gray-600">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-400">Last updated:</span>
+          <span className="text-gray-400">{t("poolHealth.lastUpdated")}</span>
           <span className="text-gray-300">
             {new Date().toLocaleString(undefined, { timeZoneName: "short" }) || "N/A"}
           </span>
@@ -403,7 +411,7 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
         {/* ヘルス状態バー */}
         <div className="mt-3">
           <div className="flex justify-between text-xs text-gray-400 mb-1">
-            <span>Global Health</span>
+            <span>{t("poolHealth.globalHealth")}</span>
             <span>{healthPercentage.toFixed(0)}%</span>
           </div>
           <div className="w-full bg-gray-700 rounded-full h-2">

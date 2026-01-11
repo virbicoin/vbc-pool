@@ -8,7 +8,8 @@ import {
   XCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import poolConfig, { Announcement } from "@/lib/poolConfig";
+import poolConfig, { Announcement, getLocalizedValue } from "@/lib/poolConfig";
+import { useTranslation } from "@/components/I18nProvider";
 
 const iconMap = {
   info: InformationCircleIcon,
@@ -58,6 +59,7 @@ function useHasMounted() {
 }
 
 export default function Announcements() {
+  const { t, locale } = useTranslation();
   const hasMounted = useHasMounted();
   const [dismissedIds, setDismissedIds] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
@@ -87,6 +89,10 @@ export default function Announcements() {
         const Icon = iconMap[announcement.type];
         const colors = colorMap[announcement.type];
 
+        // Get localized title/message from config.json
+        const displayTitle = getLocalizedValue(announcement.title, locale);
+        const displayMessage = getLocalizedValue(announcement.message, locale);
+
         return (
           <div
             key={announcement.id}
@@ -95,15 +101,15 @@ export default function Announcements() {
             <button
               onClick={() => handleDismiss(announcement.id)}
               className="absolute top-3 right-3 p-1 hover:bg-gray-700/50 rounded transition-colors"
-              title="Dismiss"
+              title={t("announcements.dismiss")}
             >
               <XMarkIcon className="w-4 h-4 text-gray-400" />
             </button>
             <div className="flex items-start gap-3 pr-8">
               <Icon className={`w-5 h-5 ${colors.icon} flex-shrink-0 mt-0.5`} />
               <div>
-                <h4 className={`font-semibold ${colors.title}`}>{announcement.title}</h4>
-                <p className={`text-sm ${colors.message} mt-1`}>{announcement.message}</p>
+                <h4 className={`font-semibold ${colors.title}`}>{displayTitle}</h4>
+                <p className={`text-sm ${colors.message} mt-1`}>{displayMessage}</p>
                 {announcement.link && (
                   <a
                     href={announcement.link}
@@ -111,7 +117,7 @@ export default function Announcements() {
                     rel="noopener noreferrer"
                     className={`text-sm ${colors.title} underline hover:no-underline mt-2 inline-block`}
                   >
-                    Learn more →
+                    {t("announcements.learnMore")}
                   </a>
                 )}
               </div>

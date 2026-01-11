@@ -82,6 +82,8 @@ func NewFaucetServer(cfg *FaucetConfig, backend *storage.RedisClient) *FaucetSer
 	}
 	if cfg.Enabled {
 		f.rpc = rpc.NewRPCClient("Faucet", cfg.Daemon, cfg.Timeout)
+		// Load persistent statistics from Redis
+		f.loadStats()
 		// Start cleanup goroutine to prevent memory leaks
 		go f.cleanupLoop()
 	}
@@ -404,6 +406,9 @@ func (f *FaucetServer) recordRequest(ip string, address string) {
 	f.totalSent += f.config.Amount
 	f.uniqueAddresses[address] = true
 	f.statsMu.Unlock()
+
+	// Persist statistics to Redis
+	f.saveStats(address)
 }
 
 // getClientIP extracts client IP with security considerations
@@ -436,4 +441,62 @@ func (f *FaucetServer) getClientIP(r *http.Request, requestIP string) string {
 		return addr[:idx]
 	}
 	return addr
+}
+
+// Redis key constants for faucet statistics
+const (
+	faucetTotalRequestsKey   = "faucet:stats:totalRequests"
+	faucetTotalSentKey       = "faucet:stats:totalSent"
+	faucetUniqueAddressesKey = "faucet:stats:uniqueAddresses"
+)
+
+// loadStats loads persistent statistics from Redis
+func (f *FaucetServer) loadStats() {
+	if f.backend == nil {
+		return
+	}
+	client := f.backend.Client()
+
+	// Load total requests
+	totalRequests, err := client.Get(faucetTotalRequestsKey).Int64()
+	if err == nil {
+		f.totalRequests = totalRequests
+	}
+
+	// Load total sent
+	totalSent, err := client.Get(faucetTotalSentKey).Int64()
+	if err == nil {
+		f.totalSent = totalSent
+	}
+
+	// Load unique addresses
+	addresses, err := client.SMembers(faucetUniqueAddressesKey).Result()
+	if err == nil {
+		f.statsMu.Lock()
+		for _, addr := range addresses {
+			f.uniqueAddresses[addr] = true
+		}
+		f.statsMu.Unlock()
+	}
+
+	log.Printf("Faucet: loaded stats - requests=%d, sent=%d, uniqueAddresses=%d",
+		f.totalRequests, f.totalSent, len(f.uniqueAddresses))
+}
+
+// saveStats saves statistics to Redis
+func (f *FaucetServer) saveStats(address string) {
+	if f.backend == nil {
+		return
+	}
+	client := f.backend.Client()
+
+	// Use pipeline for efficiency
+	pipe := client.Pipeline()
+	pipe.Incr(faucetTotalRequestsKey)
+	pipe.IncrBy(faucetTotalSentKey, f.config.Amount)
+	pipe.SAdd(faucetUniqueAddressesKey, address)
+	_, err := pipe.Exec()
+	if err != nil {
+		log.Printf("Faucet: failed to save stats to Redis: %v", err)
+	}
 }

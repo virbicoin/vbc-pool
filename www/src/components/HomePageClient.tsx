@@ -7,8 +7,8 @@ import DashboardStats from "@/components/DashboardStats";
 import AccountLookupForm from "@/components/AccountLookupForm";
 import Announcements from "@/components/Announcements";
 import MinerLeaderboard from "@/components/MinerLeaderboard";
-import poolConfig from "@/lib/poolConfig";
 import { API_BASE_URL } from "@/lib/api";
+import poolConfig, { getLocalizedValue } from "@/lib/poolConfig";
 import { useTranslation } from "@/components/I18nProvider";
 import {
   HomeIcon,
@@ -45,7 +45,7 @@ interface HomePageClientProps {
 }
 
 const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   return (
     <div>
       {/* Hero Section */}
@@ -56,8 +56,12 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
               <HomeIcon className="w-8 h-8 text-green-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-100">{poolConfig.pool.name}</h1>
-              <p className="text-gray-400 text-sm mt-1">{poolConfig.pool.description}</p>
+              <h1 className="text-3xl font-bold text-gray-100">
+                {getLocalizedValue(poolConfig.pool.name, locale)}
+              </h1>
+              <p className="text-gray-400 text-sm mt-1">
+                {getLocalizedValue(poolConfig.pool.description, locale)}
+              </p>
             </div>
           </div>
         </div>

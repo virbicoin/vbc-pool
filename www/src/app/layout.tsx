@@ -5,13 +5,13 @@ import Header from "@/components/Header";
 import GlobalHealthChecker from "@/components/GlobalHealthChecker";
 import Footer from "@/components/Footer";
 import { I18nProvider } from "@/components/I18nProvider";
-import poolConfig from "@/lib/poolConfig";
+import poolConfig, { getLocalizedValue } from "@/lib/poolConfig";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: poolConfig.pool.name,
-  description: poolConfig.pool.description,
+  title: getLocalizedValue(poolConfig.pool.name, "en"),
+  description: getLocalizedValue(poolConfig.pool.description, "en"),
 };
 
 export const viewport: Viewport = {
