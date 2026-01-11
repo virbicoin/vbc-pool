@@ -80,6 +80,7 @@ www/
 ### Faucet Page
 
 The faucet page (`/faucet`) includes:
+
 - MetaMask wallet connection
 - Real-time cooldown countdown
 - Statistics display (balance, total sent, unique users)
@@ -89,6 +90,7 @@ The faucet page (`/faucet`) includes:
 ### Calculator Page
 
 The calculator page (`/calculator`) includes:
+
 - 80+ GPU presets (NVIDIA, AMD, Intel)
 - Category-based GPU selection
 - Power efficiency display (MH/W)
@@ -167,3 +169,20 @@ npm start
 5. Keep components in `src/components/`
 6. Maintain security practices (input validation, CORS, CSP)
 7. Footer link order: GitHub | Pool Address | X Bitcointalk Discord Telegram | Explorer Network
+
+## Timestamp Handling
+
+The `TimeAgo` component automatically normalizes timestamps:
+- If `timestamp > 1e12`: treated as milliseconds (no conversion)
+- Otherwise: treated as seconds and multiplied by 1000
+
+**Important**: Do NOT pre-convert timestamps before passing to `TimeAgo`. The component handles normalization internally.
+
+```tsx
+// ✅ Correct - pass raw timestamp
+<TimeAgo timestamp={worker.lastBeat} />
+
+// ❌ Wrong - do not pre-convert
+const ms = timestamp * 1000;
+<TimeAgo timestamp={ms} />
+```

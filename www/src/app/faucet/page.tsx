@@ -397,11 +397,11 @@ export default function FaucetPage() {
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">Cooldown</span>
                 <span className="text-gray-100">
-                  {status.cooldownMinutes 
-                    ? status.cooldownMinutes >= 60 
+                  {status.cooldownMinutes
+                    ? status.cooldownMinutes >= 60
                       ? `${Math.floor(status.cooldownMinutes / 60)} hour${Math.floor(status.cooldownMinutes / 60) !== 1 ? "s" : ""}${status.cooldownMinutes % 60 > 0 ? ` ${status.cooldownMinutes % 60} min` : ""}`
                       : `${status.cooldownMinutes} minutes`
-                    : status.cooldownHours 
+                    : status.cooldownHours
                       ? `${status.cooldownHours} hours`
                       : "N/A"}
                 </span>
@@ -598,11 +598,11 @@ export default function FaucetPage() {
                 </span>
                 <span>
                   You can request again after{" "}
-                  {status.cooldownMinutes 
-                    ? status.cooldownMinutes >= 60 
+                  {status.cooldownMinutes
+                    ? status.cooldownMinutes >= 60
                       ? `${Math.floor(status.cooldownMinutes / 60)} hour${Math.floor(status.cooldownMinutes / 60) !== 1 ? "s" : ""}`
                       : `${status.cooldownMinutes} minutes`
-                    : status.cooldownHours 
+                    : status.cooldownHours
                       ? `${status.cooldownHours} hours`
                       : "the cooldown period"}
                 </span>

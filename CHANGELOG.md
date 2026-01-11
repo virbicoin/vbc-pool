@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+#### Bug Fixes - January 11, 2026
+
+1. **TimeAgo Component Timestamp Normalization**
+   - Fixed timestamp display showing year 57999 instead of correct date
+   - Added automatic detection of seconds vs milliseconds timestamps
+   - Timestamps > 1e12 are treated as milliseconds, otherwise converted from seconds
+   - Affected components: `TimeAgo.tsx`, `WorkerStatusGrid.tsx`
+
+2. **WorkerStatusGrid Double Conversion Fix**
+   - Removed redundant timestamp conversion that caused double multiplication
+   - Now delegates timestamp normalization to `TimeAgo` component
+
+### Changed
+
+#### Frontend - January 11, 2026
+
+- **Footer**: Pool address now links to block explorer
+  - Uses `config.json` settings: `pool.address` + `links.explorer`
+  - Falls back to plain text if explorer URL not configured
+  - Added hover effect and underline for link styling
+
 ### Security
 
 #### Security Fixes Implemented - January 10, 2026
