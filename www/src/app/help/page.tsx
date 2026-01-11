@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import MetaMaskButton from "@/components/MetaMaskButton";
 import CodeBlock from "@/components/CodeBlock";
 import { CountryFlag } from "@/components/CountryFlag";
 import { poolConfig, getPoolServers, PoolServer } from "@/lib/poolConfig";
+import { useTranslation } from "@/components/I18nProvider";
 import {
   QuestionMarkCircleIcon,
   WalletIcon,
@@ -14,20 +17,19 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 
-const pools: PoolServer[] = getPoolServers();
-const globalPool = pools.find((p) => p.id === "global");
-const regionalPools = pools.filter((p) => p.id !== "global");
-
-// Mining command templates using poolConfig
-const stratumAddress = `${poolConfig.stratum.host}:${poolConfig.stratum.port}`;
-const miningCommands = {
-  lolMiner: `lolMiner --algo ETHASH --pool ${stratumAddress} --user YOUR_ADDRESS --worker WORKER_NAME`,
-  trex: `t-rex -a ethash -o stratum+tcp://${stratumAddress} -u YOUR_ADDRESS -w WORKER_NAME`,
-  claymore: `EthDcrMiner64 -epool stratum+tcp://${stratumAddress} -ewal YOUR_ADDRESS -eworker WORKER_NAME -epsw x -allcoins -1`,
-  teamred: `teamredminer -a ethash -o stratum+tcp://${stratumAddress} -u YOUR_ADDRESS.WORKER_NAME -p x`,
-};
-
 export default function HelpPage() {
+  const { t } = useTranslation();
+  const pools: PoolServer[] = getPoolServers();
+  const globalPool = pools.find((p) => p.id === "global");
+  const regionalPools = pools.filter((p) => p.id !== "global");
+  const stratumAddress = `${poolConfig.stratum.host}:${poolConfig.stratum.port}`;
+  const miningCommands = {
+    lolMiner: `lolMiner --algo ETHASH --pool ${stratumAddress} --user YOUR_ADDRESS --worker WORKER_NAME`,
+    trex: `t-rex -a ethash -o stratum+tcp://${stratumAddress} -u YOUR_ADDRESS -w WORKER_NAME`,
+    claymore: `EthDcrMiner64 -epool stratum+tcp://${stratumAddress} -ewal YOUR_ADDRESS -eworker WORKER_NAME -epsw x -allcoins -1`,
+    teamred: `teamredminer -a ethash -o stratum+tcp://${stratumAddress} -u YOUR_ADDRESS.WORKER_NAME -p x`,
+  };
+
   return (
     <div>
       <div className="bg-gray-800 border-b border-gray-700">
@@ -37,9 +39,9 @@ export default function HelpPage() {
               <QuestionMarkCircleIcon className="w-8 h-8 text-blue-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-100">Getting Started</h1>
+              <h1 className="text-3xl font-bold text-gray-100">{t("help.title")}</h1>
               <p className="text-gray-400 text-sm mt-1">
-                Follow these simple steps to start mining {poolConfig.coin.name} with our pool
+                {t("help.followSteps", { coinName: poolConfig.coin.name })}
               </p>
             </div>
           </div>
@@ -51,18 +53,18 @@ export default function HelpPage() {
         <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg border border-blue-700/30 p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
             <div>
-              <p className="text-gray-400 text-sm">Pool Fee</p>
+              <p className="text-gray-400 text-sm">{t("stats.poolFee")}</p>
               <p className="text-2xl font-bold text-green-400">{poolConfig.pool.fee}%</p>
             </div>
             <div>
-              <p className="text-gray-400 text-sm">Minimum Payout</p>
+              <p className="text-gray-400 text-sm">{t("stats.minPayout")}</p>
               <p className="text-2xl font-bold text-blue-400">
                 {poolConfig.pool.minPayout} {poolConfig.coin.symbol}
               </p>
             </div>
             <div>
-              <p className="text-gray-400 text-sm">Payout Interval</p>
-              <p className="text-2xl font-bold text-purple-400">2 Hours</p>
+              <p className="text-gray-400 text-sm">{t("stats.payoutInterval")}</p>
+              <p className="text-2xl font-bold text-purple-400">{t("help.twoHours")}</p>
             </div>
           </div>
         </div>
@@ -75,34 +77,32 @@ export default function HelpPage() {
                 <WalletIcon className="w-6 h-6 text-blue-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-100">
-                1. Get a {poolConfig.coin.name} Wallet
+                {t("help.step1Title", { coinName: poolConfig.coin.name })}
               </h3>
             </div>
             <p className="text-gray-400 mb-4">
-              To receive your mining rewards, you&apos;ll need a {poolConfig.coin.name} wallet. If
-              you don&apos;t have one, you can create a secure wallet using MetaMask or other
-              Ethereum-compatible wallets.
+              {t("help.step1Desc", { coinName: poolConfig.coin.name })}
             </p>
             <div className="bg-gray-900/50 rounded-lg p-4 mb-4 border border-gray-700/50">
               <h4 className="text-sm font-semibold text-gray-300 mb-2">
-                {poolConfig.coin.name} Network Details
+                {t("help.networkDetails", { coinName: poolConfig.coin.name })}
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span className="text-gray-500">Network Name:</span>{" "}
+                  <span className="text-gray-500">{t("help.networkName")}:</span>{" "}
                   <span className="text-gray-300">{poolConfig.coin.name}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500">Chain ID:</span>{" "}
+                  <span className="text-gray-500">{t("help.chainId")}:</span>{" "}
                   <span className="text-gray-300">{poolConfig.coin.chainId}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500">Currency Symbol:</span>{" "}
+                  <span className="text-gray-500">{t("help.currencySymbol")}:</span>{" "}
                   <span className="text-gray-300">{poolConfig.coin.symbol}</span>
                 </div>
                 {poolConfig.coin.rpcUrl && (
                   <div>
-                    <span className="text-gray-500">RPC URL:</span>{" "}
+                    <span className="text-gray-500">{t("help.rpcUrl")}:</span>{" "}
                     <span className="text-gray-300">{poolConfig.coin.rpcUrl}</span>
                   </div>
                 )}
@@ -119,72 +119,67 @@ export default function HelpPage() {
               <div className="p-2 bg-green-600/20 rounded-lg">
                 <CpuChipIcon className="w-6 h-6 text-green-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-100">
-                2. Configure Your Mining Software
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-100">{t("help.step2Title")}</h3>
             </div>
-            <p className="text-gray-400 mb-4">
-              Use your favorite mining software to connect to our pool. Here are the stratum server
-              details:
-            </p>
+            <p className="text-gray-400 mb-4">{t("help.step2Desc")}</p>
             <div className="bg-gray-900 rounded-lg p-4 mb-4 border border-gray-700">
               <div className="grid grid-cols-1 gap-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                  <span className="text-gray-500 text-sm min-w-[80px]">Server:</span>
+                  <span className="text-gray-500 text-sm min-w-[80px]">{t("help.server")}:</span>
                   <code className="text-green-400 font-mono">
                     stratum+tcp://{poolConfig.stratum.host}:{poolConfig.stratum.port}
                   </code>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                  <span className="text-gray-500 text-sm min-w-[80px]">Username:</span>
-                  <span className="text-gray-300">Your {poolConfig.coin.name} wallet address</span>
+                  <span className="text-gray-500 text-sm min-w-[80px]">{t("help.username")}:</span>
+                  <span className="text-gray-300">
+                    {t("help.yourWalletAddress", { coinName: poolConfig.coin.name })}
+                  </span>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                  <span className="text-gray-500 text-sm min-w-[80px]">Password:</span>
+                  <span className="text-gray-500 text-sm min-w-[80px]">{t("help.password")}:</span>
                   <span className="text-gray-300">
-                    x <span className="text-gray-500">(or any value)</span>
+                    x <span className="text-gray-500">({t("help.orAnyValue")})</span>
                   </span>
                 </div>
               </div>
             </div>
 
-            <h4 className="text-lg font-semibold mb-3 text-gray-100">Mining Software</h4>
+            <h4 className="text-lg font-semibold mb-3 text-gray-100">{t("help.miningSoftware")}</h4>
 
             {/* lolMiner Recommended Section */}
             <div className="bg-green-900/20 border border-green-600/50 rounded-lg p-5 mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <span className="bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                  ★ RECOMMENDED
+                  ★ {t("help.recommended")}
                 </span>
                 <h5 className="text-xl font-bold text-green-400">lolMiner</h5>
               </div>
               <p className="text-gray-300 mb-4">
-                <strong>lolMiner</strong> is our recommended mining software for both{" "}
-                <strong>Nvidia</strong> and <strong>AMD GPUs</strong>. It offers excellent
-                performance, stability, and supports a wide range of hardware.
+                <strong>lolMiner</strong> {t("help.lolMinerDesc")}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <span className="text-green-500">✓</span> Cross-platform (Windows & Linux)
+                  <span className="text-green-500">✓</span> {t("help.crossPlatform")}
                 </div>
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <span className="text-green-500">✓</span> Nvidia & AMD GPU support
+                  <span className="text-green-500">✓</span> {t("help.nvidiaAmdSupport")}
                 </div>
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <span className="text-green-500">✓</span> Low developer fee (0.7%)
+                  <span className="text-green-500">✓</span> {t("help.lowDevFee")}
                 </div>
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <span className="text-green-500">✓</span> Excellent stability
+                  <span className="text-green-500">✓</span> {t("help.excellentStability")}
                 </div>
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <span className="text-green-500">✓</span> Active development
+                  <span className="text-green-500">✓</span> {t("help.activeDevelopment")}
                 </div>
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <span className="text-green-500">✓</span> Easy configuration
+                  <span className="text-green-500">✓</span> {t("help.easyConfiguration")}
                 </div>
               </div>
               <p className="text-gray-400 text-sm mb-3">
-                📥 Download:{" "}
+                📥 {t("help.download")}:{" "}
                 <a
                   href="https://github.com/Lolliedieb/lolMiner-releases/releases"
                   target="_blank"
@@ -200,12 +195,10 @@ export default function HelpPage() {
             <details className="group">
               <summary className="cursor-pointer text-md font-semibold mb-3 text-gray-300 hover:text-white flex items-center gap-2">
                 <span className="transform group-open:rotate-90 transition-transform">▶</span>
-                Alternative Mining Software
+                {t("help.alternativeSoftware")}
               </summary>
               <div className="mt-4 space-y-4 pl-4 border-l-2 border-gray-700">
-                <p className="text-gray-400 text-sm">
-                  You can also use other mining software if you prefer:
-                </p>
+                <p className="text-gray-400 text-sm">{t("help.alternativeSoftwareDesc")}</p>
 
                 <div>
                   <p className="text-gray-400 text-sm mb-2 flex items-center gap-2">
@@ -250,26 +243,21 @@ export default function HelpPage() {
               <div className="p-2 bg-purple-600/20 rounded-lg">
                 <ChartBarIcon className="w-6 h-6 text-purple-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-100">
-                3. Start Mining & Monitor Your Progress
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-100">{t("help.step3Title")}</h3>
             </div>
-            <p className="text-gray-400 mb-4">
-              Once your miner is configured, run it to start mining. You can monitor your hashrate,
-              earnings, and payout status on our dashboard by looking up your wallet address.
-            </p>
+            <p className="text-gray-400 mb-4">{t("help.step3Desc")}</p>
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/"
                 className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
               >
-                Go to Dashboard
+                {t("help.goToDashboard")}
               </Link>
               <Link
                 href="/miners"
                 className="inline-flex items-center justify-center px-4 py-2 border border-gray-600 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 transition-colors"
               >
-                View All Miners
+                {t("help.viewAllMiners")}
               </Link>
             </div>
           </div>
@@ -282,14 +270,17 @@ export default function HelpPage() {
               <div className="p-2 bg-yellow-600/20 rounded-lg">
                 <BanknotesIcon className="w-6 h-6 text-yellow-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-100">Payouts</h3>
+              <h3 className="text-xl font-semibold text-gray-100">{t("help.payouts")}</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
-                <h4 className="text-sm font-semibold text-gray-400 mb-2">Payout Schedule</h4>
+                <h4 className="text-sm font-semibold text-gray-400 mb-2">
+                  {t("help.payoutSchedule")}
+                </h4>
                 <p className="text-gray-300">
-                  Payouts are sent automatically{" "}
-                  <strong className="text-yellow-400">every 2 hours</strong> for all balances above{" "}
+                  {t("help.payoutScheduleDesc1")}{" "}
+                  <strong className="text-yellow-400">{t("help.everyTwoHours")}</strong>{" "}
+                  {t("help.payoutScheduleDesc2")}{" "}
                   <strong className="text-yellow-400">
                     {poolConfig.pool.minPayout} {poolConfig.coin.symbol}
                   </strong>
@@ -297,21 +288,20 @@ export default function HelpPage() {
                 </p>
               </div>
               <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
-                <h4 className="text-sm font-semibold text-gray-400 mb-2">Pool Fee</h4>
+                <h4 className="text-sm font-semibold text-gray-400 mb-2">{t("stats.poolFee")}</h4>
                 <p className="text-gray-300">
-                  Our pool charges a{" "}
-                  <strong className="text-green-400">{poolConfig.pool.fee}% fee</strong> on all
-                  mining rewards. This helps us maintain and improve the pool infrastructure.
+                  {t("help.poolFeeDesc1")}{" "}
+                  <strong className="text-green-400">
+                    {poolConfig.pool.fee}%{t("help.poolFeeDesc2")}
+                  </strong>{" "}
+                  {t("help.poolFeeDesc3")}
                 </p>
               </div>
             </div>
             <div className="mt-4 p-3 bg-blue-900/20 border border-blue-700/30 rounded-lg">
               <p className="text-blue-300 text-sm flex items-start gap-2">
                 <InformationCircleIcon className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>
-                  Payments are processed in batches. If your balance is below the minimum threshold,
-                  it will accumulate until the next payout cycle.
-                </span>
+                <span>{t("help.paymentBatchInfo")}</span>
               </p>
             </div>
           </div>
@@ -324,12 +314,11 @@ export default function HelpPage() {
               <div className="p-2 bg-cyan-600/20 rounded-lg">
                 <ServerStackIcon className="w-6 h-6 text-cyan-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-100">Pool Servers & Locations</h3>
+              <h3 className="text-xl font-semibold text-gray-100">
+                {t("help.poolServersLocations")}
+              </h3>
             </div>
-            <p className="text-gray-400 mb-6">
-              Choose the server closest to your location for optimal mining performance and lower
-              latency.
-            </p>
+            <p className="text-gray-400 mb-6">{t("help.chooseServer")}</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
               {/* Global Server */}
@@ -339,12 +328,12 @@ export default function HelpPage() {
                     <CountryFlag country={globalPool.country} className="w-6 h-6" />
                     <h4 className="text-lg font-semibold text-white">{globalPool.location}</h4>
                   </div>
-                  <p className="text-gray-400 text-sm mb-2">Auto-connects to lowest latency</p>
+                  <p className="text-gray-400 text-sm mb-2">{t("help.autoConnects")}</p>
                   <p className="font-mono text-sm">
-                    <span className="text-gray-500">Host:</span> {globalPool.stratumUrl}
+                    <span className="text-gray-500">{t("help.host")}:</span> {globalPool.stratumUrl}
                   </p>
                   <p className="font-mono text-sm">
-                    <span className="text-gray-500">Port:</span>{" "}
+                    <span className="text-gray-500">{t("help.port")}:</span>{" "}
                     {globalPool.stratumPorts.join(", ")}
                   </p>
                 </div>
@@ -362,10 +351,11 @@ export default function HelpPage() {
                   </div>
                   <p className="text-gray-400 text-xs mb-1">{pool.region}</p>
                   <p className="font-mono text-sm">
-                    <span className="text-gray-500">Host:</span> {pool.stratumUrl}
+                    <span className="text-gray-500">{t("help.host")}:</span> {pool.stratumUrl}
                   </p>
                   <p className="font-mono text-sm">
-                    <span className="text-gray-500">Port:</span> {pool.stratumPorts.join(", ")}
+                    <span className="text-gray-500">{t("help.port")}:</span>{" "}
+                    {pool.stratumPorts.join(", ")}
                   </p>
                 </div>
               ))}
@@ -374,18 +364,18 @@ export default function HelpPage() {
             <div className="mt-6 p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg">
               <h5 className="text-blue-400 font-semibold mb-2 flex items-center gap-2">
                 <InformationCircleIcon className="w-5 h-5" />
-                Connection Tips
+                {t("help.connectionTips")}
               </h5>
               <ul className="text-gray-400 text-sm space-y-1">
-                <li>• Use the server closest to your location for best performance</li>
-                <li>• All servers share the same pool and payouts</li>
-                <li>• You can switch between servers at any time without losing progress</li>
+                <li>• {t("help.tip1")}</li>
+                <li>• {t("help.tip2")}</li>
+                <li>• {t("help.tip3")}</li>
                 <li>
-                  • All ports:{" "}
+                  • {t("help.allPorts")}:{" "}
                   {globalPool?.stratumPorts.map((p, i) => (
                     <span key={p}>
-                      {p} ({i === 0 ? "Low" : i === 1 ? "High" : "NiceHash"})
-                      {i < globalPool.stratumPorts.length - 1 ? ", " : ""}
+                      {p} ({i === 0 ? t("help.portLow") : i === 1 ? t("help.portHigh") : "NiceHash"}
+                      ){i < globalPool.stratumPorts.length - 1 ? ", " : ""}
                     </span>
                   ))}
                 </li>
@@ -401,39 +391,39 @@ export default function HelpPage() {
               <div className="p-2 bg-orange-600/20 rounded-lg">
                 <CogIcon className="w-6 h-6 text-orange-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-100">Advanced Configuration</h3>
+              <h3 className="text-xl font-semibold text-gray-100">
+                {t("help.advancedConfiguration")}
+              </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 className="text-lg font-semibold mb-3 text-gray-100">
-                  Static Difficulty Ports
+                  {t("help.staticDifficultyPorts")}
                 </h4>
-                <p className="text-gray-400 text-sm mb-4">
-                  Choose a port based on your mining hardware:
-                </p>
+                <p className="text-gray-400 text-sm mb-4">{t("help.choosePort")}</p>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between bg-gray-900/50 p-3 rounded-lg border border-gray-700/50">
                     <div>
-                      <span className="text-gray-300 font-mono">Port 8002</span>
+                      <span className="text-gray-300 font-mono">{t("help.port")} 8002</span>
                       <span className="text-gray-500 text-sm ml-2">2 GH</span>
                     </div>
                     <span className="text-xs bg-blue-600/30 text-blue-300 px-2 py-1 rounded">
-                      Low-End GPUs
+                      {t("help.lowEndGpus")}
                     </span>
                   </div>
                   <div className="flex items-center justify-between bg-gray-900/50 p-3 rounded-lg border border-gray-700/50">
                     <div>
-                      <span className="text-gray-300 font-mono">Port 8004</span>
+                      <span className="text-gray-300 font-mono">{t("help.port")} 8004</span>
                       <span className="text-gray-500 text-sm ml-2">44 GH</span>
                     </div>
                     <span className="text-xs bg-purple-600/30 text-purple-300 px-2 py-1 rounded">
-                      High-End GPUs
+                      {t("help.highEndGpus")}
                     </span>
                   </div>
                   <div className="flex items-center justify-between bg-gray-900/50 p-3 rounded-lg border border-gray-700/50">
                     <div>
-                      <span className="text-gray-300 font-mono">Port 8009</span>
+                      <span className="text-gray-300 font-mono">{t("help.port")} 8009</span>
                       <span className="text-gray-500 text-sm ml-2">999 GH</span>
                     </div>
                     <span className="text-xs bg-orange-600/30 text-orange-300 px-2 py-1 rounded">
@@ -444,29 +434,31 @@ export default function HelpPage() {
               </div>
 
               <div>
-                <h4 className="text-lg font-semibold mb-3 text-gray-100">NiceHash Configuration</h4>
-                <p className="text-gray-400 text-sm mb-4">Settings for NiceHash marketplace:</p>
+                <h4 className="text-lg font-semibold mb-3 text-gray-100">
+                  {t("help.niceHashConfiguration")}
+                </h4>
+                <p className="text-gray-400 text-sm mb-4">{t("help.niceHashDesc")}:</p>
                 <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50 space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Algorithm:</span>
+                    <span className="text-gray-500">{t("help.algorithm")}:</span>
                     <span className="text-gray-300 font-mono">Ethash (DaggerHashimoto)</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Host:</span>
+                    <span className="text-gray-500">{t("help.host")}:</span>
                     <span className="text-gray-300 font-mono">{poolConfig.stratum.host}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Port:</span>
+                    <span className="text-gray-500">{t("help.port")}:</span>
                     <span className="text-gray-300 font-mono">
                       {poolConfig.stratum.ports[poolConfig.stratum.ports.length - 1] || 8009}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Username:</span>
-                    <span className="text-gray-300">Your Wallet Address</span>
+                    <span className="text-gray-500">{t("help.username")}:</span>
+                    <span className="text-gray-300">{t("help.yourWalletAddressShort")}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Password:</span>
+                    <span className="text-gray-500">{t("help.password")}:</span>
                     <span className="text-gray-300 font-mono">x</span>
                   </div>
                 </div>
@@ -482,92 +474,83 @@ export default function HelpPage() {
               <div className="p-2 bg-pink-600/20 rounded-lg">
                 <QuestionMarkCircleIcon className="w-6 h-6 text-pink-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-100">Frequently Asked Questions</h3>
+              <h3 className="text-xl font-semibold text-gray-100">{t("help.faq")}</h3>
             </div>
 
             <div className="space-y-4">
               <details className="group bg-gray-900/50 rounded-lg border border-gray-700/50">
                 <summary className="cursor-pointer p-4 text-gray-200 font-medium hover:text-white flex items-center justify-between">
-                  <span>Why is my hashrate showing 0 on the dashboard?</span>
+                  <span>{t("help.faqHashrateZero")}</span>
                   <span className="transform group-open:rotate-180 transition-transform text-gray-500">
                     ▼
                   </span>
                 </summary>
                 <div className="px-4 pb-4 text-gray-400 text-sm">
-                  It may take a few minutes for your hashrate to appear after starting mining. The
-                  pool calculates your hashrate based on submitted shares, so please wait 5-10
-                  minutes for accurate statistics to display.
+                  {t("help.faqHashrateZeroAnswer")}
                 </div>
               </details>
 
               <details className="group bg-gray-900/50 rounded-lg border border-gray-700/50">
                 <summary className="cursor-pointer p-4 text-gray-200 font-medium hover:text-white flex items-center justify-between">
-                  <span>When will I receive my first payout?</span>
+                  <span>{t("help.faqFirstPayout")}</span>
                   <span className="transform group-open:rotate-180 transition-transform text-gray-500">
                     ▼
                   </span>
                 </summary>
                 <div className="px-4 pb-4 text-gray-400 text-sm">
-                  Payouts are processed every {poolConfig.pool.payoutInterval.toLowerCase()}. Once
-                  your balance reaches {poolConfig.pool.minPayout} {poolConfig.coin.symbol}, you
-                  will receive a payout in the next payout cycle. You can check your pending balance
-                  on the dashboard.
+                  {t("help.faqFirstPayoutAnswer", {
+                    interval: poolConfig.pool.payoutInterval.toLowerCase(),
+                    minPayout: String(poolConfig.pool.minPayout),
+                    symbol: poolConfig.coin.symbol,
+                  })}
                 </div>
               </details>
 
               <details className="group bg-gray-900/50 rounded-lg border border-gray-700/50">
                 <summary className="cursor-pointer p-4 text-gray-200 font-medium hover:text-white flex items-center justify-between">
-                  <span>What is the difference between the ports?</span>
+                  <span>{t("help.faqPortDifference")}</span>
                   <span className="transform group-open:rotate-180 transition-transform text-gray-500">
                     ▼
                   </span>
                 </summary>
                 <div className="px-4 pb-4 text-gray-400 text-sm">
-                  Different ports have different difficulty settings. Port 8002 (2 GH) is best for
-                  lower-end GPUs, Port 8004 (44 GH) is for high-end GPUs, and Port 8009 (999 GH) is
-                  optimized for NiceHash rentals. Choose the port that matches your hardware.
+                  {t("help.faqPortDifferenceAnswer")}
                 </div>
               </details>
 
               <details className="group bg-gray-900/50 rounded-lg border border-gray-700/50">
                 <summary className="cursor-pointer p-4 text-gray-200 font-medium hover:text-white flex items-center justify-between">
-                  <span>Can I use multiple workers with the same wallet?</span>
+                  <span>{t("help.faqMultipleWorkers")}</span>
                   <span className="transform group-open:rotate-180 transition-transform text-gray-500">
                     ▼
                   </span>
                 </summary>
                 <div className="px-4 pb-4 text-gray-400 text-sm">
-                  Yes! You can use multiple workers with the same wallet address. Simply use
-                  different worker names (e.g., rig1, rig2) for each miner. All rewards will be
-                  accumulated to the same wallet and paid out together.
+                  {t("help.faqMultipleWorkersAnswer")}
                 </div>
               </details>
 
               <details className="group bg-gray-900/50 rounded-lg border border-gray-700/50">
                 <summary className="cursor-pointer p-4 text-gray-200 font-medium hover:text-white flex items-center justify-between">
-                  <span>Why should I use lolMiner?</span>
+                  <span>{t("help.faqWhyLolMiner")}</span>
                   <span className="transform group-open:rotate-180 transition-transform text-gray-500">
                     ▼
                   </span>
                 </summary>
                 <div className="px-4 pb-4 text-gray-400 text-sm">
-                  lolMiner is recommended because it supports both Nvidia and AMD GPUs, has a low
-                  developer fee (0.7%), offers excellent stability, and is actively maintained.
-                  It&apos;s also easy to configure and works well with our pool.
+                  {t("help.faqWhyLolMinerAnswer")}
                 </div>
               </details>
 
               <details className="group bg-gray-900/50 rounded-lg border border-gray-700/50">
                 <summary className="cursor-pointer p-4 text-gray-200 font-medium hover:text-white flex items-center justify-between">
-                  <span>How do I check my mining statistics?</span>
+                  <span>{t("help.faqCheckStats")}</span>
                   <span className="transform group-open:rotate-180 transition-transform text-gray-500">
                     ▼
                   </span>
                 </summary>
                 <div className="px-4 pb-4 text-gray-400 text-sm">
-                  Enter your wallet address in the search box on the dashboard or navigate directly
-                  to /account/YOUR_ADDRESS. You can view your hashrate, pending balance, total paid,
-                  and individual worker statistics.
+                  {t("help.faqCheckStatsAnswer")}
                 </div>
               </details>
             </div>

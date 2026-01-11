@@ -12,6 +12,7 @@ import {
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 import { poolConfig } from "@/lib/poolConfig";
 import { isValidEthereumAddress, sanitizeAddress } from "@/lib/formatters";
+import { useTranslation } from "@/components/I18nProvider";
 
 const MAX_FAVORITES = 5;
 
@@ -37,6 +38,7 @@ function saveFavorites(favorites: FavoriteAddress[]): void {
 }
 
 export default function AccountLookupForm() {
+  const { t } = useTranslation();
   const [address, setAddress] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [favorites, setFavorites] = useState<FavoriteAddress[]>(() => getFavorites());
@@ -89,10 +91,8 @@ export default function AccountLookupForm() {
           <UserCircleIcon className="w-6 h-6 text-blue-400" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-gray-100">Check Your Mining Stats</h2>
-          <p className="text-gray-400 text-sm">
-            Enter your wallet address to view hashrate, balance, and payment history
-          </p>
+          <h2 className="text-xl font-bold text-gray-100">{t("account.checkStats")}</h2>
+          <p className="text-gray-400 text-sm">{t("account.checkStatsDesc")}</p>
         </div>
       </div>
 
@@ -124,7 +124,7 @@ export default function AccountLookupForm() {
               type="button"
               onClick={isFavorite ? () => removeFromFavorites(address) : addToFavorites}
               className="absolute inset-y-0 right-0 pr-4 flex items-center"
-              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              title={isFavorite ? t("account.removeFromFavorites") : t("account.addToFavorites")}
             >
               {isFavorite ? (
                 <StarIconSolid className="w-5 h-5 text-yellow-400 hover:text-yellow-300" />
@@ -140,7 +140,7 @@ export default function AccountLookupForm() {
               <div className="px-3 py-2 bg-gray-800 border-b border-gray-700">
                 <span className="text-xs text-gray-400 font-medium flex items-center gap-1">
                   <StarIconSolid className="w-3 h-3 text-yellow-400" />
-                  Saved Addresses
+                  {t("account.savedAddresses")}
                 </span>
               </div>
               {favorites.map((fav) => (
@@ -181,7 +181,7 @@ export default function AccountLookupForm() {
                 : "bg-gray-700 text-gray-400 cursor-not-allowed"
             }`}
           >
-            <span>View Stats</span>
+            <span>{t("account.viewStats")}</span>
             <ArrowRightIcon className="w-4 h-4" />
           </button>
         </div>
@@ -189,7 +189,7 @@ export default function AccountLookupForm() {
         {address && !isValidAddress && address.length > 0 && (
           <p className="text-yellow-400 text-sm flex items-center gap-2">
             <span>💡</span>
-            <span>Wallet addresses are 42 characters starting with 0x</span>
+            <span>{t("account.addressHint")}</span>
           </p>
         )}
 
@@ -197,7 +197,9 @@ export default function AccountLookupForm() {
         {favorites.length > 0 && !showFavorites && (
           <p className="text-gray-500 text-xs flex items-center gap-1">
             <StarIconSolid className="w-3 h-3 text-yellow-400" />
-            {favorites.length} saved address{favorites.length > 1 ? "es" : ""}
+            {favorites.length > 1
+              ? t("account.savedCountPlural", { count: favorites.length })
+              : t("account.savedCount", { count: favorites.length })}
           </p>
         )}
       </form>

@@ -3,6 +3,7 @@ import TimeAgo from "@/components/TimeAgo";
 import { formatDifficulty } from "@/lib/formatters";
 import { poolConfig } from "@/lib/poolConfig";
 import { CubeIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "@/components/I18nProvider";
 
 export type Block = {
   height: number;
@@ -87,11 +88,13 @@ function RewardBadge({
 }
 
 export default function BlocksTable({ blocks, type }: BlocksTableProps) {
+  const { t } = useTranslation();
+
   if (blocks.length === 0) {
     return (
       <div className="text-center py-12">
         <CubeIcon className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-        <p className="text-gray-400">No {type} blocks found</p>
+        <p className="text-gray-400">{t("common.noData")}</p>
       </div>
     );
   }
@@ -102,27 +105,27 @@ export default function BlocksTable({ blocks, type }: BlocksTableProps) {
         <thead>
           <tr className="border-b border-gray-700">
             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              Height
+              {t("blocks.height")}
             </th>
             {type !== "pending" && (
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                Block Hash
+                {t("blocks.hash")}
               </th>
             )}
             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              Time Found
+              {t("blocks.time")}
             </th>
             {type === "pending" && (
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                Difficulty
+                {t("stats.networkDifficulty")}
               </th>
             )}
             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              Variance
+              {t("blocks.effort")}
             </th>
             {type !== "pending" && (
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                Reward
+                {t("blocks.reward")}
               </th>
             )}
           </tr>
@@ -156,7 +159,7 @@ export default function BlocksTable({ blocks, type }: BlocksTableProps) {
                   {block.orphan ? (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium bg-red-900/30 text-red-300 border border-red-700/50">
                       <ExclamationTriangleIcon className="w-4 h-4" />
-                      Orphan
+                      {t("blocks.orphan")}
                     </span>
                   ) : poolConfig.links.explorer ? (
                     <a

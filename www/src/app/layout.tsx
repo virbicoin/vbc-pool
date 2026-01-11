@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import GlobalHealthChecker from "@/components/GlobalHealthChecker";
 import Footer from "@/components/Footer";
+import { I18nProvider } from "@/components/I18nProvider";
 import poolConfig from "@/lib/poolConfig";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -24,12 +25,14 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} min-h-screen flex flex-col`}>
-        <GlobalHealthChecker />
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer />
+        <I18nProvider>
+          <GlobalHealthChecker />
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </I18nProvider>
       </body>
     </html>
   );

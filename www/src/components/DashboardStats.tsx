@@ -7,6 +7,7 @@ import { poolConfig } from "@/lib/poolConfig";
 import { API_BASE_URL } from "@/lib/api";
 import TimeAgo from "@/components/TimeAgo";
 import PoolHealthStatus from "@/components/PoolHealthStatus";
+import { useTranslation } from "@/components/I18nProvider";
 import {
   UserGroupIcon,
   CpuChipIcon,
@@ -96,6 +97,7 @@ function DashboardStatsLoading() {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
+  const { t } = useTranslation();
   const isDevelopment = process.env.NODE_ENV === "development";
 
   const [mockTime] = useState(() => Date.now());
@@ -205,27 +207,27 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-gray-300 mb-4 flex items-center gap-2">
           <CpuChipIcon className="w-5 h-5 text-green-400" />
-          Pool Statistics
+          {t("home.poolStats")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             icon={<UserGroupIcon className="w-6 h-6 text-blue-400" />}
             iconBgColor="bg-blue-600/20"
-            title="Miners Online"
+            title={t("stats.activeMiners")}
             value={`${stats.miners.toLocaleString()}`}
             valueColor="text-blue-400"
           />
           <StatCard
             icon={<CpuChipIcon className="w-6 h-6 text-green-400" />}
             iconBgColor="bg-green-600/20"
-            title="Pool Hashrate"
+            title={t("stats.poolHashrate")}
             value={formatHashrate(stats.hashrate)}
             valueColor="text-green-400"
           />
           <StatCard
             icon={<ClockIcon className="w-6 h-6 text-cyan-400" />}
             iconBgColor="bg-cyan-600/20"
-            title="Last Block Found"
+            title={t("stats.lastBlock")}
             value={
               stats.lastBlockFound ? (
                 <TimeAgo timestamp={stats.lastBlockFound} agoOnly={true} />
@@ -245,9 +247,8 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
           <StatCard
             icon={<AdjustmentsHorizontalIcon className="w-6 h-6 text-purple-400" />}
             iconBgColor="bg-purple-600/20"
-            title="Round Variance"
+            title={t("stats.roundVariance")}
             value={stats.roundVariance ? `${stats.roundVariance.toFixed(1)}%` : "0%"}
-            subtitle="Lower is better"
             valueColor={stats.roundVariance <= 100 ? "text-green-400" : "text-yellow-400"}
           />
         </div>
@@ -257,31 +258,35 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-gray-300 mb-4 flex items-center gap-2">
           <GlobeAltIcon className="w-5 h-5 text-yellow-400" />
-          Network Statistics
+          {t("home.networkStats")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             icon={<GlobeAltIcon className="w-6 h-6 text-yellow-400" />}
             iconBgColor="bg-yellow-600/20"
-            title="Network Hashrate"
-            value={stats.networkHashrate > 0 ? formatHashrate(stats.networkHashrate) : "Loading..."}
+            title={t("stats.networkHashrate")}
+            value={
+              stats.networkHashrate > 0
+                ? formatHashrate(stats.networkHashrate)
+                : t("common.loading")
+            }
             valueColor="text-yellow-400"
           />
           <StatCard
             icon={<ChartBarIcon className="w-6 h-6 text-pink-400" />}
             iconBgColor="bg-pink-600/20"
-            title="Network Difficulty"
+            title={t("stats.networkDifficulty")}
             value={
               stats.networkDifficulty > 0
                 ? `${(stats.networkDifficulty / 1e9).toFixed(2)} GH`
-                : "Loading..."
+                : t("common.loading")
             }
             valueColor="text-pink-400"
           />
           <StatCard
             icon={<CubeIcon className="w-6 h-6 text-orange-400" />}
             iconBgColor="bg-orange-600/20"
-            title="Block Height"
+            title={t("stats.blockHeight")}
             value={stats.blockHeight > 0 ? stats.blockHeight.toLocaleString() : "0"}
             subtitle={
               poolConfig.links.explorer && (
@@ -291,7 +296,7 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
                   rel="noopener noreferrer"
                   className="text-blue-400 hover:text-blue-300"
                 >
-                  View in explorer →
+                  {t("common.viewAll")} →
                 </a>
               )
             }
@@ -300,9 +305,8 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
           <StatCard
             icon={<GiftIcon className="w-6 h-6 text-red-400" />}
             iconBgColor="bg-red-600/20"
-            title="Block Reward"
+            title={t("calculator.blockReward")}
             value={`${poolConfig.block.reward} ${poolConfig.coin.symbol}`}
-            subtitle="Unlimited supply"
             valueColor="text-red-400"
           />
         </div>
@@ -312,39 +316,35 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
       <div>
         <h3 className="text-lg font-semibold text-gray-300 mb-4 flex items-center gap-2">
           <BanknotesIcon className="w-5 h-5 text-green-400" />
-          Pool Information
+          {t("about.poolInfo")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             icon={<CurrencyDollarIcon className="w-6 h-6 text-green-400" />}
             iconBgColor="bg-green-600/20"
-            title="Pool Fee"
+            title={t("stats.poolFee")}
             value={`${poolConfig.pool.fee}%`}
-            subtitle="Low fee"
             valueColor="text-green-400"
           />
           <StatCard
             icon={<CreditCardIcon className="w-6 h-6 text-yellow-400" />}
             iconBgColor="bg-yellow-600/20"
-            title="Minimum Payout"
+            title={t("stats.minPayout")}
             value={`${poolConfig.pool.minPayout} ${poolConfig.coin.symbol}`}
-            subtitle="Low threshold"
             valueColor="text-yellow-400"
           />
           <StatCard
             icon={<ArrowPathIcon className="w-6 h-6 text-blue-400" />}
             iconBgColor="bg-blue-600/20"
-            title="Payout Interval"
+            title={t("stats.payoutInterval")}
             value="2 Hours"
-            subtitle="Automatic payouts"
             valueColor="text-blue-400"
           />
           <StatCard
             icon={<BanknotesIcon className="w-6 h-6 text-purple-400" />}
             iconBgColor="bg-purple-600/20"
-            title="Payment Method"
-            value="PROP"
-            subtitle="Proportional rewards"
+            title="PROP"
+            value={t("about.feature3")}
             valueColor="text-purple-400"
           />
         </div>

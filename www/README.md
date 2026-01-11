@@ -1,6 +1,6 @@
 # Mining Pool Frontend
 
-Modern, responsive frontend application for cryptocurrency mining pools built with Next.js 16 and Tailwind CSS. Fully configurable for any Ethash-based coin.
+Modern, responsive frontend application for cryptocurrency mining pools built with Next.js 16 and Tailwind CSS 4. Fully configurable for any Ethash-based coin.
 
 ## Features
 
@@ -10,7 +10,8 @@ Modern, responsive frontend application for cryptocurrency mining pools built wi
 - 🔍 Block explorer with matured/immature/pending blocks
 - 🧮 Mining calculator with 80+ GPU presets (RTX 5000/4000/3000, Radeon RX 7000/6000, Pro series, Intel Arc)
 - 🚰 Faucet for distributing free test coins (with MetaMask integration)
-- 🌍 Multi-region pool server support
+- 🌍 Multi-region pool server support with latency display
+- 🌐 Multi-language support (English, Japanese, Chinese)
 - 📱 Fully responsive design
 - 🎨 Dark theme with modern UI
 - ⚙️ Single config.json for all settings (no environment variables needed)
@@ -22,6 +23,7 @@ Modern, responsive frontend application for cryptocurrency mining pools built wi
 - **Icons**: Heroicons
 - **Data Fetching**: SWR
 - **Language**: TypeScript
+- **i18n**: Custom client-side translation system
 
 ## Getting Started
 
@@ -45,27 +47,31 @@ All configuration is managed through a single `config.json` file. Copy `config.j
   "coin": {
     "name": "YourCoin",
     "symbol": "YCN",
-    "decimals": 18
+    "decimals": 18,
+    "chainId": 1234,
+    "rpcUrl": "https://rpc.example.com"
   },
   "pool": {
     "name": "YourCoin Pool",
-    "fee": "1%",
-    "payoutThreshold": "0.5 YCN"
+    "fee": 1,
+    "minPayout": 0.1,
+    "payoutInterval": "2 hours"
   },
   "api": {
     "baseUrl": "https://api.example.com"
   },
   "servers": [
     {
-      "name": "pool1.example.com",
-      "port": 8008,
-      "region": "JP"
+      "id": "global",
+      "location": "Global",
+      "stratumUrl": "pool.example.com",
+      "stratumPorts": [8002, 8004, 8009]
     }
   ]
 }
 ```
 
-See `config.json.virbicoin` for a VirBiCoin-specific example, or use `config.json.example` as a generic template.
+See `config.json.virbicoin` for a VirBiCoin-specific example.
 
 ### Development
 
@@ -101,129 +107,130 @@ npm run format:check
 ```
 www/
 ├── src/
-│   ├── app/                 # Next.js App Router pages
-│   │   ├── about/           # About page
-│   │   ├── account/         # Account details page
-│   │   ├── api/             # API routes (proxy, faucet, health)
-│   │   ├── blocks/          # Blocks pages (matured/immature/pending)
-│   │   ├── calculator/      # Mining calculator with GPU presets
-│   │   ├── faucet/          # Faucet page with MetaMask integration
-│   │   ├── help/            # Getting started guide
-│   │   ├── miners/          # Miners list page
-│   │   └── payments/        # Payments page
-│   ├── components/          # React components
-│   └── lib/                 # Utility functions and config
-├── public/                  # Static assets
-├── config.json              # All pool configuration
-├── config.json.example      # Template for new deployments
+│   ├── app/                    # Next.js App Router pages
+│   │   ├── about/              # Terms of Service page
+│   │   ├── account/[address]/  # Account details page
+│   │   ├── api/                # API routes (proxy, faucet, health)
+│   │   ├── blocks/             # Blocks pages (matured/immature/pending)
+│   │   ├── calculator/         # Mining calculator with GPU presets
+│   │   ├── faucet/             # Faucet page with MetaMask integration
+│   │   ├── help/               # Getting started guide
+│   │   ├── miners/             # Active miners list
+│   │   └── payments/           # Payments history
+│   ├── components/             # React components (39 components)
+│   ├── lib/                    # Utilities (poolConfig, api, formatters)
+│   └── i18n/                   # Internationalization setup
+├── messages/                   # Translation files (en, ja, zh)
+├── public/                     # Static assets
+├── config.json                 # All pool configuration
+├── config.json.example         # Template for new deployments
 └── package.json
 ```
 
+## Internationalization (i18n)
+
+The application supports multiple languages:
+
+| Language | Code | Status      |
+| -------- | ---- | ----------- |
+| English  | en   | ✅ Complete |
+| Japanese | ja   | ✅ Complete |
+| Chinese  | zh   | ✅ Complete |
+
+Translation files are located in `messages/` directory. Users can switch languages via the language selector in the header.
+
+## Components
+
+The application includes 39 reusable React components:
+
+### Core Components
+
+- `Header` / `Footer` - Site navigation and branding
+- `I18nProvider` / `LanguageSwitcher` - Multi-language support
+
+### Dashboard Components
+
+- `DashboardStats` - Pool statistics display
+- `HomePageClient` - Main dashboard layout
+- `MinerLeaderboard` - Top miners ranking
+- `HashrateChart` - Hashrate history graph
+
+### Account Components
+
+- `AccountLookupForm` - Wallet address search
+- `AccountTabs` - Account page navigation
+- `WorkerStatusGrid` - Worker status display
+- `FavoritesPanel` - Saved wallet addresses
+
+### Block & Payment Components
+
+- `BlocksTable` / `BlocksTabs` / `BlocksStats` - Block information
+- `PaymentsTable` - Payment history
+- `CSVExportButton` - Export to CSV
+
+### Utility Components
+
+- `TimeAgo` - Relative time display (auto-normalizes timestamps)
+- `CopyButton` - Clipboard functionality
+- `CodeBlock` - Code display with copy
+- `CountryFlag` - Country flag icons
+- `Countdown` - Timer display
+
+### Feature Components
+
+- `MetaMaskButton` - Wallet connection
+- `WalletQRCode` - QR code generation
+- `HashrateAlert` - Hashrate notifications
+- `NotificationCenter` - Alert management
+- `PoolHealthStatus` - Server health monitoring
+
 ## Security
 
-This application implements multiple layers of security. For comprehensive security documentation, see [../docs/SECURITY.md](../docs/SECURITY.md).
+This application implements multiple layers of security. For comprehensive documentation, see [../docs/SECURITY.md](../docs/SECURITY.md).
 
-### Security Fixes Implemented (January 10, 2026)
+### Key Security Features
 
-| Category           | Issue                   | Status    | Details                             |
-| ------------------ | ----------------------- | --------- | ----------------------------------- |
-| Command Injection  | IP validation in doBan  | ✅ Fixed  | `net.ParseIP()` validation added    |
-| CORS               | Overly permissive (`*`) | ✅ Fixed  | Origin whitelist implemented        |
-| CSP                | Not configured          | ✅ Fixed  | Comprehensive headers added         |
-| Address Validation | Basic validation        | ✅ Fixed  | Strict regex + sanitization         |
-| Error Exposure     | Details leaked          | ✅ Fixed  | Hidden in production                |
-| Hostname           | Exposed in /health      | ✅ Fixed  | Removed from response               |
-| Rate Limiting      | In-memory only          | ⚠️ Note   | Consider Redis-based for production |
-| npm Dependencies   | 0 vulnerabilities       | ✅ Passed | Audited January 10, 2026            |
+| Category           | Status    | Details                                 |
+| ------------------ | --------- | --------------------------------------- |
+| Command Injection  | ✅ Fixed  | `net.ParseIP()` validation              |
+| CORS               | ✅ Fixed  | Origin whitelist implemented            |
+| CSP                | ✅ Fixed  | Comprehensive headers in next.config.ts |
+| Address Validation | ✅ Fixed  | Strict regex + sanitization             |
+| Rate Limiting      | ✅ Active | 100 req/min/IP (in-memory)              |
+| npm Dependencies   | ✅ Passed | 0 vulnerabilities (Jan 2026)            |
 
-### Implemented Security Headers
-
-The following headers are now applied to all responses via `next.config.ts`:
+### Security Headers
 
 ```typescript
 {
-  "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; ...",
+  "Content-Security-Policy": "default-src 'self'; ...",
   "X-Frame-Options": "DENY",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "strict-origin-when-cross-origin",
-  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-  "Strict-Transport-Security": "max-age=31536000; includeSubDomains" // Production only
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
 }
-```
-
-### CORS Configuration
-
-CORS is now restricted to specific origins. Configure for your deployment in `src/app/api/[...slug]/route.ts`:
-
-```typescript
-const ALLOWED_ORIGINS = new Set([
-  "https://pool.yourdomain.com",
-  // Add your domains here
-]);
 ```
 
 ### API Security
 
-- **Proxy Pattern**: All API requests are proxied through Next.js API routes (`/api/[...slug]`) to hide backend infrastructure
-- **Whitelist Validation**: Pool IDs and API paths are validated against explicit whitelists
-- **Path Traversal Prevention**: API paths are sanitized to prevent directory traversal attacks (`..`, `//`, special characters)
-- **Request Timeout**: All upstream requests have a 10-second timeout to prevent hanging connections
-
-### Rate Limiting
-
-- **In-memory Rate Limiting**: 100 requests per minute per IP address
-- **429 Response**: Excessive requests receive "Too Many Requests" with `Retry-After` header
-- **Production Note**: In-memory rate limiting is not shared across serverless instances. For production, consider using Redis-based rate limiting (e.g., Upstash).
-
-### Input Validation
-
-- **Address Validation**: Strict regex `/^0x[a-fA-F0-9]{40}$/` with sanitization
-- **Suspicious Pattern Detection**: Blocks requests containing:
-  - Command injection patterns (`wget`, `curl`, `;`, `|`, backticks)
-  - Path traversal attempts (`../`, `%2e%2e`)
-  - XSS attempts (`<script>`, `javascript:`)
-  - Protocol smuggling (`file:`, `gopher:`, `dict:`)
-- **URL Decoding**: All URLs are decoded before validation to catch encoded attacks
-
-### Error Handling
-
-- **Production**: Returns generic error messages to clients
-- **Development**: Full error details for debugging
-- **Logging**: All errors logged server-side regardless of environment
+- **Proxy Pattern**: All API requests proxied through `/api/[...slug]`
+- **Whitelist Validation**: Pool IDs and paths validated
+- **Path Traversal Prevention**: Sanitized paths
+- **Request Timeout**: 10-second timeout
 
 ### Configuration Security
 
-- All configuration is managed through `config.json`
-- `config.json` is exposed to the client - **NEVER include secrets**
-- Sensitive configuration (Redis passwords, private keys) must be kept in server-side config only
-- Use `config.json.example` as a template for new deployments
+- `config.json` is client-exposed - **never include secrets**
+- Sensitive data (Redis passwords, API keys) must be server-side only
 
-### localStorage Usage
+## Production Checklist
 
-The following data is stored in localStorage:
-
-- Favorite wallet addresses
-- Notification settings
-- Alert thresholds
-- Theme preferences
-- Auto-refresh settings
-
-**Note**: localStorage is accessible via XSS. Ensure CSP is properly configured and avoid storing sensitive data.
-
-### Dependency Security
-
-- **Last Audit**: January 10, 2026 - 0 vulnerabilities found
-- Run `npm audit` regularly to check for new vulnerabilities
-- Keep dependencies updated with `npx npm-check-updates -u`
-
-### Production Checklist
-
-- [x] Configure specific CORS origins (not `*`)
+- [x] Configure specific CORS origins
 - [x] Add Content Security Policy headers
-- [ ] Implement Redis-based rate limiting (optional for scale)
-- [x] Review `config.json` - ensure no secrets
+- [x] Enable address validation
+- [x] Review config.json for secrets
 - [ ] Enable HTTPS via reverse proxy
-- [x] Set `Strict-Transport-Security` header
+- [ ] Consider Redis-based rate limiting for scale
 
 ## License
 

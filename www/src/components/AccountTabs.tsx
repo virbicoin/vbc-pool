@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AccountWorker, AccountPayment } from "@/lib/api";
 import { formatHashrate } from "@/lib/formatters";
 import { poolConfig, shannonToCoin } from "@/lib/poolConfig";
+import { useTranslation } from "./I18nProvider";
 import TimeAgo from "./TimeAgo";
 
 type AccountTabsProps = {
@@ -13,6 +14,7 @@ type AccountTabsProps = {
 
 const AccountTabs = ({ workers, payments }: AccountTabsProps) => {
   const [activeTab, setActiveTab] = useState("workers");
+  const { t } = useTranslation();
 
   return (
     <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
@@ -25,7 +27,7 @@ const AccountTabs = ({ workers, payments }: AccountTabsProps) => {
           }`}
           onClick={() => setActiveTab("workers")}
         >
-          Workers{" "}
+          {t("miners.workers")}{" "}
           <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-green-900 text-green-200 border border-green-700">
             {workers.length}
           </span>
@@ -38,7 +40,7 @@ const AccountTabs = ({ workers, payments }: AccountTabsProps) => {
           }`}
           onClick={() => setActiveTab("payouts")}
         >
-          Payouts{" "}
+          {t("nav.payments")}{" "}
           <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-900 text-blue-200 border border-blue-700">
             {payments.length}
           </span>
@@ -52,18 +54,20 @@ const AccountTabs = ({ workers, payments }: AccountTabsProps) => {
               <table className="w-full">
                 <thead className="bg-gray-900">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Name</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-                      Hashrate
+                      {t("worker.name")}
                     </th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-                      Avg Hashrate (1h)
+                      {t("worker.hashrate")}
                     </th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-                      Last Share
+                      {t("worker.avgHashrate")}
                     </th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
-                      Status
+                      {t("worker.lastShare")}
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
+                      {t("worker.status")}
                     </th>
                   </tr>
                 </thead>
@@ -85,9 +89,9 @@ const AccountTabs = ({ workers, payments }: AccountTabsProps) => {
                       </td>
                       <td className="px-4 py-3 text-gray-300">
                         {worker.offline ? (
-                          <span className="text-red-400">Offline</span>
+                          <span className="text-red-400">{t("common.offline")}</span>
                         ) : (
-                          <span className="text-green-400">Online</span>
+                          <span className="text-green-400">{t("common.online")}</span>
                         )}
                       </td>
                     </tr>

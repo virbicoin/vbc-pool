@@ -16,6 +16,7 @@ import HashrateAlert from "@/components/HashrateAlert";
 import WorkerStatusGrid from "@/components/WorkerStatusGrid";
 import AutoRefreshSettings from "@/components/AutoRefreshSettings";
 import { AccountWorker } from "@/lib/api";
+import { useTranslation } from "@/components/I18nProvider";
 import {
   UserIcon,
   CpuChipIcon,
@@ -70,6 +71,7 @@ function StatCard({ title, value, subtext, className, icon, iconBgColor }: StatC
 export default function AccountPage() {
   const params = useParams();
   const rawAddress = params["address"] as string;
+  const { t } = useTranslation();
 
   // SECURITY: Validate and sanitize address from URL
   const address = sanitizeAddress(rawAddress);
@@ -120,8 +122,8 @@ export default function AccountPage() {
                 <UserIcon className="w-8 h-8 text-blue-400" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-100">Account Details</h1>
-                <p className="text-gray-400 text-sm mt-1">Loading account information...</p>
+                <h1 className="text-3xl font-bold text-gray-100">{t("account.title")}</h1>
+                <p className="text-gray-400 text-sm mt-1">{t("account.loadingInfo")}</p>
               </div>
             </div>
           </div>
@@ -146,25 +148,20 @@ export default function AccountPage() {
                 <ExclamationTriangleIcon className="w-8 h-8 text-red-400" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-100">Invalid Address</h1>
-                <p className="text-gray-400 text-sm mt-1">
-                  The address format is invalid. Please check and try again.
-                </p>
+                <h1 className="text-3xl font-bold text-gray-100">{t("account.invalidAddress")}</h1>
+                <p className="text-gray-400 text-sm mt-1">{t("account.invalidAddressDesc")}</p>
               </div>
             </div>
           </div>
         </div>
         <div className="container mx-auto px-4 py-8">
           <div className="bg-red-900/20 border border-red-800 rounded-lg p-6">
-            <p className="text-red-400">
-              A valid Ethereum address must be 42 characters starting with 0x followed by 40
-              hexadecimal characters.
-            </p>
+            <p className="text-red-400">{t("account.validAddressFormat")}</p>
             <Link
               href="/"
               className="inline-block mt-4 text-blue-400 hover:text-blue-300 hover:underline"
             >
-              ← Return to Home
+              ← {t("account.returnToHome")}
             </Link>
           </div>
         </div>
@@ -183,9 +180,9 @@ export default function AccountPage() {
                 <ExclamationTriangleIcon className="w-8 h-8 text-red-400" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-100">Account Not Found</h1>
+                <h1 className="text-3xl font-bold text-gray-100">{t("account.notFound")}</h1>
                 <p className="text-gray-400 text-sm mt-1">
-                  The requested account could not be found
+                  {t("account.notFoundDesc").split(".")[0]}
                 </p>
               </div>
             </div>
@@ -194,24 +191,21 @@ export default function AccountPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
             <ExclamationTriangleIcon className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-300 mb-2">Account Not Found</h2>
+            <h2 className="text-xl font-semibold text-gray-300 mb-2">{t("account.notFound")}</h2>
             <p className="text-gray-500 mb-4 font-mono text-sm break-all">{address}</p>
-            <p className="text-gray-400 mb-6">
-              This account has not been seen on the pool yet. Start mining to see your statistics
-              here.
-            </p>
+            <p className="text-gray-400 mb-6">{t("account.notFoundDesc")}</p>
             <div className="flex flex-wrap justify-center gap-3">
               <Link
                 href="/help"
                 className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
-                Get Started Mining
+                {t("account.getStarted")}
               </Link>
               <Link
                 href="/"
                 className="inline-flex items-center justify-center px-4 py-2 border border-gray-600 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors"
               >
-                Back to Dashboard
+                {t("account.backToDashboard")}
               </Link>
             </div>
           </div>
@@ -242,8 +236,8 @@ export default function AccountPage() {
               <UserIcon className="w-8 h-8 text-blue-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-100">Account Details</h1>
-              <p className="text-gray-400 text-sm mt-1">View your mining statistics and payouts</p>
+              <h1 className="text-3xl font-bold text-gray-100">{t("account.title")}</h1>
+              <p className="text-gray-400 text-sm mt-1">{t("account.subtitle")}</p>
             </div>
             {/* Auto Refresh & Hashrate Alert */}
             <div className="flex items-center gap-2 ml-auto">
@@ -263,12 +257,12 @@ export default function AccountPage() {
                 {isOnline ? (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-300 border border-green-700/50">
                     <SignalIcon className="w-3 h-3" />
-                    Online
+                    {t("common.online")}
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-900/30 text-red-300 border border-red-700/50">
                     <SignalSlashIcon className="w-3 h-3" />
-                    Offline
+                    {t("common.offline")}
                   </span>
                 )}
                 {poolConfig.links.explorer && (
@@ -279,7 +273,7 @@ export default function AccountPage() {
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition-colors"
                   >
                     <ArrowTopRightOnSquareIcon className="w-4 h-4" />
-                    Explorer
+                    {t("account.explorer")}
                   </a>
                 )}
                 <WalletQRCode address={address} />
@@ -295,29 +289,29 @@ export default function AccountPage() {
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
             <CurrencyDollarIcon className="w-5 h-5 text-green-400" />
-            Balance Overview
+            {t("account.balance")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <StatCard
               icon={<GiftIcon className="w-6 h-6 text-pink-400" />}
               iconBgColor="bg-pink-600/20"
-              title="Immature Balance"
+              title={t("account.immatureBalance")}
               value={formatCoinAmount(stats.immature)}
-              subtext="Awaiting blocks to mature"
+              subtext={t("account.immatureBalanceDesc")}
             />
             <StatCard
               icon={<CurrencyDollarIcon className="w-6 h-6 text-green-400" />}
               iconBgColor="bg-green-600/20"
-              title="Pending Balance"
+              title={t("account.pendingBalance")}
               value={formatCoinAmount(stats.balance)}
-              subtext="Ready for next payout"
+              subtext={t("account.pendingBalanceDesc")}
             />
             <StatCard
               icon={<BanknotesIcon className="w-6 h-6 text-cyan-400" />}
               iconBgColor="bg-cyan-600/20"
-              title="Total Paid"
+              title={t("account.totalPaid")}
               value={formatCoinAmount(stats.paid)}
-              subtext={`${paymentsTotal || 0} payouts`}
+              subtext={t("account.totalPaidDesc").replace("{count}", String(paymentsTotal || 0))}
             />
           </div>
         </div>
@@ -326,29 +320,29 @@ export default function AccountPage() {
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
             <CpuChipIcon className="w-5 h-5 text-blue-400" />
-            Hashrate & Workers
+            {t("account.hashrate")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <StatCard
               icon={<Cog6ToothIcon className="w-6 h-6 text-blue-400" />}
               iconBgColor="bg-blue-600/20"
-              title="Workers Online"
+              title={t("account.workersOnline")}
               value={`${workersOnline || 0}`}
-              subtext={`${workerList.length} total workers`}
+              subtext={t("account.workersOnlineDesc").replace("{count}", String(workerList.length))}
             />
             <StatCard
               icon={<CpuChipIcon className="w-6 h-6 text-green-400" />}
               iconBgColor="bg-green-600/20"
-              title="Hashrate (30m)"
+              title={t("account.hashrate30m")}
               value={formatHashrate(accountData.currentHashrate || 0)}
-              subtext="Current hashrate"
+              subtext={t("account.hashrate30mDesc")}
             />
             <StatCard
               icon={<CpuChipIcon className="w-6 h-6 text-yellow-400" />}
               iconBgColor="bg-yellow-600/20"
-              title="Hashrate (3h)"
+              title={t("account.hashrate3h")}
               value={formatHashrate(accountData.hashrate || 0)}
-              subtext="Average hashrate"
+              subtext={t("account.hashrate3hDesc")}
             />
           </div>
         </div>
@@ -357,13 +351,13 @@ export default function AccountPage() {
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
             <ArrowTrendingUpIcon className="w-5 h-5 text-purple-400" />
-            Mining Statistics
+            {t("account.miningStats")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               icon={<ClockIcon className="w-6 h-6 text-cyan-400" />}
               iconBgColor="bg-cyan-600/20"
-              title="Last Share"
+              title={t("account.lastShare")}
               value={<TimeAgo timestamp={stats.lastShare} agoOnly={true} />}
               subtext={
                 stats.lastShare
@@ -376,23 +370,26 @@ export default function AccountPage() {
             <StatCard
               icon={<CubeIcon className="w-6 h-6 text-pink-400" />}
               iconBgColor="bg-pink-600/20"
-              title="Blocks Found"
+              title={t("account.blocksFoundByAccount")}
               value={stats.blocksFound}
-              subtext="By this account"
+              subtext={t("account.blocksFoundDesc")}
             />
             <StatCard
               icon={<ArrowTrendingUpIcon className="w-6 h-6 text-orange-400" />}
               iconBgColor="bg-orange-600/20"
-              title="Round Share"
+              title={t("account.roundShare")}
               value={`${yourRoundSharePercent.toFixed(2)}%`}
-              subtext="Current round contribution"
+              subtext={t("account.roundShareDesc")}
             />
             <StatCard
               icon={<AdjustmentsHorizontalIcon className="w-6 h-6 text-purple-400" />}
               iconBgColor="bg-purple-600/20"
-              title="Epoch Switch"
+              title={t("account.epochSwitch")}
               value={<Countdown to={epochSwitchTimestamp} />}
-              subtext={`In ${blocksUntilEpoch.toLocaleString()} blocks`}
+              subtext={t("account.epochSwitchDesc").replace(
+                "{count}",
+                blocksUntilEpoch.toLocaleString()
+              )}
             />
           </div>
         </div>
@@ -411,7 +408,7 @@ export default function AccountPage() {
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
               <CpuChipIcon className="w-5 h-5 text-green-400" />
-              Worker Status
+              {t("account.workerStatus")}
             </h2>
             <WorkerStatusGrid workers={workerList} />
           </div>
@@ -423,15 +420,17 @@ export default function AccountPage() {
             <InformationCircleIcon className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-gray-300">
               <p className="mb-1">
-                <strong className="text-blue-400">Automatic payouts</strong> are processed every 2
-                hours for balances above{" "}
                 <strong className="text-blue-400">
-                  {poolConfig.pool.minPayout} {poolConfig.coin.symbol}
+                  {t("account.payoutInfo")
+                    .replace("{interval}", "2 hours")
+                    .replace(
+                      "{minPayout}",
+                      `${poolConfig.pool.minPayout} ${poolConfig.coin.symbol}`
+                    )}
                 </strong>
-                .
               </p>
               <p className="text-gray-400">
-                Immature balance will become pending after blocks are confirmed (120 confirmations).
+                {t("account.immatureInfo").replace("{confirmations}", "120")}
               </p>
             </div>
           </div>
@@ -442,7 +441,9 @@ export default function AccountPage() {
           <div className="p-4 border-b border-gray-700">
             <div className="flex items-center gap-2">
               <ArrowPathIcon className="w-5 h-5 text-blue-400" />
-              <h4 className="text-lg font-semibold text-gray-100">Workers & Payments</h4>
+              <h4 className="text-lg font-semibold text-gray-100">
+                {t("account.workersPayments")}
+              </h4>
             </div>
           </div>
           <div className="p-4">

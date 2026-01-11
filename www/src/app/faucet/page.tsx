@@ -14,6 +14,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { poolConfig } from "@/lib/poolConfig";
 import { isValidEthereumAddress } from "@/lib/formatters";
+import { useTranslation } from "@/components/I18nProvider";
 
 interface FaucetStats {
   totalRequests: number;
@@ -59,6 +60,7 @@ export default function FaucetPage() {
   const [cooldownRemaining, setCooldownRemaining] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [walletConnecting, setWalletConnecting] = useState(false);
+  const { t } = useTranslation();
 
   // Fetch faucet status on load
   const fetchStatus = useCallback(async () => {
@@ -103,7 +105,7 @@ export default function FaucetPage() {
   // Connect MetaMask wallet
   const connectWallet = async () => {
     if (typeof window === "undefined" || !window.ethereum) {
-      setError("MetaMask is not installed. Please install it to use this feature.");
+      setError(t("faucet.metaMaskNotInstalled"));
       return;
     }
 
@@ -120,9 +122,9 @@ export default function FaucetPage() {
     } catch (err: unknown) {
       const error = err as { code?: number; message?: string };
       if (error.code === 4001) {
-        setError("Connection request was rejected");
+        setError(t("faucet.connectionRejected"));
       } else {
-        setError("Failed to connect wallet");
+        setError(t("faucet.failedToConnect"));
       }
     } finally {
       setWalletConnecting(false);
@@ -164,10 +166,10 @@ export default function FaucetPage() {
     setCooldownRemaining(null);
 
     if (value && !value.startsWith("0x")) {
-      setAddressError("Address must start with 0x");
+      setAddressError(t("faucet.addressMustStart"));
     } else if (value && value.length > 2 && !isValidEthereumAddress(value)) {
       if (value.length === 42) {
-        setAddressError("Invalid address format");
+        setAddressError(t("faucet.invalidAddressFormat"));
       } else {
         setAddressError(null);
       }
@@ -183,12 +185,12 @@ export default function FaucetPage() {
     setCooldownRemaining(null);
 
     if (!address) {
-      setError("Please enter your wallet address");
+      setError(t("faucet.pleaseEnterAddress"));
       return;
     }
 
     if (!isValidEthereumAddress(address)) {
-      setError("Please enter a valid Ethereum address (0x followed by 40 hex characters)");
+      setError(t("faucet.invalidAddress"));
       return;
     }
 
@@ -213,7 +215,7 @@ export default function FaucetPage() {
         fetchStatus();
       }
     } catch {
-      setError("Network error. Please try again later.");
+      setError(t("faucet.networkError"));
     } finally {
       setLoading(false);
     }
@@ -251,7 +253,7 @@ export default function FaucetPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading faucet...</p>
+            <p className="text-gray-400">{t("faucet.loadingFaucet")}</p>
           </div>
         </div>
       </div>
@@ -269,9 +271,9 @@ export default function FaucetPage() {
                 <BeakerIcon className="w-8 h-8 text-yellow-400" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-100">Faucet</h1>
+                <h1 className="text-3xl font-bold text-gray-100">{t("faucet.title")}</h1>
                 <p className="text-gray-400 text-sm mt-1">
-                  Get free {poolConfig.coin.symbol} to start mining
+                  {t("faucet.getFreeCoin").replace("{symbol}", poolConfig.coin.symbol)}
                 </p>
               </div>
             </div>
@@ -284,16 +286,18 @@ export default function FaucetPage() {
               {isBackendNotReady ? (
                 <>
                   <ClockIcon className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-                  <h2 className="text-xl font-semibold text-gray-100 mb-2">Coming Soon</h2>
-                  <p className="text-gray-400">
-                    The faucet service is being set up. Please check back later.
-                  </p>
+                  <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                    {t("faucet.comingSoon")}
+                  </h2>
+                  <p className="text-gray-400">{t("faucet.comingSoonDesc")}</p>
                 </>
               ) : (
                 <>
                   <XCircleIcon className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                  <h2 className="text-xl font-semibold text-gray-100 mb-2">Faucet Disabled</h2>
-                  <p className="text-gray-400">The faucet is currently not available.</p>
+                  <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                    {t("faucet.faucetDisabled")}
+                  </h2>
+                  <p className="text-gray-400">{t("faucet.faucetDisabledDesc")}</p>
                 </>
               )}
               {poolConfig.links.discord && (
@@ -303,7 +307,7 @@ export default function FaucetPage() {
                   rel="noopener noreferrer"
                   className="inline-block mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
                 >
-                  Join Discord
+                  {t("faucet.joinDiscord")}
                 </a>
               )}
             </div>
@@ -323,16 +327,18 @@ export default function FaucetPage() {
                 <BeakerIcon className="w-8 h-8 text-green-400" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-100">Faucet</h1>
+                <h1 className="text-3xl font-bold text-gray-100">{t("faucet.title")}</h1>
                 <p className="text-gray-400 text-sm mt-1">
-                  Get free {symbol} to start using {poolConfig.coin.name}
+                  {t("faucet.getFreeCoinUse")
+                    .replace("{symbol}", symbol)
+                    .replace("{coinName}", poolConfig.coin.name)}
                 </p>
               </div>
             </div>
             <button
               onClick={fetchStatus}
               className="p-2 text-gray-400 hover:text-white transition-colors"
-              title="Refresh"
+              title={t("common.refresh")}
             >
               <ArrowPathIcon className="w-5 h-5" />
             </button>
@@ -348,7 +354,7 @@ export default function FaucetPage() {
               <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                 <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
                   <BeakerIcon className="w-4 h-4" />
-                  Amount
+                  {t("faucet.amount")}
                 </div>
                 <div className="text-xl font-bold text-green-400">
                   {displayAmount} {symbol}
@@ -357,7 +363,7 @@ export default function FaucetPage() {
               <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                 <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
                   <WalletIcon className="w-4 h-4" />
-                  Balance
+                  {t("faucet.balance")}
                 </div>
                 <div className="text-xl font-bold text-blue-400">
                   {status.balanceFormatted || "N/A"} {status.balanceFormatted ? symbol : ""}
@@ -366,7 +372,7 @@ export default function FaucetPage() {
               <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                 <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
                   <ChartBarIcon className="w-4 h-4" />
-                  Total Sent
+                  {t("faucet.totalSent")}
                 </div>
                 <div className="text-xl font-bold text-purple-400">
                   {status.stats?.totalSentFormatted || "0"} {symbol}
@@ -375,7 +381,7 @@ export default function FaucetPage() {
               <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                 <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
                   <ChartBarIcon className="w-4 h-4" />
-                  Users
+                  {t("faucet.users")}
                 </div>
                 <div className="text-xl font-bold text-orange-400">
                   {status.stats.uniqueAddresses.toLocaleString()}
@@ -386,32 +392,34 @@ export default function FaucetPage() {
 
           {/* Info Card */}
           <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 mb-6">
-            <h2 className="text-lg font-semibold text-gray-100 mb-4">Faucet Information</h2>
+            <h2 className="text-lg font-semibold text-gray-100 mb-4">{t("faucet.faucetInfo")}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex justify-between items-center">
-                <span className="text-gray-400">Amount per request</span>
+                <span className="text-gray-400">{t("faucet.amountPerRequest")}</span>
                 <span className="text-green-400 font-mono font-semibold">
                   {displayAmount} {symbol}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-400">Cooldown</span>
+                <span className="text-gray-400">{t("faucet.cooldown")}</span>
                 <span className="text-gray-100">
                   {status.cooldownMinutes
                     ? status.cooldownMinutes >= 60
-                      ? `${Math.floor(status.cooldownMinutes / 60)} hour${Math.floor(status.cooldownMinutes / 60) !== 1 ? "s" : ""}${status.cooldownMinutes % 60 > 0 ? ` ${status.cooldownMinutes % 60} min` : ""}`
-                      : `${status.cooldownMinutes} minutes`
+                      ? `${Math.floor(status.cooldownMinutes / 60)} ${t("faucet.hour")}${Math.floor(status.cooldownMinutes / 60) !== 1 ? "s" : ""}${status.cooldownMinutes % 60 > 0 ? ` ${status.cooldownMinutes % 60} ${t("faucet.min")}` : ""}`
+                      : `${status.cooldownMinutes} ${t("faucet.minutes")}`
                     : status.cooldownHours
-                      ? `${status.cooldownHours} hours`
+                      ? `${status.cooldownHours} ${t("faucet.hours")}`
                       : "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-400">Daily limit per IP</span>
-                <span className="text-gray-100">{status.maxDailyPerIP || 10} requests</span>
+                <span className="text-gray-400">{t("faucet.dailyLimitPerIP")}</span>
+                <span className="text-gray-100">
+                  {status.maxDailyPerIP || 10} {t("faucet.requests")}
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-400">Network</span>
+                <span className="text-gray-400">{t("faucet.network")}</span>
                 <span className="text-gray-100">
                   {poolConfig.coin.name} (ID: {poolConfig.coin.chainId})
                 </span>
@@ -421,12 +429,14 @@ export default function FaucetPage() {
 
           {/* Request Form */}
           <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-100 mb-4">Request {symbol}</h2>
+            <h2 className="text-lg font-semibold text-gray-100 mb-4">
+              {t("faucet.request")} {symbol}
+            </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="address" className="block text-sm font-medium text-gray-300 mb-2">
-                  Wallet Address
+                  {t("faucet.walletAddress")}
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -447,7 +457,7 @@ export default function FaucetPage() {
                     onClick={connectWallet}
                     disabled={walletConnecting || loading}
                     className="px-4 py-3 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-700 text-white rounded-lg transition-colors flex items-center gap-2"
-                    title="Connect MetaMask"
+                    title={t("faucet.connectWallet")}
                   >
                     {walletConnecting ? (
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -467,17 +477,17 @@ export default function FaucetPage() {
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    Processing...
+                    {t("faucet.processing")}
                   </>
                 ) : cooldownRemaining ? (
                   <>
                     <ClockIcon className="w-5 h-5" />
-                    Wait {formatTimeRemaining(cooldownRemaining)}
+                    {t("faucet.wait")} {formatTimeRemaining(cooldownRemaining)}
                   </>
                 ) : (
                   <>
                     <BeakerIcon className="w-5 h-5" />
-                    Request {displayAmount} {symbol}
+                    {t("faucet.request")} {displayAmount} {symbol}
                   </>
                 )}
               </button>
@@ -493,7 +503,7 @@ export default function FaucetPage() {
                     {cooldownRemaining && cooldownRemaining > 0 && (
                       <p className="text-gray-400 text-sm mt-1">
                         <ClockIcon className="w-4 h-4 inline mr-1" />
-                        Time remaining: {formatTimeRemaining(cooldownRemaining)}
+                        {t("faucet.timeRemaining")}: {formatTimeRemaining(cooldownRemaining)}
                       </p>
                     )}
                   </div>
@@ -511,12 +521,12 @@ export default function FaucetPage() {
                     {result.txHash && result.txHash !== "0x" + "0".repeat(64) && (
                       <div className="mt-3 p-3 bg-gray-900/50 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-gray-400 text-sm">Transaction Hash</span>
+                          <span className="text-gray-400 text-sm">{t("faucet.txHash")}</span>
                           <div className="flex gap-2">
                             <button
                               onClick={() => copyToClipboard(result.txHash!)}
                               className="text-gray-400 hover:text-white transition-colors"
-                              title="Copy"
+                              title={t("common.copy")}
                             >
                               <DocumentDuplicateIcon className="w-4 h-4" />
                             </button>
@@ -524,7 +534,7 @@ export default function FaucetPage() {
                               <button
                                 onClick={shareOnTwitter}
                                 className="text-gray-400 hover:text-blue-400 transition-colors"
-                                title="Share on X"
+                                title={t("common.share")}
                               >
                                 <ShareIcon className="w-4 h-4" />
                               </button>
@@ -546,13 +556,15 @@ export default function FaucetPage() {
                           </span>
                         )}
                         {copied && (
-                          <p className="text-green-400 text-xs mt-2">✓ Copied to clipboard!</p>
+                          <p className="text-green-400 text-xs mt-2">
+                            ✓ {t("faucet.copiedToClipboard")}
+                          </p>
                         )}
                       </div>
                     )}
                     {result.remainingRequests !== undefined && result.remainingRequests > 0 && (
                       <p className="text-gray-400 text-sm mt-2">
-                        Remaining requests today: {result.remainingRequests}
+                        {t("faucet.remainingRequests")}: {result.remainingRequests}
                       </p>
                     )}
                   </div>
@@ -563,48 +575,53 @@ export default function FaucetPage() {
 
           {/* Instructions */}
           <div className="mt-6 bg-gray-800 rounded-lg p-6 border border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-100 mb-4">How to Use</h2>
+            <h2 className="text-lg font-semibold text-gray-100 mb-4">{t("faucet.howItWorks")}</h2>
             <ol className="space-y-3 text-gray-300">
               <li className="flex items-start gap-3">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-600 text-white text-sm font-bold flex-shrink-0">
                   1
                 </span>
                 <span>
-                  Connect MetaMask or create a wallet for {poolConfig.coin.name} (Chain ID:{" "}
-                  {poolConfig.coin.chainId})
+                  {t("faucet.step1")
+                    .replace("{coinName}", poolConfig.coin.name)
+                    .replace("{chainId}", String(poolConfig.coin.chainId))}
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-600 text-white text-sm font-bold flex-shrink-0">
                   2
                 </span>
-                <span>Click the wallet button or paste your address (starts with 0x)</span>
+                <span>{t("faucet.step2")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-600 text-white text-sm font-bold flex-shrink-0">
                   3
                 </span>
-                <span>Click &quot;Request&quot; to receive free {symbol}</span>
+                <span>{t("faucet.step3").replace("{symbol}", symbol)}</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-600 text-white text-sm font-bold flex-shrink-0">
                   4
                 </span>
-                <span>Wait for the transaction to be confirmed (~{poolConfig.block.time}s)</span>
+                <span>
+                  {t("faucet.step4").replace("{blockTime}", String(poolConfig.block.time))}
+                </span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-600 text-white text-sm font-bold flex-shrink-0">
                   5
                 </span>
                 <span>
-                  You can request again after{" "}
-                  {status.cooldownMinutes
-                    ? status.cooldownMinutes >= 60
-                      ? `${Math.floor(status.cooldownMinutes / 60)} hour${Math.floor(status.cooldownMinutes / 60) !== 1 ? "s" : ""}`
-                      : `${status.cooldownMinutes} minutes`
-                    : status.cooldownHours
-                      ? `${status.cooldownHours} hours`
-                      : "the cooldown period"}
+                  {t("faucet.step5").replace(
+                    "{cooldown}",
+                    status.cooldownMinutes
+                      ? status.cooldownMinutes >= 60
+                        ? `${Math.floor(status.cooldownMinutes / 60)} ${t("faucet.hour")}${Math.floor(status.cooldownMinutes / 60) !== 1 ? "s" : ""}`
+                        : `${status.cooldownMinutes} ${t("faucet.minutes")}`
+                      : status.cooldownHours
+                        ? `${status.cooldownHours} ${t("faucet.hours")}`
+                        : "the cooldown period"
+                  )}
                 </span>
               </li>
             </ol>
@@ -613,7 +630,7 @@ export default function FaucetPage() {
             <button
               onClick={async () => {
                 if (typeof window === "undefined" || !window.ethereum) {
-                  setError("MetaMask is not installed");
+                  setError(t("faucet.metaMaskNotInstalled"));
                   return;
                 }
                 try {
@@ -636,22 +653,19 @@ export default function FaucetPage() {
                     ],
                   });
                 } catch {
-                  setError("Failed to add network to MetaMask");
+                  setError(t("faucet.failedToAddNetwork"));
                 }
               }}
               className="mt-4 w-full py-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <WalletIcon className="w-5 h-5" />
-              Add {poolConfig.coin.name} to MetaMask
+              {t("faucet.addToMetaMask").replace("{coinName}", poolConfig.coin.name)}
             </button>
           </div>
 
           {/* Warning */}
           <div className="mt-4 p-4 bg-yellow-900/20 border border-yellow-700/50 rounded-lg">
-            <p className="text-yellow-300 text-sm">
-              ⚠️ This faucet is for testing purposes only. Please don&apos;t abuse this service.
-              Excessive requests may result in temporary restrictions.
-            </p>
+            <p className="text-yellow-300 text-sm">⚠️ {t("faucet.warning")}</p>
           </div>
         </div>
       </div>

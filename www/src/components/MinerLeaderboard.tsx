@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { TrophyIcon, ChartBarIcon } from "@heroicons/react/24/outline";
 import { formatHashrate } from "@/lib/formatters";
+import { useTranslation } from "@/components/I18nProvider";
 
 interface Miner {
   address: string;
@@ -36,6 +37,7 @@ export default function MinerLeaderboard({
   limit = 10,
   className = "",
 }: MinerLeaderboardProps) {
+  const { t } = useTranslation();
   const rankedMiners = useMemo(() => {
     return [...miners]
       .filter((m) => !m.offline && m.hr > 0)
@@ -64,7 +66,7 @@ export default function MinerLeaderboard({
     return (
       <div className={`text-center py-8 ${className}`}>
         <TrophyIcon className="w-12 h-12 text-gray-600 mx-auto mb-2" />
-        <p className="text-gray-400">No active miners</p>
+        <p className="text-gray-400">{t("common.noData")}</p>
       </div>
     );
   }
@@ -75,11 +77,12 @@ export default function MinerLeaderboard({
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-gray-100 flex items-center gap-2">
             <TrophyIcon className="w-5 h-5 text-yellow-400" />
-            Top Miners
+            {t("home.topMiners")}
           </h3>
           {currentMinerRank && (
             <span className="text-sm text-gray-400">
-              Your rank: <span className="text-blue-400 font-medium">#{currentMinerRank}</span>
+              {t("miners.rank")}:{" "}
+              <span className="text-blue-400 font-medium">#{currentMinerRank}</span>
             </span>
           )}
         </div>
@@ -141,7 +144,7 @@ export default function MinerLeaderboard({
             className="text-sm text-blue-400 hover:text-blue-300 flex items-center justify-center gap-1"
           >
             <ChartBarIcon className="w-4 h-4" />
-            View all {miners.length} miners
+            {t("common.viewAll")} ({miners.length})
           </a>
         </div>
       )}

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/components/I18nProvider";
 
 export default function TimeAgo({
   timestamp,
@@ -9,6 +10,7 @@ export default function TimeAgo({
   agoOnly?: boolean;
 }) {
   const [text, setText] = useState("");
+  const { t, locale } = useTranslation();
 
   useEffect(() => {
     function update() {
@@ -24,10 +26,11 @@ export default function TimeAgo({
         // "xx ago"形式
         const now = Math.floor(Date.now() / 1000);
         const diff = now - timestampSec;
-        if (diff < 60) setText(`${diff} seconds ago`);
-        else if (diff < 3600) setText(`${Math.floor(diff / 60)} minutes ago`);
-        else if (diff < 86400) setText(`${Math.floor(diff / 3600)} hours ago`);
-        else setText(`${Math.floor(diff / 86400)} days ago`);
+        if (diff < 5) setText(t("time.justNow"));
+        else if (diff < 60) setText(t("time.secondsAgo", { count: diff }));
+        else if (diff < 3600) setText(t("time.minutesAgo", { count: Math.floor(diff / 60) }));
+        else if (diff < 86400) setText(t("time.hoursAgo", { count: Math.floor(diff / 3600) }));
+        else setText(t("time.daysAgo", { count: Math.floor(diff / 86400) }));
       } else {
         setText(new Date(timestampMs).toLocaleString(undefined, { timeZoneName: "short" }));
       }
@@ -35,7 +38,7 @@ export default function TimeAgo({
     update();
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
-  }, [timestamp, agoOnly]);
+  }, [timestamp, agoOnly, t, locale]);
 
   return <span>{text}</span>;
 }

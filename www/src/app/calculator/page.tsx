@@ -15,6 +15,7 @@ import {
 import { formatHashrate } from "@/lib/formatters";
 import poolConfig from "@/lib/poolConfig";
 import { API_BASE_URL } from "@/lib/api";
+import { useTranslation } from "@/components/I18nProvider";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -164,15 +165,16 @@ const GPU_DATABASE: GPUCategory[] = [
 // GPU Selector Component
 interface GPUSelectorProps {
   onSelect: (gpu: GPUData) => void;
+  t: (key: string) => string;
 }
 
-function GPUSelector({ onSelect }: GPUSelectorProps) {
+function GPUSelector({ onSelect, t }: GPUSelectorProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="mt-4">
-      <label className="block text-sm text-gray-400 mb-2">Select GPU</label>
+      <label className="block text-sm text-gray-400 mb-2">{t("calculator.selectGpu")}</label>
 
       {/* Category Buttons */}
       <div className="flex flex-wrap gap-2 mb-3">
@@ -232,7 +234,7 @@ function GPUSelector({ onSelect }: GPUSelectorProps) {
       {/* Quick Popular GPUs */}
       {!isOpen && (
         <div className="flex flex-wrap gap-2">
-          <span className="text-xs text-gray-500">Popular:</span>
+          <span className="text-xs text-gray-500">{t("calculator.popular")}:</span>
           {[
             GPU_DATABASE[1].gpus[0], // RTX 4090
             GPU_DATABASE[1].gpus[6], // RTX 4070
@@ -271,6 +273,7 @@ interface ProfitResult {
 }
 
 export default function CalculatorPage() {
+  const { t } = useTranslation();
   const [hashrate, setHashrate] = useState<string>("100");
   const [unit, setUnit] = useState<"MH/s" | "GH/s" | "TH/s">("MH/s");
   const [powerConsumption, setPowerConsumption] = useState<string>(
@@ -397,10 +400,8 @@ export default function CalculatorPage() {
               <CalculatorIcon className="w-8 h-8 text-purple-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-100">Mining Calculator</h1>
-              <p className="text-gray-400 text-sm mt-1">
-                Estimate your mining rewards based on your hashrate
-              </p>
+              <h1 className="text-3xl font-bold text-gray-100">{t("calculator.title")}</h1>
+              <p className="text-gray-400 text-sm mt-1">{t("calculator.estimateRewards")}</p>
             </div>
           </div>
         </div>
@@ -411,24 +412,24 @@ export default function CalculatorPage() {
         <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
             <BoltIcon className="w-5 h-5 text-yellow-400" />
-            Your Hashrate
+            {t("calculator.yourHashrate")}
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label className="block text-sm text-gray-400 mb-2">Hashrate</label>
+              <label className="block text-sm text-gray-400 mb-2">{t("calculator.hashrate")}</label>
               <input
                 type="number"
                 value={hashrate}
                 onChange={(e) => setHashrate(e.target.value)}
                 className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="Enter your hashrate"
+                placeholder={t("calculator.enterHashrate")}
                 min="0"
                 step="0.1"
               />
             </div>
             <div className="sm:w-32">
-              <label className="block text-sm text-gray-400 mb-2">Unit</label>
+              <label className="block text-sm text-gray-400 mb-2">{t("calculator.unit")}</label>
               <select
                 value={unit}
                 onChange={(e) => setUnit(e.target.value as "MH/s" | "GH/s" | "TH/s")}
@@ -443,6 +444,7 @@ export default function CalculatorPage() {
 
           {/* GPU Selector */}
           <GPUSelector
+            t={t}
             onSelect={(gpu) => {
               setHashrate(gpu.hashrate.toString());
               setUnit(gpu.unit);
@@ -455,12 +457,14 @@ export default function CalculatorPage() {
         <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
             <FireIcon className="w-5 h-5 text-orange-400" />
-            Profitability Calculator
+            {t("calculator.profitabilityCalculator")}
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-2">Power Consumption (W)</label>
+              <label className="block text-sm text-gray-400 mb-2">
+                {t("calculator.powerConsumptionW")}
+              </label>
               <input
                 type="number"
                 value={powerConsumption}
@@ -471,7 +475,9 @@ export default function CalculatorPage() {
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-2">Electricity Cost ($/kWh)</label>
+              <label className="block text-sm text-gray-400 mb-2">
+                {t("calculator.electricityCostKwh")}
+              </label>
               <input
                 type="number"
                 value={electricityCost}
@@ -483,7 +489,9 @@ export default function CalculatorPage() {
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-2">{coinSymbol} Price (USD)</label>
+              <label className="block text-sm text-gray-400 mb-2">
+                {coinSymbol} {t("calculator.priceUsd")}
+              </label>
               <input
                 type="number"
                 value={coinPrice}
@@ -499,19 +507,19 @@ export default function CalculatorPage() {
           {/* Profitability Results */}
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-              <p className="text-sm text-gray-400">Daily Revenue</p>
+              <p className="text-sm text-gray-400">{t("calculator.dailyRevenue")}</p>
               <p className="text-lg font-bold text-green-400">
                 ${profitResults.dailyRevenue.toFixed(2)}
               </p>
             </div>
             <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-              <p className="text-sm text-gray-400">Daily Electricity</p>
+              <p className="text-sm text-gray-400">{t("calculator.dailyElectricity")}</p>
               <p className="text-lg font-bold text-red-400">
                 -${profitResults.dailyCost.toFixed(2)}
               </p>
             </div>
             <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-              <p className="text-sm text-gray-400">Daily Profit</p>
+              <p className="text-sm text-gray-400">{t("calculator.dailyProfit")}</p>
               <p
                 className={`text-lg font-bold ${profitResults.dailyProfit >= 0 ? "text-green-400" : "text-red-400"}`}
               >
@@ -519,7 +527,7 @@ export default function CalculatorPage() {
               </p>
             </div>
             <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-              <p className="text-sm text-gray-400">Monthly Profit</p>
+              <p className="text-sm text-gray-400">{t("calculator.monthlyProfit")}</p>
               <p
                 className={`text-lg font-bold ${profitResults.monthlyProfit >= 0 ? "text-green-400" : "text-red-400"}`}
               >
@@ -534,14 +542,14 @@ export default function CalculatorPage() {
           <ResultCard
             icon={<ClockIcon className="w-6 h-6 text-blue-400" />}
             iconBg="bg-blue-600/20"
-            title="Hourly"
+            title={t("calculator.hourly")}
             value={results.hourly.toFixed(6)}
             unit={coinSymbol}
           />
           <ResultCard
             icon={<CurrencyDollarIcon className="w-6 h-6 text-green-400" />}
             iconBg="bg-green-600/20"
-            title="Daily"
+            title={t("calculator.daily")}
             value={results.daily.toFixed(4)}
             unit={coinSymbol}
             highlight
@@ -549,51 +557,53 @@ export default function CalculatorPage() {
           <ResultCard
             icon={<ChartBarIcon className="w-6 h-6 text-purple-400" />}
             iconBg="bg-purple-600/20"
-            title="Weekly"
+            title={t("calculator.weekly")}
             value={results.weekly.toFixed(4)}
             unit={coinSymbol}
           />
           <ResultCard
             icon={<CubeIcon className="w-6 h-6 text-orange-400" />}
             iconBg="bg-orange-600/20"
-            title="Monthly"
+            title={t("calculator.monthly")}
             value={results.monthly.toFixed(2)}
             unit={coinSymbol}
           />
           <ResultCard
             icon={<CurrencyDollarIcon className="w-6 h-6 text-yellow-400" />}
             iconBg="bg-yellow-600/20"
-            title="Yearly"
+            title={t("calculator.yearly")}
             value={results.yearly.toFixed(2)}
             unit={coinSymbol}
           />
           <ResultCard
             icon={<CubeIcon className="w-6 h-6 text-cyan-400" />}
             iconBg="bg-cyan-600/20"
-            title="Blocks/Day"
+            title={t("calculator.blocksPerDay")}
             value={results.blocksPerDay.toFixed(6)}
-            unit="blocks"
+            unit={t("calculator.blocks")}
           />
         </div>
 
         {/* Network Stats */}
         <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-100 mb-4">Network Statistics</h2>
+          <h2 className="text-lg font-semibold text-gray-100 mb-4">
+            {t("calculator.networkStats")}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <p className="text-sm text-gray-400">Network Hashrate</p>
+              <p className="text-sm text-gray-400">{t("stats.networkHashrate")}</p>
               <p className="text-lg font-semibold text-white">{formatHashrate(networkHashrate)}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-400">Pool Hashrate</p>
+              <p className="text-sm text-gray-400">{t("stats.poolHashrate")}</p>
               <p className="text-lg font-semibold text-white">{formatHashrate(poolHashrate)}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-400">Your Pool Share</p>
+              <p className="text-sm text-gray-400">{t("calculator.yourPoolShare")}</p>
               <p className="text-lg font-semibold text-green-400">{poolShare.toFixed(4)}%</p>
             </div>
             <div>
-              <p className="text-sm text-gray-400">Block Reward</p>
+              <p className="text-sm text-gray-400">{t("calculator.blockReward")}</p>
               <p className="text-lg font-semibold text-yellow-400">
                 {poolConfig.block.reward} {coinSymbol}
               </p>
@@ -604,9 +614,7 @@ export default function CalculatorPage() {
         {/* Disclaimer */}
         <div className="bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-4">
           <p className="text-sm text-yellow-200">
-            <strong>Disclaimer:</strong> These calculations are estimates based on current network
-            conditions. Actual mining rewards may vary due to luck, network difficulty changes, pool
-            fees, and other factors. This calculator assumes solo mining equivalent rewards.
+            <strong>{t("calculator.disclaimerTitle")}:</strong> {t("calculator.disclaimerText")}
           </p>
         </div>
       </div>

@@ -9,6 +9,7 @@ import Announcements from "@/components/Announcements";
 import MinerLeaderboard from "@/components/MinerLeaderboard";
 import poolConfig from "@/lib/poolConfig";
 import { API_BASE_URL } from "@/lib/api";
+import { useTranslation } from "@/components/I18nProvider";
 import {
   HomeIcon,
   CubeIcon,
@@ -44,6 +45,7 @@ interface HomePageClientProps {
 }
 
 const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
+  const { t } = useTranslation();
   return (
     <div>
       {/* Hero Section */}
@@ -70,7 +72,7 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
 
         {/* Hashrate Chart */}
         <div className="mt-8">
-          <HashrateChart title="Pool Hashrate History" color="#22c55e" height={250} />
+          <HashrateChart title={t("home.hashrateHistory")} color="#22c55e" height={250} />
         </div>
 
         {/* Quick Links Section */}
@@ -84,8 +86,8 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
                 <UserGroupIcon className="w-6 h-6 text-green-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-100">View Miners</h3>
-                <p className="text-sm text-gray-400">See all active miners</p>
+                <h3 className="text-lg font-semibold text-gray-100">{t("nav.miners")}</h3>
+                <p className="text-sm text-gray-400">{t("home.topMiners")}</p>
               </div>
             </div>
           </Link>
@@ -99,8 +101,8 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
                 <CubeIcon className="w-6 h-6 text-blue-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-100">Pool Blocks</h3>
-                <p className="text-sm text-gray-400">View found blocks</p>
+                <h3 className="text-lg font-semibold text-gray-100">{t("nav.blocks")}</h3>
+                <p className="text-sm text-gray-400">{t("home.recentBlocks")}</p>
               </div>
             </div>
           </Link>
@@ -114,8 +116,8 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
                 <BanknotesIcon className="w-6 h-6 text-yellow-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-100">Payments</h3>
-                <p className="text-sm text-gray-400">Recent payouts</p>
+                <h3 className="text-lg font-semibold text-gray-100">{t("nav.payments")}</h3>
+                <p className="text-sm text-gray-400">{t("payments.recent")}</p>
               </div>
             </div>
           </Link>
@@ -129,8 +131,8 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
                 <CalculatorIcon className="w-6 h-6 text-purple-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-100">Calculator</h3>
-                <p className="text-sm text-gray-400">Estimate rewards</p>
+                <h3 className="text-lg font-semibold text-gray-100">{t("nav.calculator")}</h3>
+                <p className="text-sm text-gray-400">{t("calculator.description")}</p>
               </div>
             </div>
           </Link>
@@ -144,8 +146,8 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ dashboardStats }) => {
                 <QuestionMarkCircleIcon className="w-6 h-6 text-cyan-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-100">Getting Started</h3>
-                <p className="text-sm text-gray-400">How to mine</p>
+                <h3 className="text-lg font-semibold text-gray-100">{t("nav.help")}</h3>
+                <p className="text-sm text-gray-400">{t("help.description")}</p>
               </div>
             </div>
           </Link>

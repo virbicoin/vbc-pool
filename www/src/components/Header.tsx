@@ -15,6 +15,8 @@ import {
   BeakerIcon,
 } from "@heroicons/react/24/outline";
 import HeaderStats from "./HeaderStats";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useTranslation } from "./I18nProvider";
 import { useState } from "react";
 import poolConfig from "@/lib/poolConfig";
 
@@ -28,6 +30,7 @@ const FavoritesPanel = dynamic(() => import("@/components/FavoritesPanel"), {
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <header className="bg-gray-900 border-b border-gray-800">
@@ -48,37 +51,40 @@ export default function Header() {
           <li>
             <Link href="/payments" className="nav-link text-gray-200 flex items-center gap-1">
               <CurrencyDollarIcon className="w-5 h-5" />
-              <span>Payments</span>
+              <span>{t("nav.payments")}</span>
             </Link>
           </li>
           <li>
             <Link href="/calculator" className="nav-link text-gray-200 flex items-center gap-1">
               <CalculatorIcon className="w-5 h-5" />
-              <span>Calculator</span>
+              <span>{t("nav.calculator")}</span>
             </Link>
           </li>
           {poolConfig.faucet.enabled && (
             <li>
               <Link href="/faucet" className="nav-link text-gray-200 flex items-center gap-1">
                 <BeakerIcon className="w-5 h-5" />
-                <span>Faucet</span>
+                <span>{t("nav.faucet")}</span>
               </Link>
             </li>
           )}
           <li>
             <Link href="/help" className="nav-link text-gray-200 flex items-center gap-1">
               <QuestionMarkCircleIcon className="w-5 h-5" />
-              <span>Help</span>
+              <span>{t("nav.help")}</span>
             </Link>
           </li>
           <li>
             <Link href="/about" className="nav-link text-gray-200 flex items-center gap-1">
               <InformationCircleIcon className="w-5 h-5" />
-              <span>About</span>
+              <span>{t("nav.about")}</span>
             </Link>
           </li>
           <li>
             <FavoritesPanel iconOnly />
+          </li>
+          <li>
+            <LanguageSwitcher />
           </li>
           <li>
             <BlockNotification />
@@ -87,6 +93,7 @@ export default function Header() {
 
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-2 lg:hidden">
+          <LanguageSwitcher />
           <BlockNotification />
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -108,7 +115,7 @@ export default function Header() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
               >
                 <CubeIcon className="w-5 h-5" />
-                <span>Blocks</span>
+                <span>{t("nav.blocks")}</span>
               </Link>
             </li>
             <li>
@@ -118,7 +125,7 @@ export default function Header() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
               >
                 <UsersIcon className="w-5 h-5" />
-                <span>Miners</span>
+                <span>{t("nav.miners")}</span>
               </Link>
             </li>
             <li>
@@ -128,7 +135,7 @@ export default function Header() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
               >
                 <CurrencyDollarIcon className="w-5 h-5" />
-                <span>Payments</span>
+                <span>{t("nav.payments")}</span>
               </Link>
             </li>
             <li>
@@ -138,7 +145,7 @@ export default function Header() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
               >
                 <CalculatorIcon className="w-5 h-5" />
-                <span>Calculator</span>
+                <span>{t("nav.calculator")}</span>
               </Link>
             </li>
             {poolConfig.faucet.enabled && (
@@ -149,7 +156,7 @@ export default function Header() {
                   className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
                 >
                   <BeakerIcon className="w-5 h-5" />
-                  <span>Faucet</span>
+                  <span>{t("nav.faucet")}</span>
                 </Link>
               </li>
             )}
@@ -160,7 +167,7 @@ export default function Header() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
               >
                 <QuestionMarkCircleIcon className="w-5 h-5" />
-                <span>Help</span>
+                <span>{t("nav.help")}</span>
               </Link>
             </li>
             <li>
@@ -170,7 +177,7 @@ export default function Header() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:bg-gray-800"
               >
                 <InformationCircleIcon className="w-5 h-5" />
-                <span>About</span>
+                <span>{t("nav.about")}</span>
               </Link>
             </li>
           </ul>

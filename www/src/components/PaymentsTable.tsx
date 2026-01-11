@@ -3,17 +3,20 @@ import TimeAgo from "@/components/TimeAgo";
 import { Payment } from "@/lib/api";
 import { poolConfig, shannonToCoin } from "@/lib/poolConfig";
 import { ArrowTopRightOnSquareIcon, BanknotesIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "@/components/I18nProvider";
 
 interface PaymentsTableProps {
   payments: Payment[];
 }
 
 export default function PaymentsTable({ payments }: PaymentsTableProps) {
+  const { t } = useTranslation();
+
   if (payments.length === 0) {
     return (
       <div className="text-center py-12">
         <BanknotesIcon className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-        <p className="text-gray-400">No payments found</p>
+        <p className="text-gray-400">{t("common.noData")}</p>
       </div>
     );
   }
@@ -26,16 +29,16 @@ export default function PaymentsTable({ payments }: PaymentsTableProps) {
             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
               <span className="flex items-center gap-2">
                 <ClockIcon className="w-4 h-4" />
-                Time
+                {t("payments.time")}
               </span>
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              Transaction Hash
+              {t("payments.txId")}
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
               <span className="flex items-center gap-2">
                 <BanknotesIcon className="w-4 h-4" />
-                Amount
+                {t("payments.amount")}
               </span>
             </th>
           </tr>

@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { CheckCircleIcon, XCircleIcon, BoltIcon } from "@heroicons/react/24/outline";
 import { formatHashrate } from "@/lib/formatters";
+import { useTranslation } from "@/components/I18nProvider";
 import TimeAgo from "@/components/TimeAgo";
 
 interface Worker {
@@ -19,6 +20,8 @@ interface WorkerStatusGridProps {
 }
 
 export default function WorkerStatusGrid({ workers, className = "" }: WorkerStatusGridProps) {
+  const { t } = useTranslation();
+
   const sortedWorkers = useMemo(() => {
     return [...workers].sort((a, b) => {
       // Online workers first, then by hashrate
@@ -40,7 +43,7 @@ export default function WorkerStatusGrid({ workers, className = "" }: WorkerStat
     return (
       <div className={`text-center py-8 ${className}`}>
         <BoltIcon className="w-12 h-12 text-gray-600 mx-auto mb-2" />
-        <p className="text-gray-400">No workers found</p>
+        <p className="text-gray-400">{t("common.noData")}</p>
       </div>
     );
   }
@@ -52,13 +55,13 @@ export default function WorkerStatusGrid({ workers, className = "" }: WorkerStat
         <div className="flex items-center gap-2">
           <CheckCircleIcon className="w-5 h-5 text-green-400" />
           <span className="text-green-400 font-medium">{stats.online}</span>
-          <span className="text-gray-400 text-sm">Online</span>
+          <span className="text-gray-400 text-sm">{t("common.online")}</span>
         </div>
         {stats.offline > 0 && (
           <div className="flex items-center gap-2">
             <XCircleIcon className="w-5 h-5 text-red-400" />
             <span className="text-red-400 font-medium">{stats.offline}</span>
-            <span className="text-gray-400 text-sm">Offline</span>
+            <span className="text-gray-400 text-sm">{t("common.offline")}</span>
           </div>
         )}
         <div className="flex items-center gap-2 ml-auto">
@@ -71,14 +74,20 @@ export default function WorkerStatusGrid({ workers, className = "" }: WorkerStat
       {/* Worker Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
         {sortedWorkers.map((worker) => (
-          <WorkerCard key={worker.name} worker={worker} />
+          <WorkerCard key={worker.name} worker={worker} t={t} />
         ))}
       </div>
     </div>
   );
 }
 
-function WorkerCard({ worker }: { worker: Worker }) {
+function WorkerCard({
+  worker,
+  t,
+}: {
+  worker: Worker;
+  t: (key: string, params?: Record<string, string | number>) => string;
+}) {
   const isOnline = !worker.offline;
 
   return (
@@ -98,13 +107,13 @@ function WorkerCard({ worker }: { worker: Worker }) {
 
       <div className="space-y-1">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-500">Hashrate</span>
+          <span className="text-gray-500">{t("worker.hashrate")}</span>
           <span className={isOnline ? "text-green-400" : "text-gray-500"}>
             {formatHashrate(worker.hr || 0)}
           </span>
         </div>
         <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-500">Last seen</span>
+          <span className="text-gray-500">{t("worker.lastSeen")}</span>
           <span className={isOnline ? "text-gray-400" : "text-red-400"}>
             <TimeAgo timestamp={worker.lastBeat} />
           </span>

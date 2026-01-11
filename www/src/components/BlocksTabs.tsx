@@ -5,10 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { API_BASE_URL } from "@/lib/api";
 import { CheckCircleIcon, ClockIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "@/components/I18nProvider";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function BlocksTabs() {
+  const { t } = useTranslation();
   const { data: stats } = useSWR(API_BASE_URL + "/api/stats", fetcher, { refreshInterval: 5000 });
   const maturedCount = stats?.maturedTotal ?? 0;
   const immatureCount = stats?.immatureTotal ?? 0;
@@ -19,7 +21,7 @@ export default function BlocksTabs() {
   const tabs = [
     {
       href: "/blocks",
-      label: "Matured",
+      label: t("blocks.mature"),
       count: maturedCount,
       icon: CheckCircleIcon,
       activeColor: "blue",
@@ -27,7 +29,7 @@ export default function BlocksTabs() {
     },
     {
       href: "/blocks/immature",
-      label: "Immature",
+      label: t("blocks.immature"),
       count: immatureCount,
       icon: ClockIcon,
       activeColor: "green",
@@ -35,7 +37,7 @@ export default function BlocksTabs() {
     },
     {
       href: "/blocks/pending",
-      label: "Pending",
+      label: t("blocks.pending"),
       count: pendingCount,
       icon: SparklesIcon,
       activeColor: "cyan",

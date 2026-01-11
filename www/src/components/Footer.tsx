@@ -1,12 +1,16 @@
+"use client";
+
 import { SiGithub, SiDiscord, SiX, SiTelegram } from "react-icons/si";
 import { FaBitcoin, FaChartLine, FaSearch } from "react-icons/fa";
 import { poolConfig } from "@/lib/poolConfig";
+import { useTranslation } from "./I18nProvider";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const startYear = poolConfig.company.startYear;
   const yearDisplay = startYear === currentYear ? currentYear : `${startYear}-${currentYear}`;
   const companyName = poolConfig.company.name || poolConfig.pool.name;
+  const { t } = useTranslation();
 
   // Get GitHub repo name from URL
   const getGithubRepoName = (url: string) => {
@@ -41,7 +45,7 @@ export default function Footer() {
             <>
               <span>|</span>
               <span className="text-cyan-400">
-                Pool {poolConfig.coin.symbol}:{" "}
+                {t("footer.pool")} {poolConfig.coin.symbol}:{" "}
                 {poolConfig.links.explorer ? (
                   <a
                     href={`${poolConfig.links.explorer}/address/${poolConfig.pool.address}`}

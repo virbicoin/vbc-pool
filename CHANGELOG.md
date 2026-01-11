@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+#### Internationalization (i18n) - January 11, 2026
+
+- **Multi-language Support**: Added support for English, Japanese, and Chinese
+  - `messages/en.json` - English translations
+  - `messages/ja.json` - Japanese translations (日本語)
+  - `messages/zh.json` - Chinese translations (中文)
+- **Language Switcher Component**: Dropdown in header to switch languages
+  - Auto-detects browser language on first visit
+  - Persists language preference in localStorage
+  - Shows flag icons for each language
+- **I18nProvider**: Client-side translation context provider
+  - `useTranslation()` hook for accessing translations
+  - Dynamic message loading per locale
+- **Translated Components**:
+  - Header navigation
+  - Footer
+  - TimeAgo (relative time)
+  - AccountTabs (Workers & Payments)
+  - WorkerStatusGrid
+  - HomePageClient (dashboard quick links)
+  - DashboardStats (pool/network/info statistics)
+  - MinerLeaderboard (top miners)
+  - AccountLookupForm (check mining stats)
+  - BlocksTable (blocks list)
+  - PaymentsTable (payments list)
+  - BlocksTabs (matured/immature/pending tabs)
+  - BlocksLayout (blocks page header)
+  - MinersPage (miners list page)
+  - PaymentsPage (payments page)
+  - BlocksPage (blocks page)
+
 ### Fixed
 
 #### Bug Fixes - January 11, 2026
