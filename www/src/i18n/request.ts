@@ -1,6 +1,11 @@
 import { notFound } from "next/navigation";
 import { getRequestConfig } from "next-intl/server";
 
+// Static imports for Turbopack compatibility
+import en from "../../messages/en.json";
+import ja from "../../messages/ja.json";
+import zh from "../../messages/zh.json";
+
 // Supported locales
 export const locales = ["en", "ja", "zh"] as const;
 export type Locale = (typeof locales)[number];
@@ -22,6 +27,13 @@ export const localeFlags: Record<Locale, string> = {
   zh: "🇨🇳",
 };
 
+// Messages map for static resolution
+const messages: Record<Locale, typeof en> = {
+  en,
+  ja,
+  zh,
+};
+
 export default getRequestConfig(async ({ requestLocale }) => {
   const locale = await requestLocale;
 
@@ -32,6 +44,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale,
-    messages: (await import(`../messages/${locale}.json`)).default,
+    messages: messages[locale as Locale],
   };
 });
