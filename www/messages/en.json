@@ -294,7 +294,7 @@
     "faqFirstPayout": "When will I receive my first payout?",
     "faqFirstPayoutAnswer": "Payouts are processed every {interval}. Once your balance reaches {minPayout} {symbol}, you will receive a payout in the next payout cycle. You can check your pending balance on the dashboard.",
     "faqPortDifference": "What is the difference between the ports?",
-    "faqPortDifferenceAnswer": "Different ports have different difficulty settings. Port 8002 (2 GH) is best for lower-end GPUs, Port 8004 (44 GH) is for high-end GPUs, and Port 8009 (999 GH) is optimized for NiceHash rentals. Choose the port that matches your hardware.",
+    "faqPortDifferenceAnswer": "Different ports have different difficulty settings. Port 8002 (2 GH) is best for lower-end GPUs, Port 8004 (44 GH) is for high-end GPUs, and Port 8009 (99 GH) is optimized for NiceHash rentals. Choose the port that matches your hardware.",
     "faqMultipleWorkers": "Can I use multiple workers with the same wallet?",
     "faqMultipleWorkersAnswer": "Yes! You can use multiple workers with the same wallet address. Simply use different worker names (e.g., rig1, rig2) for each miner. All rewards will be accumulated to the same wallet and paid out together.",
     "faqWhyLolMiner": "Why should I use lolMiner?",

@@ -52,16 +52,7 @@ All configuration is managed through a single `config.json` file. Copy `config.j
     "rpcUrl": "https://rpc.example.com"
   },
   "pool": {
-    "name": {
-      "en": "YourCoin Pool",
-      "ja": "YourCoin プール",
-      "zh": "YourCoin 矿池"
-    },
-    "description": {
-      "en": "Official Mining Pool",
-      "ja": "公式マイニングプール",
-      "zh": "官方矿池"
-    },
+    "name": "YourCoin Pool",
     "fee": 1,
     "minPayout": 0.1,
     "payoutInterval": "2 hours"
@@ -79,8 +70,6 @@ All configuration is managed through a single `config.json` file. Copy `config.j
   ]
 }
 ```
-
-**Note**: `pool.name`, `pool.description`, and `announcements[].title/message` support localization by providing an object with locale keys (`en`, `ja`, `zh`) instead of a plain string.
 
 See `config.json.virbicoin` for a VirBiCoin-specific example.
 

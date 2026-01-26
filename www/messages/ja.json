@@ -294,7 +294,7 @@
     "faqFirstPayout": "最初の支払いはいつ受け取れますか？",
     "faqFirstPayoutAnswer": "支払いは{interval}ごとに処理されます。残高が{minPayout} {symbol}に達すると、次の支払いサイクルで支払いを受け取ります。ダッシュボードで保留中の残高を確認できます。",
     "faqPortDifference": "ポートの違いは何ですか？",
-    "faqPortDifferenceAnswer": "異なるポートには異なる難易度設定があります。ポート8002（2 GH）はローエンドGPU向け、ポート8004（44 GH）はハイエンドGPU向け、ポート8009（999 GH）はNiceHashレンタル用に最適化されています。ハードウェアに合ったポートを選択してください。",
+    "faqPortDifferenceAnswer": "異なるポートには異なる難易度設定があります。ポート8002（2 GH）はローエンドGPU向け、ポート8004（44 GH）はハイエンドGPU向け、ポート8009（99 GH）はNiceHashレンタル用に最適化されています。ハードウェアに合ったポートを選択してください。",
     "faqMultipleWorkers": "同じウォレットで複数のワーカーを使用できますか？",
     "faqMultipleWorkersAnswer": "はい！同じウォレットアドレスで複数のワーカーを使用できます。各マイナーに異なるワーカー名（例：rig1、rig2）を使用するだけです。すべての報酬は同じウォレットに蓄積され、まとめて支払われます。",
     "faqWhyLolMiner": "なぜlolMinerを使用すべきですか？",

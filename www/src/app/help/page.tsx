@@ -424,7 +424,7 @@ export default function HelpPage() {
                   <div className="flex items-center justify-between bg-gray-900/50 p-3 rounded-lg border border-gray-700/50">
                     <div>
                       <span className="text-gray-300 font-mono">{t("help.port")} 8009</span>
-                      <span className="text-gray-500 text-sm ml-2">999 GH</span>
+                      <span className="text-gray-500 text-sm ml-2">99 GH</span>
                     </div>
                     <span className="text-xs bg-orange-600/30 text-orange-300 px-2 py-1 rounded">
                       NiceHash
@@ -459,7 +459,7 @@ export default function HelpPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">{t("help.password")}:</span>
-                    <span className="text-gray-300 font-mono">x</span>
+                    <span className="text-gray-300 font-mono">#</span>
                   </div>
                 </div>
               </div>

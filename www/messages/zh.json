@@ -294,7 +294,7 @@
     "faqFirstPayout": "我什么时候能收到第一笔支付？",
     "faqFirstPayoutAnswer": "支付每{interval}处理一次。当您的余额达到{minPayout} {symbol}时，您将在下一个支付周期收到支付。您可以在仪表板上查看待处理余额。",
     "faqPortDifference": "端口之间有什么区别？",
-    "faqPortDifferenceAnswer": "不同的端口有不同的难度设置。端口8002（2 GH）最适合低端GPU，端口8004（44 GH）适合高端GPU，端口8009（999 GH）针对NiceHash租赁进行了优化。选择适合您硬件的端口。",
+    "faqPortDifferenceAnswer": "不同的端口有不同的难度设置。端口8002（2 GH）最适合低端GPU，端口8004（44 GH）适合高端GPU，端口8009（99 GH）针对NiceHash租赁进行了优化。选择适合您硬件的端口。",
     "faqMultipleWorkers": "我可以使用同一个钱包使用多个工人吗？",
     "faqMultipleWorkersAnswer": "是的！您可以使用同一个钱包地址使用多个工人。只需为每个矿机使用不同的工人名称（例如：rig1、rig2）。所有奖励将累积到同一个钱包并一起支付。",
     "faqWhyLolMiner": "为什么我应该使用lolMiner？",
