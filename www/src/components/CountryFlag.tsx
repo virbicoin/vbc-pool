@@ -27,7 +27,11 @@ export function CountryFlag({
 
   // その他の国はflagcdn.comから動的に取得
   // 国コードを小文字に変換（flagcdn.comは小文字を使用）
-  const countryCode = country.toLowerCase();
+  // 一部の国コードをISO 3166-1 alpha-2に変換
+  const countryCodeMap: { [key: string]: string } = {
+    UK: "gb", // United Kingdom → Great Britain
+  };
+  const countryCode = (countryCodeMap[country] || country).toLowerCase();
   const flagUrl = `https://flagcdn.com/w80/${countryCode}.png`;
 
   return (
