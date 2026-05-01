@@ -72,18 +72,17 @@ function usePools() {
   };
 }
 
-// プールのヘルス状態をチェックする関数（内部プロキシ経由でCORS問題を回避）
-// "global" プールは "pool" エンドポイント（api.virbicoin.com）を使用
-// それ以外はそのままのIDを使用
-async function checkPoolHealth(poolId: string): Promise<PoolHealthData> {
+// プールのヘルス状態をチェックする関数
+// 各プールのGoバックエンドに直接/api/statsを叩いて確認する
+// (nginx が /api/* を Go にプロキシするため、Next.js内部ルートは使えない)
+async function checkPoolHealth(apiUrl: string): Promise<PoolHealthData> {
   const startTime = Date.now();
   try {
-    // "global" の場合、catch-all の "pool" キーを使う（api.virbicoin.com へ直接）
-    // "global" キーは pool.virbicoin.com（フロントエンド自身）を指すため循環参照になる
-    const proxyId = poolId === "global" ? "pool" : poolId;
-    const response = await fetch(`/api/${proxyId}/stats`, {
+    const response = await fetch(`${apiUrl}/api/stats`, {
       method: "GET",
       signal: AbortSignal.timeout(10000),
+      mode: "cors",
+      credentials: "omit",
     });
     const endTime = Date.now();
     const latency = endTime - startTime;
@@ -190,7 +189,7 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
               isLoading: false,
             };
           }
-          const healthData = await checkPoolHealth(pool.id);
+          const healthData = await checkPoolHealth(pool.apiUrl);
           let portStatuses: Record<number, boolean | string> | undefined = undefined;
           try {
             portStatuses = await checkStratumPortHealth(pool.stratumUrl, pool.stratumPorts);

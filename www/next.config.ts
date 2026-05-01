@@ -30,6 +30,7 @@ const cspHeader = [
   `img-src ${ALLOWED_DOMAINS.images.join(" ")}`,
   `font-src ${ALLOWED_DOMAINS.fonts.join(" ")}`,
   `connect-src ${ALLOWED_DOMAINS.connect.join(" ")}`,
+  `media-src 'self' data:`,
   `frame-ancestors 'none'`,
   `base-uri 'self'`,
   `form-action 'self'`,
