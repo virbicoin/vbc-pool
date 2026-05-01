@@ -123,6 +123,11 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
     if (slug[0] === "health") {
       poolId = "pool";
       apiPath = "health";
+    } else if (ALLOWED_API_PATHS.has(slug[0])) {
+      // Paths like /api/miners, /api/blocks, /api/payments, /api/accounts/0x...
+      // → treat as default pool ("pool" = api.virbicoin.com) request
+      poolId = "pool";
+      apiPath = slug.join("/");
     } else {
       poolId = slug[0];
       apiPath = slug.slice(1).join("/");

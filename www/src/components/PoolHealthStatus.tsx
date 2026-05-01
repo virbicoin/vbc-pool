@@ -73,11 +73,15 @@ function usePools() {
 }
 
 // プールのヘルス状態をチェックする関数（内部プロキシ経由でCORS問題を回避）
+// "global" プールは "pool" エンドポイント（api.virbicoin.com）を使用
+// それ以外はそのままのIDを使用
 async function checkPoolHealth(poolId: string): Promise<PoolHealthData> {
   const startTime = Date.now();
   try {
-    // 内部プロキシ経由でアクセス（同一オリジン、CORS不要）
-    const response = await fetch(`/api/${poolId}/stats`, {
+    // "global" の場合、catch-all の "pool" キーを使う（api.virbicoin.com へ直接）
+    // "global" キーは pool.virbicoin.com（フロントエンド自身）を指すため循環参照になる
+    const proxyId = poolId === "global" ? "pool" : poolId;
+    const response = await fetch(`/api/${proxyId}/stats`, {
       method: "GET",
       signal: AbortSignal.timeout(10000),
     });
