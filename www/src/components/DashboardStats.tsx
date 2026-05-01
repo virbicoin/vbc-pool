@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import useSWR from "swr";
 import { formatHashrate } from "@/lib/formatters";
 import { poolConfig } from "@/lib/poolConfig";
-import { API_BASE_URL } from "@/lib/api";
 import TimeAgo from "@/components/TimeAgo";
 import PoolHealthStatus from "@/components/PoolHealthStatus";
 import { useTranslation } from "@/components/I18nProvider";
@@ -129,7 +128,7 @@ export default function DashboardStats({ stats: _ }: DashboardStatsProps) {
     if (isDevelopment) {
       return Promise.resolve(mockData);
     }
-    const response = await fetch(`${API_BASE_URL}/api/stats`);
+    const response = await fetch("/api/stats");
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

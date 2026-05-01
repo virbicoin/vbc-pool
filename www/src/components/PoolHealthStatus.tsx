@@ -7,6 +7,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { useTranslation } from "@/components/I18nProvider";
 
 interface PoolNode {
+  id: string;
   apiUrl: string;
   stratumUrl: string;
   location: string;
@@ -71,15 +72,14 @@ function usePools() {
   };
 }
 
-// プールのヘルス状態をチェックする関数
-async function checkPoolHealth(apiUrl: string): Promise<PoolHealthData> {
+// プールのヘルス状態をチェックする関数（内部プロキシ経由でCORS問題を回避）
+async function checkPoolHealth(poolId: string): Promise<PoolHealthData> {
   const startTime = Date.now();
   try {
-    const response = await fetch(`${apiUrl}/health`, {
+    // 内部プロキシ経由でアクセス（同一オリジン、CORS不要）
+    const response = await fetch(`/api/${poolId}/stats`, {
       method: "GET",
       signal: AbortSignal.timeout(10000),
-      mode: "cors",
-      credentials: "omit",
     });
     const endTime = Date.now();
     const latency = endTime - startTime;
@@ -186,7 +186,7 @@ export default function PoolHealthStatus({ className = "" }: PoolHealthStatusPro
               isLoading: false,
             };
           }
-          const healthData = await checkPoolHealth(pool.apiUrl);
+          const healthData = await checkPoolHealth(pool.id);
           let portStatuses: Record<number, boolean | string> | undefined = undefined;
           try {
             portStatuses = await checkStratumPortHealth(pool.stratumUrl, pool.stratumPorts);

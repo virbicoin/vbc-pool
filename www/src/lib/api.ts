@@ -1,10 +1,14 @@
 import poolConfig from "./poolConfig";
 
-// Get API base URL from config
-export const API_BASE_URL = poolConfig.api.baseUrl || "";
+// Server-side API base URL (full URL needed for server-side fetch)
+const SERVER_API_BASE_URL = poolConfig.api.baseUrl || "";
+
+// Client-side API base URL (empty = relative path through Next.js internal proxy)
+// This avoids CSP and CORS issues by routing through the same origin
+export const API_BASE_URL = "";
 
 const getBaseUrl = () => {
-  return API_BASE_URL;
+  return SERVER_API_BASE_URL;
 };
 
 export interface Block {

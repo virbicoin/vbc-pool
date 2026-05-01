@@ -15,6 +15,8 @@ const ALLOWED_ORIGINS: ReadonlySet<string> = new Set([
   // Production domains
   "https://pool.digitalregion.jp",
   "https://*.digitalregion.jp",
+  "https://pool.virbicoin.com",
+  "https://*.virbicoin.com",
   // Development
   ...(process.env.NODE_ENV === "development"
     ? ["http://localhost:3000", "http://127.0.0.1:3000"]

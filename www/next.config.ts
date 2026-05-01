@@ -9,12 +9,14 @@ const assetPrefix = process.env["NEXT_PUBLIC_ASSET_PREFIX"] ?? (isProd ? "/" : "
 const ALLOWED_DOMAINS = {
   scripts: ["'self'"],
   styles: ["'self'", "'unsafe-inline'"], // Tailwind requires unsafe-inline
-  images: ["'self'", "data:", "https://flagcdn.com", "https://*.digitalregion.jp"],
+  images: ["'self'", "data:", "https://flagcdn.com", "https://*.digitalregion.jp", "https://*.virbicoin.com"],
   fonts: ["'self'"],
   connect: [
     "'self'",
     "https://api.digitalregion.jp",
     "https://*.digitalregion.jp",
+    "https://api.virbicoin.com",
+    "https://*.virbicoin.com",
     // Allow localhost in development
     ...(isProd ? [] : ["http://localhost:*", "ws://localhost:*"]),
   ],

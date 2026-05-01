@@ -16,7 +16,6 @@ import {
 import { Line } from "react-chartjs-2";
 import { formatHashrate } from "@/lib/formatters";
 import { poolConfig } from "@/lib/poolConfig";
-import { API_BASE_URL } from "@/lib/api";
 
 // Register Chart.js components
 ChartJS.register(
@@ -80,9 +79,9 @@ export default function HashrateChart({
   useEffect(() => {
     const fetchHashrate = async () => {
       try {
-        let url = `${API_BASE_URL}/api/stats`;
+        let url = `/api/stats`;
         if (dataSource === "account" && accountAddress) {
-          url = `${API_BASE_URL}/api/accounts/${accountAddress}`;
+          url = `/api/accounts/${accountAddress}`;
         }
 
         const res = await fetch(url);
