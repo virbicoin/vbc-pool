@@ -16,9 +16,6 @@ import { poolConfig } from "@/lib/poolConfig";
 import { isValidEthereumAddress } from "@/lib/formatters";
 import { useTranslation } from "@/components/I18nProvider";
 
-// Faucet backend URL (direct access to Go backend, bypassing nginx /api/* routing)
-const FAUCET_BACKEND_URL = poolConfig.faucet.backendUrl || poolConfig.api.baseUrl;
-
 interface FaucetStats {
   totalRequests: number;
   totalSent: number;
@@ -68,10 +65,7 @@ export default function FaucetPage() {
   // Fetch faucet status on load
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch(`${FAUCET_BACKEND_URL}/api/faucet`, {
-        mode: "cors",
-        credentials: "omit",
-      });
+      const res = await fetch("/api/faucet");
       const data = await res.json();
       setStatus(data);
     } catch {
@@ -203,12 +197,10 @@ export default function FaucetPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${FAUCET_BACKEND_URL}/api/faucet`, {
+      const response = await fetch("/api/faucet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address }),
-        mode: "cors",
-        credentials: "omit",
       });
 
       const data = await response.json();
