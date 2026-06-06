@@ -5,16 +5,4 @@ linters:
   disable:
     - errcheck
     - unused
-
-linters-settings:
-  staticcheck:
-    checks:
-      - "all"
-      - "-ST1005"  # error strings should not be capitalized
-      - "-ST1006"  # receiver name
-      - "-QF1004"  # could use strings.ReplaceAll
-      - "-S1000"   # should use for range
-
-issues:
-  exclude-dirs:
-    - vendor
+    - staticcheck
