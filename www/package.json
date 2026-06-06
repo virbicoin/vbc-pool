@@ -1,11 +1,11 @@
 {
   "name": "www",
-  "version": "0.1.8",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 4000",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 4000",
     "check": "eslint . && tsc --noEmit && npm run format:check",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -15,30 +15,30 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "chart.js": "^4.5.1",
-    "date-fns": "^4.1.0",
-    "next": "^16.1.1",
-    "next-intl": "^4.7.0",
+    "date-fns": "^4.4.0",
+    "next": "^16.2.7",
+    "next-intl": "^4.13.0",
     "postcss-load-config": "^6.0.1",
     "qrcode.react": "^4.2.0",
-    "react": "^19.2.3",
+    "react": "^19.2.7",
     "react-chartjs-2": "^5.3.1",
-    "react-dom": "^19.2.3",
-    "react-icons": "^5.5.0",
-    "swr": "^2.3.8"
+    "react-dom": "^19.2.7",
+    "react-icons": "^5.6.0",
+    "swr": "^2.4.1"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.3",
-    "@tailwindcss/postcss": "4.1.18",
-    "@types/node": "^25.0.5",
-    "@types/react": "^19.2.7",
+    "@eslint/eslintrc": "^3.3.5",
+    "@tailwindcss/postcss": "4.3.0",
+    "@types/node": "^25.9.2",
+    "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "autoprefixer": "^10.4.23",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "^16.1.1",
+    "autoprefixer": "^10.5.0",
+    "eslint": "^10.4.1",
+    "eslint-config-next": "^16.2.7",
     "eslint-config-prettier": "^10.1.8",
-    "postcss": "^8.5.6",
-    "prettier": "^3.7.4",
-    "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3"
+    "postcss": "^8.5.15",
+    "prettier": "^3.8.3",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3"
   }
 }

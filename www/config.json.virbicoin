@@ -3,7 +3,7 @@
     "name": "VirBiCoin",
     "symbol": "VBC",
     "chainId": 329,
-    "rpcUrl": "https://rpc.digitalregion.jp"
+    "rpcUrl": "https://rpc.virbicoin.com"
   },
   "pool": {
     "name": "VirBiCoin Pool",
@@ -14,7 +14,7 @@
     "address": "0x950302976387b43e042aea242ae8dab8e5c204d1"
   },
   "company": {
-    "name": "Digitalregion, Inc.",
+    "name": "VirBiCoin Foundation",
     "startYear": 2024
   },
   "block": {
@@ -27,27 +27,27 @@
     "primaryColor": "#22c55e"
   },
   "links": {
-    "explorer": "https://explorer.digitalregion.jp",
-    "network": "https://stats.digitalregion.jp",
+    "explorer": "https://explorer.virbicoin.com",
+    "network": "https://stats.virbicoin.com",
     "twitter": "https://x.com/VirBiCoin",
     "github": "https://github.com/virbicoin/open-virbicoin-pool",
-    "discord": "https://discord.digitalregion.jp",
+    "discord": "https://discord.virbicoin.com",
     "telegram": "",
     "bitcointalk": "https://bitcointalk.org/index.php?topic=5546988"
   },
   "stratum": {
-    "host": "stratum.digitalregion.jp",
+    "host": "stratum.virbicoin.com",
     "port": 8002,
     "ports": [8002, 8004, 8009]
   },
   "api": {
-    "baseUrl": "https://api.digitalregion.jp"
+    "baseUrl": "https://api.virbicoin.com"
   },
   "servers": [
     {
       "id": "global",
-      "apiUrl": "https://pool.digitalregion.jp",
-      "stratumUrl": "stratum.digitalregion.jp",
+      "apiUrl": "https://pool.virbicoin.com",
+      "stratumUrl": "stratum.virbicoin.com",
       "location": "Global",
       "flag": "🌍",
       "country": "GLOBAL",
@@ -56,9 +56,20 @@
       "active": true
     },
     {
+      "id": "pool0",
+      "apiUrl": "https://pool0.virbicoin.com",
+      "stratumUrl": "stratum0.virbicoin.com",
+      "location": "India",
+      "flag": "🇮🇳",
+      "country": "IN",
+      "region": "South Asia",
+      "stratumPorts": [8002, 8004, 8009],
+      "active": true
+    },
+    {
       "id": "pool1",
-      "apiUrl": "https://pool1.digitalregion.jp",
-      "stratumUrl": "stratum1.digitalregion.jp",
+      "apiUrl": "https://pool1.virbicoin.com",
+      "stratumUrl": "stratum1.virbicoin.com",
       "location": "Singapore",
       "flag": "🇸🇬",
       "country": "SG",
@@ -68,8 +79,8 @@
     },
     {
       "id": "pool2",
-      "apiUrl": "https://pool2.digitalregion.jp",
-      "stratumUrl": "stratum2.digitalregion.jp",
+      "apiUrl": "https://pool2.virbicoin.com",
+      "stratumUrl": "stratum2.virbicoin.com",
       "location": "Japan",
       "flag": "🇯🇵",
       "country": "JP",
@@ -79,8 +90,8 @@
     },
     {
       "id": "pool3",
-      "apiUrl": "https://pool3.digitalregion.jp",
-      "stratumUrl": "stratum3.digitalregion.jp",
+      "apiUrl": "https://pool3.virbicoin.com",
+      "stratumUrl": "stratum3.virbicoin.com",
       "location": "Eastern USA",
       "flag": "🇺🇸",
       "country": "US",
@@ -90,8 +101,8 @@
     },
     {
       "id": "pool4",
-      "apiUrl": "https://pool4.digitalregion.jp",
-      "stratumUrl": "stratum4.digitalregion.jp",
+      "apiUrl": "https://pool4.virbicoin.com",
+      "stratumUrl": "stratum4.virbicoin.com",
       "location": "Sweden",
       "flag": "🇸🇪",
       "country": "SE",
@@ -101,8 +112,8 @@
     },
     {
       "id": "pool5",
-      "apiUrl": "https://pool5.digitalregion.jp",
-      "stratumUrl": "stratum5.digitalregion.jp",
+      "apiUrl": "https://pool5.virbicoin.com",
+      "stratumUrl": "stratum5.virbicoin.com",
       "location": "Western USA",
       "flag": "🇺🇸",
       "country": "US",
