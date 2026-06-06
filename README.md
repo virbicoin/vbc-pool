@@ -1,11 +1,43 @@
-## Open Source VirBiCoin Mining Pool
+<p align="center">
+  <img src="https://raw.githubusercontent.com/virbicoin/virbicoin.com/main/public/VBC.svg" alt="VirBiCoin Logo" width="120" height="120">
+</p>
+
+<h1 align="center">Open VirBiCoin Pool</h1>
+
+<p align="center">
+  <strong>Open Source Ethereum-Compatible Mining Pool for VirBiCoin</strong>
+</p>
+
+<p align="center">
+  <a href="https://pool.virbicoin.com">
+    <img src="https://img.shields.io/badge/Pool-pool.virbicoin.com-cyan?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Pool">
+  </a>
+  <a href="https://explorer.virbicoin.com">
+    <img src="https://img.shields.io/badge/Explorer-Live-green?style=for-the-badge&logo=ethereum&logoColor=white" alt="Explorer">
+  </a>
+  <a href="https://discord.virbicoin.com">
+    <img src="https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/virbicoin/open-virbicoin-pool/actions/workflows/go.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/virbicoin/open-virbicoin-pool/go.yml?style=flat-square&label=CI" alt="CI">
+  </a>
+  <a href="https://goreportcard.com/report/github.com/virbicoin/open-virbicoin-pool">
+    <img src="https://img.shields.io/badge/Go_Report-A+-brightgreen?style=flat-square&logo=go&logoColor=white" alt="Go Report">
+  </a>
+  <a href="https://pkg.go.dev/github.com/virbicoin/open-virbicoin-pool">
+    <img src="https://img.shields.io/badge/Go_Reference-pkg.go.dev-007D9C?style=flat-square&logo=go&logoColor=white" alt="Go Reference">
+  </a>
+  <img src="https://img.shields.io/badge/Go-≥1.22-00ADD8?style=flat-square&logo=go&logoColor=white" alt="Go">
+  <img src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js" alt="Next.js">
+  <img src="https://img.shields.io/badge/License-GPL--3.0-blue?style=flat-square" alt="License: GPL-3.0">
+</p>
+
+---
 
 ![Miner's stats page](https://github.com/user-attachments/assets/4c88b87f-a9da-4dde-9efc-8e95a16f697b)
-[![Reference](
-https://camo.githubusercontent.com/2063f3f9554951409bbfe24df02fdb42654b032b1f13062829c198b58f836335/68747470733a2f2f706b672e676f2e6465762f62616467652f6769746875622e636f6d2f657468657265756d2f676f2d657468657265756d
-)](https://pkg.go.dev/github.com/virbicoin/open-virbicoin-pool)
-[![GitHub CI](https://github.com/virbicoin/open-virbicoin-pool/actions/workflows/go.yml/badge.svg)](https://github.com/virbicoin/open-virbicoin-pool/actions/workflows/go.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/virbicoin/open-virbicoin-pool)](https://goreportcard.com/report/github.com/virbicoin/open-virbicoin-pool)
 
 ### Features
 
