@@ -1,4 +1,5 @@
 import { type NextConfig } from "next";
+import path from "path";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -40,6 +41,12 @@ const nextConfig: NextConfig = {
   assetPrefix,
 
   reactStrictMode: true,
+
+  // Fix workspace root detection when parent directory has a lockfile
+  outputFileTracingRoot: path.join(__dirname, "./"),
+  turbopack: {
+    root: path.join(__dirname, "./"),
+  },
 
   // Remote images settings for <Image />
   images: {

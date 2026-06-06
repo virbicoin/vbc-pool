@@ -3,9 +3,9 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 4000",
+    "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 4000",
+    "start": "next start",
     "check": "eslint . && tsc --noEmit && npm run format:check",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -25,6 +25,17 @@
     "react-dom": "^19.2.7",
     "react-icons": "^5.6.0",
     "swr": "^2.4.1"
+  },
+  "overrides": {
+    "eslint-plugin-import": {
+      "eslint": "$eslint"
+    },
+    "eslint-plugin-jsx-a11y": {
+      "eslint": "$eslint"
+    },
+    "eslint-plugin-react": {
+      "eslint": "$eslint"
+    }
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
