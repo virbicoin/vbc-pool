@@ -89,131 +89,13 @@ type Worker struct {
 }
 
 func NewRedisClient(cfg *Config, prefix string) *RedisClient {
-	var client *redis.Client
-	var err error
-	var actualPassword string = cfg.Password // Start with configured password
-
-	// Prefer Sentinel when addresses are provided.
-	if len(cfg.SentinelAddrs) > 0 && cfg.MasterName != "" {
-		fmt.Printf("[Redis] Attempting Sentinel connection to master '%s' (%v)\n", cfg.MasterName, cfg.SentinelAddrs)
-		
-		// Try Sentinel connection with retry logic
-		for attempt := 1; attempt <= 3; attempt++ {
-			client = redis.NewFailoverClient(&redis.FailoverOptions{
-				MasterName:    cfg.MasterName,
-				SentinelAddrs: cfg.SentinelAddrs,
-				Password:      actualPassword,
-				DB:            cfg.Database,
-				PoolSize:      cfg.PoolSize,
-				MaxRetries:    3,
-				DialTimeout:   5 * time.Second,
-				ReadTimeout:   3 * time.Second,
-				WriteTimeout:  3 * time.Second,
-			})
-
-			// Test connection
-			_, err = client.Ping().Result()
-			if err == nil {
-				fmt.Println("[Redis] Connected via Sentinel")
-				break
-			}
-
-			fmt.Printf("[Redis] Sentinel connection attempt %d failed: %v\n", attempt, err)
-			
-			// Check if password error
-			if strings.Contains(err.Error(), "AUTH") || strings.Contains(err.Error(), "NOAUTH") {
-				fmt.Println("[Redis] Password authentication error detected, retrying without password...")
-				actualPassword = "" // Clear password
-				client = redis.NewFailoverClient(&redis.FailoverOptions{
-					MasterName:    cfg.MasterName,
-					SentinelAddrs: cfg.SentinelAddrs,
-					Password:      actualPassword, // Try without password
-					DB:            cfg.Database,
-					PoolSize:      cfg.PoolSize,
-					MaxRetries:    3,
-					DialTimeout:   5 * time.Second,
-					ReadTimeout:   3 * time.Second,
-					WriteTimeout:  3 * time.Second,
-				})
-				_, err = client.Ping().Result()
-				if err == nil {
-					fmt.Println("[Redis] Connected via Sentinel without password")
-					break
-				}
-				actualPassword = cfg.Password // Restore password for next attempt
-			}
-
-			if attempt < 3 {
-				time.Sleep(time.Duration(attempt) * time.Second)
-			}
-		}
-
-		// If Sentinel fails and we have endpoint, fallback to direct connection
-		if err != nil && cfg.Endpoint != "" {
-			fmt.Printf("[Redis] Sentinel connection failed, falling back to direct connection: %s\n", cfg.Endpoint)
-			client = nil // Reset client
-		}
-	}
-
-	// Direct connection mode (or fallback from Sentinel)
-	if client == nil && cfg.Endpoint != "" {
-		fmt.Printf("[Redis] Connecting directly to %s\n", cfg.Endpoint)
-		
-		// Try direct connection with retry logic
-		for attempt := 1; attempt <= 3; attempt++ {
-			client = redis.NewClient(&redis.Options{
-				Addr:         cfg.Endpoint,
-				Password:     actualPassword,
-				DB:           cfg.Database,
-				PoolSize:     cfg.PoolSize,
-				MaxRetries:   3,
-				DialTimeout:  5 * time.Second,
-				ReadTimeout:  3 * time.Second,
-				WriteTimeout: 3 * time.Second,
-			})
-
-			// Test connection
-			_, err = client.Ping().Result()
-			if err == nil {
-				fmt.Println("[Redis] Connected directly")
-				break
-			}
-
-			fmt.Printf("[Redis] Direct connection attempt %d failed: %v\n", attempt, err)
-			
-			// Check if password error
-			if strings.Contains(err.Error(), "AUTH") || strings.Contains(err.Error(), "NOAUTH") {
-				fmt.Println("[Redis] Password authentication error detected, retrying without password...")
-				actualPassword = "" // Clear password
-				client = redis.NewClient(&redis.Options{
-					Addr:         cfg.Endpoint,
-					Password:     actualPassword, // Try without password
-					DB:           cfg.Database,
-					PoolSize:     cfg.PoolSize,
-					MaxRetries:   3,
-					DialTimeout:  5 * time.Second,
-					ReadTimeout:  3 * time.Second,
-					WriteTimeout: 3 * time.Second,
-				})
-				_, err = client.Ping().Result()
-				if err == nil {
-					fmt.Println("[Redis] Connected directly without password")
-					break
-				}
-				actualPassword = cfg.Password // Restore password for next attempt
-			}
-
-			if attempt < 3 {
-				time.Sleep(time.Duration(attempt) * time.Second)
-			}
-		}
-	}
-
-	if client == nil {
-		panic("Failed to connect to Redis")
-	}
-
-	return &RedisClient{client: client, prefix: prefix, actualPassword: actualPassword}
+	client := redis.NewClient(&redis.Options{
+		Addr:     cfg.Endpoint,
+		Password: cfg.Password,
+		DB:       cfg.Database,
+		PoolSize: cfg.PoolSize,
+	})
+	return &RedisClient{client: client, prefix: prefix}
 }
 
 func (r *RedisClient) Client() *redis.Client {

@@ -1,33 +1,33 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 type CountdownProps = {
   to: number;
 };
 
 const Countdown = ({ to }: CountdownProps) => {
-  const [timeLeft, setTimeLeft] = useState('');
+  const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
     const calculateTimeLeft = () => {
       const difference = to - new Date().getTime();
-      let newTimeLeft = '';
+      let newTimeLeft = "";
 
       if (difference > 0) {
         const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        
-        if(days > 0) {
+
+        if (days > 0) {
           newTimeLeft = `in ${days} days ${hours} hours`;
         } else {
           const minutes = Math.floor((difference / 1000 / 60) % 60);
           newTimeLeft = `in ${hours} hours ${minutes} minutes`;
         }
       } else {
-        newTimeLeft = 'Epoch passed';
+        newTimeLeft = "Epoch passed";
       }
-      
+
       setTimeLeft(newTimeLeft);
     };
 
@@ -40,4 +40,4 @@ const Countdown = ({ to }: CountdownProps) => {
   return <>{timeLeft}</>;
 };
 
-export default Countdown; 
+export default Countdown;

@@ -1,40 +1,49 @@
-// 国旗SVGコンポーネント（最終フォールバック用）
-export function CountryFlag({ country }: { country: string }) {
-  const flagSVGs = {
-    'IN': (
-      <svg viewBox="0 0 3 2" className="w-full h-full">
-        <rect x="0" y="0" width="3" height="0.67" fill="#FF9933"/>
-        <rect x="0" y="0.67" width="3" height="0.67" fill="#FFFFFF"/>
-        <rect x="0" y="1.33" width="3" height="0.67" fill="#138808"/>
-        <circle cx="1.5" cy="1" r="0.3" fill="none" stroke="#000080" strokeWidth="0.05"/>
-      </svg>
-    ),
-    'JP': (
-      <svg viewBox="0 0 3 2" className="w-full h-full">
-        <rect x="0" y="0" width="3" height="2" fill="#FFFFFF"/>
-        <circle cx="1.5" cy="1" r="0.6" fill="#BC002D"/>
-      </svg>
-    ),
-    'US': (
-      <svg viewBox="0 0 19 10" className="w-full h-full">
-        <rect x="0" y="0" width="19" height="10" fill="#B22234"/>
-        <rect x="0" y="0.77" width="19" height="0.77" fill="#FFFFFF"/>
-        <rect x="0" y="2.31" width="19" height="0.77" fill="#FFFFFF"/>
-        <rect x="0" y="3.85" width="19" height="0.77" fill="#FFFFFF"/>
-        <rect x="0" y="5.38" width="19" height="0.77" fill="#FFFFFF"/>
-        <rect x="0" y="6.92" width="19" height="0.77" fill="#FFFFFF"/>
-        <rect x="0" y="8.46" width="19" height="0.77" fill="#FFFFFF"/>
-        <rect x="0" y="0" width="7.6" height="5.38" fill="#3C3B6E"/>
-      </svg>
-    ),
-    'SE': (
-      <svg viewBox="0 0 16 10" className="w-full h-full">
-        <rect x="0" y="0" width="16" height="10" fill="#006AA7"/>
-        <rect x="0" y="4" width="16" height="2" fill="#FECC00"/>
-        <rect x="4" y="0" width="2" height="10" fill="#FECC00"/>
-      </svg>
-    )
+// 国旗コンポーネント - 動的にCDNから取得
+// GLOBALのみSVGで表示、その他はflagcdn.comから動的取得
+
+import Image from "next/image";
+
+export function CountryFlag({
+  country,
+  className = "w-6 h-4",
+}: {
+  country: string;
+  className?: string;
+}) {
+  // GLOBALは地球アイコンを表示
+  if (country === "GLOBAL") {
+    return (
+      <div className={className}>
+        <svg viewBox="0 0 24 24" className="w-full h-full">
+          <circle cx="12" cy="12" r="10" fill="#3B82F6" />
+          <ellipse cx="12" cy="12" rx="10" ry="4" fill="none" stroke="#60A5FA" strokeWidth="0.5" />
+          <ellipse cx="12" cy="12" rx="4" ry="10" fill="none" stroke="#60A5FA" strokeWidth="0.5" />
+          <line x1="2" y1="12" x2="22" y2="12" stroke="#60A5FA" strokeWidth="0.5" />
+          <line x1="12" y1="2" x2="12" y2="22" stroke="#60A5FA" strokeWidth="0.5" />
+        </svg>
+      </div>
+    );
+  }
+
+  // その他の国はflagcdn.comから動的に取得
+  // 国コードを小文字に変換（flagcdn.comは小文字を使用）
+  // 一部の国コードをISO 3166-1 alpha-2に変換
+  const countryCodeMap: { [key: string]: string } = {
+    UK: "gb", // United Kingdom → Great Britain
   };
-  
-  return flagSVGs[country as keyof typeof flagSVGs] || null;
+  const countryCode = (countryCodeMap[country] || country).toLowerCase();
+  const flagUrl = `https://flagcdn.com/w80/${countryCode}.png`;
+
+  return (
+    <div className={className}>
+      <Image
+        src={flagUrl}
+        alt={`${country} flag`}
+        width={80}
+        height={60}
+        className="w-full h-full object-cover rounded-sm"
+        unoptimized // 外部URLなので最適化をスキップ
+      />
+    </div>
+  );
 }

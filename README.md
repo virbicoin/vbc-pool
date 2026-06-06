@@ -1,11 +1,43 @@
-## Open Source VirBiCoin Mining Pool
+<p align="center">
+  <img src="https://raw.githubusercontent.com/virbicoin/vbcstats/main/public/VBC.svg" alt="VirBiCoin Logo" width="120" height="120">
+</p>
+
+<h1 align="center">Open VirBiCoin Pool</h1>
+
+<p align="center">
+  <strong>Open Source Ethereum-Compatible Mining Pool for VirBiCoin</strong>
+</p>
+
+<p align="center">
+  <a href="https://pool.virbicoin.com">
+    <img src="https://img.shields.io/badge/Pool-pool.virbicoin.com-cyan?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Pool">
+  </a>
+  <a href="https://explorer.virbicoin.com">
+    <img src="https://img.shields.io/badge/Explorer-Live-green?style=for-the-badge&logo=ethereum&logoColor=white" alt="Explorer">
+  </a>
+  <a href="https://discord.virbicoin.com">
+    <img src="https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/virbicoin/open-virbicoin-pool/actions/workflows/go.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/virbicoin/open-virbicoin-pool/go.yml?style=flat-square&label=CI" alt="CI">
+  </a>
+  <a href="https://goreportcard.com/report/github.com/virbicoin/open-virbicoin-pool">
+    <img src="https://img.shields.io/badge/Go_Report-A+-brightgreen?style=flat-square&logo=go&logoColor=white" alt="Go Report">
+  </a>
+  <a href="https://pkg.go.dev/github.com/virbicoin/open-virbicoin-pool">
+    <img src="https://img.shields.io/badge/Go_Reference-pkg.go.dev-007D9C?style=flat-square&logo=go&logoColor=white" alt="Go Reference">
+  </a>
+  <img src="https://img.shields.io/badge/Go-≥1.22-00ADD8?style=flat-square&logo=go&logoColor=white" alt="Go">
+  <img src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js" alt="Next.js">
+  <img src="https://img.shields.io/badge/License-GPL--3.0-blue?style=flat-square" alt="License: GPL-3.0">
+</p>
+
+---
 
 ![Miner's stats page](https://github.com/user-attachments/assets/4c88b87f-a9da-4dde-9efc-8e95a16f697b)
-[![Reference](
-https://camo.githubusercontent.com/2063f3f9554951409bbfe24df02fdb42654b032b1f13062829c198b58f836335/68747470733a2f2f706b672e676f2e6465762f62616467652f6769746875622e636f6d2f657468657265756d2f676f2d657468657265756d
-)](https://pkg.go.dev/github.com/virbicoin/open-virbicoin-pool)
-[![GitHub CI](https://github.com/virbicoin/open-virbicoin-pool/actions/workflows/go.yml/badge.svg)](https://github.com/virbicoin/open-virbicoin-pool/actions/workflows/go.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/virbicoin/open-virbicoin-pool)](https://goreportcard.com/report/github.com/virbicoin/open-virbicoin-pool)
 
 ### Features
 
@@ -14,10 +46,11 @@ https://camo.githubusercontent.com/2063f3f9554951409bbfe24df02fdb42654b032b1f130
 * Support for HTTP and Stratum mining
 * Detailed block stats with luck percentage and full reward
 * Failover gvbc instances: gvbc high availability built in
-* Modern beautiful Next.js frontend
+* Modern beautiful Next.js frontend with multi-language support (English, Japanese, Chinese)
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
 * JSON-API for stats
-
+* 🧮 Mining calculator with 80+ GPU presets (NVIDIA RTX 3000/4000/5000, AMD Radeon RX 6000/7000, Intel Arc, Pro series)
+* 🚰 Faucet service for distributing free test coins (with MetaMask integration, Redis-persistent statistics)
 #### Proxies
 
 * [Ether-Proxy](https://github.com/sammy007/ether-proxy) HTTP proxy with web interface
@@ -56,11 +89,40 @@ You can use Ubuntu upstart - check for sample config in <code>upstart.conf</code
 
 Install nodejs. I suggest using LTS version >= 4.x from https://github.com/nodesource/distributions or from your Linux distribution or simply install nodejs on Ubuntu Xenial 16.04.
 
-The frontend is a single-page Ember.js application that polls the pool API to render miner stats.
+The frontend is a Next.js application that polls the pool API to render miner stats.
 
     cd www
 
-Change <code>ApiUrl: 'http://example.net'</code> in <code>www/.env</code> to match your domain name. Also don't forget to adjust other options.
+Copy <code>config.json.example</code> to <code>config.json</code> and configure for your coin:
+
+```json
+{
+  "coin": {
+    "name": "YourCoin",
+    "symbol": "YCN"
+  },
+  "pool": {
+    "name": {
+      "en": "YourCoin Pool",
+      "ja": "YourCoin プール",
+      "zh": "YourCoin 矿池"
+    },
+    "description": {
+      "en": "Official Mining Pool",
+      "ja": "公式マイニングプール",
+      "zh": "官方矿池"
+    }
+  },
+  "api": {
+    "baseUrl": "https://api.example.com"
+  },
+  "servers": [...]
+}
+```
+
+**Note**: `pool.name`, `pool.description`, and `announcements[].title/message` support localization by providing an object with locale keys (`en`, `ja`, `zh`).
+
+See <code>config.json.virbicoin</code> for a complete example.
 
     npm install
     npm run build
@@ -93,6 +155,73 @@ You can customize the layout using built-in web server with live reload:
 
 Check out <code>www/app</code> directory and edit these templates
 in order to customise the frontend.
+
+### Security
+
+We take security seriously. See [docs/SECURITY.md](docs/SECURITY.md) for comprehensive security documentation.
+
+#### Latest Security Audit (January 2026)
+
+| Severity | Count | Fixed |
+|----------|-------|-------|
+| 🔴 Critical | 2 | 2 |
+| 🟠 High | 6 | 4 |
+| 🟡 Medium | 13 | 6 |
+| 🟢 Low | 11 | 3 |
+| ℹ️ Info | 10 | - |
+
+**Key Findings & Status:**
+*   ✅ **Command Injection Risk**: IP validation added to banning system - *Fixed*
+*   ✅ **CORS Strictification**: Origin whitelist implemented - *Fixed*
+*   ✅ **Security Headers**: CSP, X-Frame-Options, HSTS added - *Fixed*
+*   ✅ **Faucet Security**: IP spoofing protection, request size limits - *Fixed*
+*   ⚠️ **No TLS by Default**: Deploy behind reverse proxy with TLS - *Documented*
+*   ✅ **Frontend npm audit**: 0 vulnerabilities found
+
+#### Documentation
+*   [docs/SECURITY.md](docs/SECURITY.md) - Comprehensive security guide
+*   [docs/FAUCET.md](docs/FAUCET.md) - Faucet setup and configuration
+*   [docs/CALCULATOR.md](docs/CALCULATOR.md) - Mining calculator with GPU database
+*   [docs/PAYOUTS.md](docs/PAYOUTS.md) - Payout system documentation
+*   [docs/STRATUM.md](docs/STRATUM.md) - Stratum protocol details
+*   [docs/POLICIES.md](docs/POLICIES.md) - Policy configuration
+*   [www/README.md](www/README.md) - Frontend documentation
+
+#### Dependency Security
+*   **Frontend (`www`)**: Audited January 10, 2026 - **0 vulnerabilities** found
+*   **Backend (Go)**: Uses standard library and well-maintained packages
+    * Consider upgrading `gopkg.in/redis.v3` to `github.com/go-redis/redis/v9`
+*   Run `npm audit` (frontend) and review Go dependencies regularly
+
+#### Reporting Vulnerabilities
+If you find a security vulnerability, please **do not open a public issue**. Instead:
+- Email: security@virbicoin.com
+- Or contact the repository owner directly
+
+#### Backend Security Features
+*   **IP Banning**: Configurable via `ipset` integration for firewall-level blocking
+*   **Rate Limiting**: Connection limits with grace period and progressive increase
+*   **Invalid Share Detection**: Automatic banning after threshold of invalid shares
+*   **Malformed Request Protection**: Limits on malformed requests before ban
+
+#### Frontend Security Features
+*   **API Proxy**: All requests proxied through Next.js to hide backend infrastructure
+*   **Whitelist Validation**: Pool IDs and API paths validated against explicit lists
+*   **Path Traversal Prevention**: Sanitization prevents `../` attacks
+*   **Suspicious Pattern Blocking**: Detects command injection, XSS, protocol smuggling
+*   **Rate Limiting**: 100 requests/minute/IP with automatic cleanup
+
+#### Production Deployment Checklist
+- [ ] Read [docs/SECURITY.md](docs/SECURITY.md) completely
+- [ ] Change all default passwords in `config.json`
+- [ ] Set strong Redis password (not empty)
+- [ ] Never expose Redis to public network
+- [ ] Configure `poolFeeAddress` before enabling payouts
+- [ ] Run behind reverse proxy (nginx) with TLS
+- [ ] Enable `banning` in production for DDoS protection
+- [ ] Set `behindReverseProxy: true` if using nginx/CloudFlare
+- [ ] Restrict CORS to specific origins in production
+- [ ] Validate IP address format before banning operations
 
 ### Configuration
 

@@ -1,93 +1,322 @@
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+"use client";
+
+import Link from "next/link";
+import { poolConfig, getLocalizedValue } from "@/lib/poolConfig";
+import { useTranslation } from "@/components/I18nProvider";
+import {
+  InformationCircleIcon,
+  ShieldCheckIcon,
+  ExclamationTriangleIcon,
+  ServerStackIcon,
+  BanknotesIcon,
+  ScaleIcon,
+  DocumentTextIcon,
+  ChatBubbleLeftRightIcon,
+  GlobeAltIcon,
+} from "@heroicons/react/24/outline";
 
 export default function AboutPage() {
+  const { t, locale } = useTranslation();
+
   return (
-    <>
+    <div>
       <div className="bg-gray-800 border-b border-gray-700">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center gap-3 mb-4">
-            <InformationCircleIcon className="w-8 h-8 text-green-400" />
-            <h1 className="text-3xl font-bold text-gray-100">Terms of Service</h1>
+            <div className="p-2 bg-blue-600/20 rounded-lg">
+              <DocumentTextIcon className="w-8 h-8 text-blue-400" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-100">{t("about.title")}</h1>
+              <p className="text-gray-400 text-sm mt-1">{t("about.subtitle")}</p>
+            </div>
           </div>
-          <p className="text-gray-400">Please read our terms carefully before using the pool.</p>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-gray-800 rounded-lg border border-gray-700">
+        {/* Quick Links */}
+        <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg border border-blue-700/30 p-6 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <a href="#overview" className="p-3 rounded-lg hover:bg-white/5 transition-colors">
+              <InformationCircleIcon className="w-6 h-6 text-blue-400 mx-auto mb-2" />
+              <p className="text-gray-300 text-sm">{t("about.overview")}</p>
+            </a>
+            <a href="#terms" className="p-3 rounded-lg hover:bg-white/5 transition-colors">
+              <ShieldCheckIcon className="w-6 h-6 text-green-400 mx-auto mb-2" />
+              <p className="text-gray-300 text-sm">{t("about.termsOfUse")}</p>
+            </a>
+            <a href="#features" className="p-3 rounded-lg hover:bg-white/5 transition-colors">
+              <ServerStackIcon className="w-6 h-6 text-purple-400 mx-auto mb-2" />
+              <p className="text-gray-300 text-sm">{t("about.features")}</p>
+            </a>
+            <a href="#contact" className="p-3 rounded-lg hover:bg-white/5 transition-colors">
+              <ChatBubbleLeftRightIcon className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+              <p className="text-gray-300 text-sm">{t("about.contact")}</p>
+            </a>
+          </div>
+        </div>
+
+        {/* Overview Section */}
+        <div id="overview" className="bg-gray-800 rounded-lg border border-gray-700 mb-6">
           <div className="p-6">
-            <h3 className="text-xl font-semibold mb-4 text-gray-100">Overview</h3>
-            <p className="text-gray-400">
-              VirBiCoin Pool (hereafter referred to as &quot;the Pool&quot;) is a service designed for <strong className="text-gray-300">decentralized mining</strong>, providing users with a high-performance mining environment. By using the Pool, users agree to accept all terms and risks outlined below.
-            </p>
-
-            <hr className="my-6 border-gray-700" />
-
-            <h3 className="text-xl font-semibold mb-4 text-gray-100">Terms of Use</h3>
-            <ul className="list-disc pl-6 space-y-2 text-gray-400">
-              <li><strong className="text-gray-300">Experimental Software Usage:</strong> The Pool utilizes software written in <strong className="text-gray-300">Go</strong>, designed to be highly concurrent and low in memory consumption. This software is still under development, meaning there may be unexpected bugs or errors. Users must accept all <strong className="text-gray-300">risks</strong> associated with using this experimental software.</li>
-              <li><strong className="text-gray-300">Acceptance of Risk:</strong> Users acknowledge and accept all risks (e.g., hardware failure, network interruption, software bugs) related to the use of the Pool. By using the Pool, users agree <strong className="text-gray-300">not to seek compensation</strong> for any irreversible losses.</li>
-              <li><strong className="text-gray-300">Liability of the Pool Owner:</strong> The Pool owner will make every effort to prevent the worst-case scenarios, but <strong className="text-gray-300">does not provide compensation</strong> for losses arising from inevitable events or issues. Users understand that there are no guarantees provided regarding the Pool&apos;s performance.</li>
-            </ul>
-
-            <hr className="my-6 border-gray-700" />
-
-            <h3 className="text-xl font-semibold mb-4 text-gray-100">Features and Services</h3>
-            <ul className="list-disc pl-6 space-y-2 text-gray-400">
-              <li><strong className="text-gray-300">High-Performance Proxy:</strong> The Pool utilizes a <strong className="text-gray-300">high-performance proxy server</strong> that allows for highly parallel processing and low latency. However, network conditions may still cause occasional delays.</li>
-              <li><strong className="text-gray-300">Block Unlocking and Payout Module:</strong> The Pool has a <strong className="text-gray-300">block unlocking and payout module</strong> designed to distribute mining rewards fairly. <strong className="text-gray-300">Payout conditions</strong> must be met, and users are advised to review the guidelines for more information.</li>
-              <li><strong className="text-gray-300">Fully Distributed Setup:</strong> The Pool is built on a <strong className="text-gray-300">100% distributed architecture</strong>, using multiple servers to ensure <strong className="text-gray-300">high availability</strong> and <strong className="text-gray-300">fault tolerance</strong>, distributing the load across various nodes to enhance the system&apos;s resilience.</li>
-              <li><strong className="text-gray-300">Strict Policy Enforcement:</strong> Users must adhere to the <strong className="text-gray-300">strict policies</strong> of the Pool. These policies include rules for mining and measures to handle fraudulent activities. Violation of these policies may result in <strong className="text-gray-300">suspension or termination of user accounts</strong>.</li>
-              <li><strong className="text-gray-300">Modern Next.js Frontend:</strong> The Pool offers a <strong className="text-gray-300">modern, user-friendly interface</strong> built with <strong className="text-gray-300">Next.js</strong>, allowing users to monitor their mining progress and rewards in real-time with an intuitive and visually appealing design.</li>
-            </ul>
-
-            <hr className="my-6 border-gray-700" />
-
-            <h3 className="text-xl font-semibold mb-4 text-gray-100">Prohibited Activities</h3>
-            <ul className="list-disc pl-6 space-y-2 text-gray-400">
-              <li><strong className="text-gray-300">Fraudulent Activities:</strong> Users agree not to engage in <strong className="text-gray-300">fraudulent activities</strong> such as unfair mining practices, hacking, or spamming. Any detected fraudulent behavior will result in <strong className="text-gray-300">immediate suspension of the user account</strong>, and legal action may be taken.</li>
-              <li><strong className="text-gray-300">Handling of Personal Information:</strong> Users agree that their personal information provided during Pool usage will be handled according to the Pool&apos;s <strong className="text-gray-300">Privacy Policy</strong>. Please refer to the Privacy Policy for more details on how your personal data is managed.</li>
-            </ul>
-
-            <hr className="my-6 border-gray-700" />
-
-            <h3 className="text-xl font-semibold mb-4 text-gray-100">Rewards and Payments</h3>
-            <ul className="list-disc pl-6 space-y-2 text-gray-400">
-              <li><strong className="text-gray-300">Reward Distribution:</strong> The Pool distributes mining rewards <strong className="text-gray-300">proportionally</strong> based on the computational resources provided by each user. The <strong className="text-gray-300">calculation method</strong> for rewards is available in the official guide and is subject to change.</li>
-              <li><strong className="text-gray-300">Minimum Payout Threshold:</strong> Users must meet a minimum payout threshold before rewards are distributed. This threshold may be changed at the discretion of the Pool owner.</li>
-            </ul>
-
-            <hr className="my-6 border-gray-700" />
-
-            <h3 className="text-xl font-semibold mb-4 text-gray-100">Disclaimers</h3>
-            <ul className="list-disc pl-6 space-y-2 text-gray-400">
-              <li><strong className="text-gray-300">Service Interruption or Suspension:</strong> The Pool may experience <strong className="text-gray-300">temporary service interruptions</strong> or downtime due to maintenance or unforeseen issues. In such cases, the Pool owner is not liable for any loss incurred by the user.</li>
-              <li><strong className="text-gray-300">Third-Party Liability:</strong> If a user causes damage to a third party, the user will be held responsible, and the Pool owner will not be liable for any damages or legal consequences.</li>
-            </ul>
-
-            <hr className="my-6 border-gray-700" />
-
-            <h3 className="text-xl font-semibold mb-4 text-gray-100">Changes to Terms</h3>
-            <p className="text-gray-400">
-              The Pool reserves the right to update or change these Terms of Service at any time. If changes are made, <strong className="text-gray-300">users will be notified</strong> through the official website and the Pool&apos;s notification system. Continued use of the service after the changes constitutes acceptance of the revised terms.
-            </p>
-
-            <hr className="my-6 border-gray-700" />
-
-            <h3 className="text-xl font-semibold mb-4 text-gray-100">Governing Law and Jurisdiction</h3>
-            <p className="text-gray-400">
-              These Terms of Service are governed by the laws of <strong className="text-gray-300">Japan</strong>. Any disputes arising from the use of this service shall be subject to the exclusive jurisdiction of the <strong className="text-gray-300">Tokyo District Court</strong>.
-            </p>
-
-            <hr className="my-6 border-gray-700" />
-
-            <h3 className="text-xl font-semibold mb-4 text-gray-100">Contact Information</h3>
-            <p className="text-gray-400">
-              For any inquiries or support requests, please contact us through <a href="https://x.com/VirBiCoin" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-gray-100 transition-colors">X</a> or Discord or Telegram.
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-blue-600/20 rounded-lg">
+                <InformationCircleIcon className="w-6 h-6 text-blue-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-100">{t("about.overview")}</h3>
+            </div>
+            <p className="text-gray-400 leading-relaxed">
+              {t("about.overviewDesc").replace(
+                "{poolName}",
+                getLocalizedValue(poolConfig.pool.name, locale)
+              )}
             </p>
           </div>
         </div>
+
+        {/* Terms of Use Section */}
+        <div id="terms" className="bg-gray-800 rounded-lg border border-gray-700 mb-6">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-green-600/20 rounded-lg">
+                <ShieldCheckIcon className="w-6 h-6 text-green-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-100">{t("about.termsOfUse")}</h3>
+            </div>
+            <div className="space-y-4">
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                <h4 className="text-gray-200 font-semibold mb-2 flex items-center gap-2">
+                  <ExclamationTriangleIcon className="w-5 h-5 text-yellow-400" />
+                  {t("about.experimentalSoftware")}
+                </h4>
+                <p className="text-gray-400 text-sm">{t("about.experimentalSoftwareDesc")}</p>
+              </div>
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                <h4 className="text-gray-200 font-semibold mb-2 flex items-center gap-2">
+                  <ShieldCheckIcon className="w-5 h-5 text-blue-400" />
+                  {t("about.acceptanceOfRisk")}
+                </h4>
+                <p className="text-gray-400 text-sm">{t("about.acceptanceOfRiskDesc")}</p>
+              </div>
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                <h4 className="text-gray-200 font-semibold mb-2 flex items-center gap-2">
+                  <ScaleIcon className="w-5 h-5 text-purple-400" />
+                  {t("about.liabilityOfPoolOwner")}
+                </h4>
+                <p className="text-gray-400 text-sm">{t("about.liabilityOfPoolOwnerDesc")}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div id="features" className="bg-gray-800 rounded-lg border border-gray-700 mb-6">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-purple-600/20 rounded-lg">
+                <ServerStackIcon className="w-6 h-6 text-purple-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-100">
+                {t("about.featuresAndServices")}
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                <h4 className="text-gray-200 font-semibold mb-2">
+                  ⚡ {t("about.highPerformanceProxy")}
+                </h4>
+                <p className="text-gray-400 text-sm">{t("about.highPerformanceProxyDesc")}</p>
+              </div>
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                <h4 className="text-gray-200 font-semibold mb-2">💰 {t("about.blockUnlocking")}</h4>
+                <p className="text-gray-400 text-sm">{t("about.blockUnlockingDesc")}</p>
+              </div>
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                <h4 className="text-gray-200 font-semibold mb-2">
+                  🌐 {t("about.distributedArchitecture")}
+                </h4>
+                <p className="text-gray-400 text-sm">{t("about.distributedArchitectureDesc")}</p>
+              </div>
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                <h4 className="text-gray-200 font-semibold mb-2">
+                  🎨 {t("about.modernInterface")}
+                </h4>
+                <p className="text-gray-400 text-sm">{t("about.modernInterfaceDesc")}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Prohibited Activities Section */}
+        <div className="bg-gray-800 rounded-lg border border-gray-700 mb-6">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-600/20 rounded-lg">
+                <ExclamationTriangleIcon className="w-6 h-6 text-red-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-100">
+                {t("about.prohibitedActivities")}
+              </h3>
+            </div>
+            <div className="bg-red-900/20 border border-red-700/30 rounded-lg p-4">
+              <ul className="space-y-3 text-gray-400 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-400 mt-1">✕</span>
+                  <span>
+                    <strong className="text-gray-300">{t("about.fraudulentActivities")}:</strong>{" "}
+                    {t("about.fraudulentActivitiesDesc")}
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-400 mt-1">✕</span>
+                  <span>
+                    <strong className="text-gray-300">{t("about.personalInfoMisuse")}:</strong>{" "}
+                    {t("about.personalInfoMisuseDesc")}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Rewards and Payments Section */}
+        <div className="bg-gray-800 rounded-lg border border-gray-700 mb-6">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-yellow-600/20 rounded-lg">
+                <BanknotesIcon className="w-6 h-6 text-yellow-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-100">
+                {t("about.rewardsAndPayments")}
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                <h4 className="text-gray-200 font-semibold mb-2">
+                  {t("about.rewardDistribution")}
+                </h4>
+                <p className="text-gray-400 text-sm">{t("about.rewardDistributionDesc")}</p>
+              </div>
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                <h4 className="text-gray-200 font-semibold mb-2">
+                  {t("about.minPayoutThreshold")}
+                </h4>
+                <p className="text-gray-400 text-sm">
+                  {t("about.minPayoutThresholdDesc")
+                    .replace("{minPayout}", String(poolConfig.pool.minPayout))
+                    .replace("{symbol}", poolConfig.coin.symbol)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Disclaimers Section */}
+        <div className="bg-gray-800 rounded-lg border border-gray-700 mb-6">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-orange-600/20 rounded-lg">
+                <ExclamationTriangleIcon className="w-6 h-6 text-orange-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-100">{t("about.disclaimers")}</h3>
+            </div>
+            <div className="bg-orange-900/20 border border-orange-700/30 rounded-lg p-4">
+              <ul className="space-y-3 text-gray-400 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-orange-400 mt-1">⚠</span>
+                  <span>
+                    <strong className="text-gray-300">{t("about.serviceInterruption")}:</strong>{" "}
+                    {t("about.serviceInterruptionDesc")}
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-orange-400 mt-1">⚠</span>
+                  <span>
+                    <strong className="text-gray-300">{t("about.thirdPartyLiability")}:</strong>{" "}
+                    {t("about.thirdPartyLiabilityDesc")}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Legal Section */}
+        <div className="bg-gray-800 rounded-lg border border-gray-700 mb-6">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-cyan-600/20 rounded-lg">
+                <ScaleIcon className="w-6 h-6 text-cyan-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-100">{t("about.legalInfo")}</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                <h4 className="text-gray-200 font-semibold mb-2">{t("about.changesToTerms")}</h4>
+                <p className="text-gray-400 text-sm">{t("about.changesToTermsDesc")}</p>
+              </div>
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                <h4 className="text-gray-200 font-semibold mb-2">{t("about.governingLaw")}</h4>
+                <p className="text-gray-400 text-sm">{t("about.governingLawDesc")}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Section */}
+        <div id="contact" className="bg-gray-800 rounded-lg border border-gray-700">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-pink-600/20 rounded-lg">
+                <ChatBubbleLeftRightIcon className="w-6 h-6 text-pink-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-100">{t("about.contactInfo")}</h3>
+            </div>
+            <p className="text-gray-400 mb-4">{t("about.contactInfoDesc")}</p>
+            <div className="flex flex-wrap gap-3">
+              {poolConfig.links.twitter && (
+                <a
+                  href={poolConfig.links.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition-colors"
+                >
+                  <GlobeAltIcon className="w-5 h-5" />X (Twitter)
+                </a>
+              )}
+              {poolConfig.links.discord && (
+                <a
+                  href={poolConfig.links.discord}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-700 hover:bg-indigo-600 text-gray-200 rounded-lg transition-colors"
+                >
+                  <ChatBubbleLeftRightIcon className="w-5 h-5" />
+                  Discord
+                </a>
+              )}
+              <span
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700/50 text-gray-400 rounded-lg cursor-not-allowed"
+                title="Coming Soon"
+              >
+                <ChatBubbleLeftRightIcon className="w-5 h-5" />
+                Telegram
+                <span className="text-xs bg-gray-600 px-1.5 py-0.5 rounded">WIP</span>
+              </span>
+            </div>
+            <div className="mt-6 pt-6 border-t border-gray-700">
+              <p className="text-gray-500 text-sm text-center">
+                {t("about.readyToMine")}{" "}
+                <Link href="/help" className="text-blue-400 hover:text-blue-300">
+                  {t("about.gettingStartedGuide")}
+                </Link>
+                .
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
-} 
+}

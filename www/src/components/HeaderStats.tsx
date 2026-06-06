@@ -1,14 +1,11 @@
 "use client";
 
-import Link from 'next/link';
+import Link from "next/link";
 import useSWR from "swr";
-import {
-  CubeIcon,
-  UsersIcon,
-} from "@heroicons/react/24/outline";
+import { API_BASE_URL } from "@/lib/api";
+import { CubeIcon, UsersIcon } from "@heroicons/react/24/outline";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface NavLinkProps {
   href: string;
@@ -17,20 +14,23 @@ interface NavLinkProps {
   badgeColor?: string;
 }
 
-const NavLink = ({ href, children, badge, badgeColor = 'bg-green-500' }: NavLinkProps) => {
-  const isActive = typeof window !== 'undefined' && window.location.pathname === href;
+const NavLink = ({ href, children, badge, badgeColor = "bg-green-500" }: NavLinkProps) => {
+  const isActive = typeof window !== "undefined" && window.location.pathname === href;
   return (
-    <Link 
-      href={href} 
+    <Link
+      href={href}
       className={`inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-        ${isActive 
-          ? 'text-text-primary nav-link text-gray-200' 
-          : 'text-text-secondary nav-link text-gray-200 hover:text-text-primary'
+        ${
+          isActive
+            ? "text-text-primary nav-link text-gray-200"
+            : "text-text-secondary nav-link text-gray-200 hover:text-text-primary"
         }`}
     >
       {children}
       {badge && badge > 0 && (
-        <span className={`ml-2 px-2 py-0.5 text-xs font-semibold rounded-full text-white ${badgeColor}`}>
+        <span
+          className={`ml-2 px-2 py-0.5 text-xs font-semibold rounded-full text-white ${badgeColor}`}
+        >
           {badge}
         </span>
       )}
@@ -49,7 +49,7 @@ const HeaderStats = () => {
     <div className="flex items-center space-x-2">
       <NavLink href="/blocks" badge={poolBlocksBadge} badgeColor="bg-green-600">
         <CubeIcon className="w-5 h-5 mr-1" />
-        Pool Blocks
+        Blocks
       </NavLink>
       <NavLink href="/miners" badge={minersTotal} badgeColor="bg-blue-500">
         <UsersIcon className="w-5 h-5 mr-1" />
@@ -59,4 +59,4 @@ const HeaderStats = () => {
   );
 };
 
-export default HeaderStats; 
+export default HeaderStats;

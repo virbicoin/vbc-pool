@@ -1,13 +1,12 @@
-import { NextResponse } from 'next/server';
-import os from 'os';
+import { NextResponse } from "next/server";
 
-// Use the Node.js runtime so we can call os.hostname()
-export const runtime = 'nodejs';
+// Use the Node.js runtime
+export const runtime = "nodejs";
 
 export async function GET() {
+  // SECURITY: Do not expose hostname in production
   return NextResponse.json({
-    status: 'healthy',
-    hostname: os.hostname(), // add hostname for debugging
+    status: "healthy",
     time: new Date().toISOString(),
   });
 }

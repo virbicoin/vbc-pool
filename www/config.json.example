@@ -1,0 +1,59 @@
+{
+  "coin": {
+    "name": "Coin",
+    "symbol": "COIN",
+    "chainId": 1,
+    "rpcUrl": "https://rpc.example.com"
+  },
+  "pool": {
+    "name": "Mining Pool",
+    "description": "High performance mining pool",
+    "minPayout": 0.1,
+    "fee": 1,
+    "payoutInterval": "2 Hours",
+    "address": ""
+  },
+  "company": {
+    "name": "Your Company",
+    "startYear": 2024
+  },
+  "block": {
+    "reward": 2,
+    "time": 15
+  },
+  "branding": {
+    "logo": "/coin.svg",
+    "favicon": "/favicon.ico",
+    "primaryColor": "#22c55e"
+  },
+  "links": {
+    "explorer": "",
+    "network": "",
+    "twitter": "",
+    "github": "",
+    "discord": "",
+    "telegram": "",
+    "bitcointalk": ""
+  },
+  "stratum": {
+    "host": "stratum.example.com",
+    "port": 8002,
+    "ports": [8002, 8004, 8009]
+  },
+  "api": {
+    "baseUrl": ""
+  },
+  "servers": [
+    {
+      "id": "global",
+      "apiUrl": "https://pool.example.com",
+      "stratumUrl": "stratum.example.com",
+      "location": "Global",
+      "flag": "🌍",
+      "country": "GLOBAL",
+      "region": "Global",
+      "stratumPorts": [8002, 8004, 8009],
+      "active": true
+    }
+  ]
+}

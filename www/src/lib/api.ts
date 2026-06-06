@@ -1,10 +1,14 @@
+import poolConfig from "./poolConfig";
+
+// Server-side API base URL (full URL needed for server-side fetch)
+const SERVER_API_BASE_URL = poolConfig.api.baseUrl || "";
+
+// Client-side API base URL (empty = relative path through Next.js internal proxy)
+// This avoids CSP and CORS issues by routing through the same origin
+export const API_BASE_URL = "";
+
 const getBaseUrl = () => {
-  // 環境変数があればそれを使う
-  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-    return process.env.NEXT_PUBLIC_API_BASE_URL;
-  }
-  // 常にHTTPS対応のメインプールを使用
-  return 'https://pool.digitalregion.jp';
+  return SERVER_API_BASE_URL;
 };
 
 export interface Block {
@@ -31,7 +35,7 @@ export async function getBlocks(): Promise<BlocksData> {
   try {
     const baseUrl = getBaseUrl();
     const res = await fetch(`${baseUrl}/api/blocks`, {
-      next: { revalidate: 10 } // Revalidate every 10 seconds
+      next: { revalidate: 10 }, // Revalidate every 10 seconds
     });
 
     if (!res.ok) {
@@ -61,7 +65,7 @@ export async function getPayments(): Promise<PaymentsData> {
   try {
     const baseUrl = getBaseUrl();
     const res = await fetch(`${baseUrl}/api/payments`, {
-      next: { revalidate: 10 } // Revalidate every 10 seconds
+      next: { revalidate: 10 }, // Revalidate every 10 seconds
     });
 
     if (!res.ok) {
@@ -107,7 +111,9 @@ export interface StatsData {
 export async function getStats(): Promise<StatsData> {
   const baseUrl = getBaseUrl();
   try {
-    const res = await fetch(`${baseUrl}/api/stats`);
+    const res = await fetch(`${baseUrl}/api/stats`, {
+      next: { revalidate: 10 }, // Revalidate every 10 seconds
+    });
     if (!res.ok) {
       throw new Error(`Failed to fetch stats: ${res.statusText}`);
     }
@@ -122,7 +128,14 @@ export async function getStats(): Promise<StatsData> {
       networkHashrate: 0,
       minersTotal: 0,
       nodes: [],
-      stats: { lastBlockFound: 0, roundShares: 0, networkHashrate: 0, networkDifficulty: 0, height: 0, roundVariance: 0 },
+      stats: {
+        lastBlockFound: 0,
+        roundShares: 0,
+        networkHashrate: 0,
+        networkDifficulty: 0,
+        height: 0,
+        roundVariance: 0,
+      },
       maturedTotal: 0,
       immatureTotal: 0,
       candidatesTotal: 0,
@@ -159,7 +172,7 @@ export interface AccountData {
   workers: { [key: string]: AccountWorker };
   payments: AccountPayment[];
   currentHashrate: number; // For Hashrate (30m)
-  hashrate: number;        // For Hashrate (3h)
+  hashrate: number; // For Hashrate (3h)
   roundShares: number;
   paymentsTotal: number;
   workersOnline: number;
@@ -190,14 +203,14 @@ export interface Miner {
 
 export interface MinersData {
   now: number;
-  miners: { [key: string]: Omit<Miner, 'login'> };
+  miners: { [key: string]: Omit<Miner, "login"> };
   total: number;
 }
 
-export async function getMiners(): Promise<{ [key: string]: Omit<Miner, 'miner'> }> {
+export async function getMiners(): Promise<{ [key: string]: Omit<Miner, "miner"> }> {
   const res = await fetch(`${getBaseUrl()}/api/miners`);
   if (!res.ok) {
-    throw new Error('Failed to fetch miners');
+    throw new Error("Failed to fetch miners");
   }
   const data = await res.json();
   return data.miners || {};
@@ -232,4 +245,4 @@ export interface PoolData {
   roundShares: number;
   miners: number;
   hashrate: number;
-} 
+}

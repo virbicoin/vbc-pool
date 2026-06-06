@@ -1,106 +1,107 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { getPoolServers, PoolServer } from "@/lib/poolConfig";
 
-// Use Node.js runtime so that AbortSignal.timeout is available and we can parallel fetch
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
-// Mapping of pool IDs to their base URLs – keep in sync with [...slug]/route.ts
-const POOL_ENDPOINTS: Record<string, string> = {
-  pool1: 'https://pool1.digitalregion.jp',
-  pool2: 'https://pool2.digitalregion.jp',
-  pool3: 'https://pool3.digitalregion.jp',
-  pool4: 'https://pool4.digitalregion.jp',
-  pool5: 'https://pool5.digitalregion.jp',
-};
+// Build allowed hosts from config
+function getAllowedApiHosts(): Set<string> {
+  const hosts = new Set<string>();
+  const servers = getPoolServers();
+  servers.forEach((server) => {
+    if (server.apiUrl) {
+      try {
+        const url = new URL(server.apiUrl);
+        hosts.add(url.origin);
+      } catch {
+        // Invalid URL, skip
+      }
+    }
+  });
+  return hosts;
+}
 
-interface PoolResult {
-  pool: string;
-  status: 'healthy' | 'unhealthy';
-  latency: number;
-  hostname?: string;
-  time?: string;
-  error?: string;
+// SECURITY: URLが許可されたホストかチェック
+function isAllowedHost(apiUrl: string, allowedHosts: Set<string>): boolean {
+  try {
+    const url = new URL(apiUrl);
+    const origin = url.origin;
+    return allowedHosts.has(origin);
+  } catch {
+    return false;
+  }
 }
 
 export async function GET() {
-  const checks = Object.entries(POOL_ENDPOINTS).map(async ([poolId, baseUrl]) => {
-    const url = `${baseUrl}/health`;
+  // 1. config.jsonからサーバー一覧を取得
+  const poolsJson = getPoolServers();
+  const allowedHosts = getAllowedApiHosts();
+
+  // 2. ステータスチェック（許可されたホストのみ）
+  const checks = poolsJson.map(async (pool: PoolServer) => {
+    if (!pool.active) {
+      return { ...pool, pool: pool.id || pool.apiUrl, status: "inactive", latency: null };
+    }
+
+    // SECURITY: 許可されたホストのみリクエスト
+    if (!pool.apiUrl || !isAllowedHost(pool.apiUrl, allowedHosts)) {
+      console.warn(`[Security] Blocked health check to unauthorized host: ${pool.apiUrl}`);
+      return {
+        ...pool,
+        pool: pool.id || pool.apiUrl,
+        status: "blocked",
+        latency: null,
+        error: "Host not allowed",
+      };
+    }
+
+    const url = `${pool.apiUrl}/health`;
     const start = Date.now();
-    let latency = 0;
     try {
       const res = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          Accept: 'application/json',
-          'User-Agent': 'Virbicoin-Pool-Frontend/1.0',
+          Accept: "application/json",
+          "User-Agent": "Pool-Frontend/1.0",
         },
-        // 5 秒でタイムアウト
-        signal: AbortSignal.timeout(5000),
+        signal: AbortSignal.timeout(2000),
       });
-      latency = Date.now() - start;
+      const latency = Date.now() - start;
       if (!res.ok) {
-        return { pool: poolId, status: 'unhealthy', latency, error: `HTTP ${res.status}` } as PoolResult;
+        return {
+          ...pool,
+          pool: pool.id || pool.apiUrl,
+          status: "unhealthy",
+          latency,
+          error: `HTTP ${res.status}`,
+        };
       }
-      let json: unknown = null;
-      const ct = res.headers.get('content-type') || '';
-      if (ct.includes('application/json')) {
-        try {
-          json = await res.json();
-        } catch {
-          // ignore parse errors
-        }
-      }
-
-      // Safe extraction of known properties
-      let hostname: string | undefined = undefined;
-      let time: string | undefined = undefined;
-      if (json && typeof json === 'object') {
-        const obj = json as Record<string, unknown>;
-        if (typeof obj['hostname'] === 'string') hostname = obj['hostname'] as string;
-        if (typeof obj['time'] === 'string') time = obj['time'] as string;
-      }
-
-      const result: PoolResult = {
-        pool: poolId,
-        status: 'healthy',
-        latency,
-        ...(hostname ? { hostname } : {}),
-        ...(time ? { time } : {}),
-      };
-
-      return result;
+      const json = await res.json();
+      return { ...pool, pool: pool.id || pool.apiUrl, status: "healthy", latency, ...json };
     } catch (err) {
-      latency = Date.now() - start;
-      const msg = err instanceof Error ? err.message : 'unknown error';
-      return { pool: poolId, status: 'unhealthy', latency, error: msg } as PoolResult;
+      const latency = Date.now() - start;
+      return {
+        ...pool,
+        pool: pool.id || pool.apiUrl,
+        status: "unhealthy",
+        latency,
+        error: err instanceof Error ? err.message : "unknown error",
+      };
     }
   });
 
-  const pools: PoolResult[] = await Promise.all(checks);
-
-  // Determine overall HTTP status: if at least one healthy, 200 else 503
-  const healthyExists = pools.some((p) => p.status === 'healthy');
+  const pools = await Promise.all(checks);
+  const healthyExists = pools.some((p) => p.status === "healthy");
   const statusCode = healthyExists ? 200 : 503;
-
-  return NextResponse.json(
-    { pools, generatedAt: new Date().toISOString() },
-    {
-      status: statusCode,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    },
-  );
+  return NextResponse.json({ pools }, { status: statusCode });
 }
 
 export async function OPTIONS() {
   return NextResponse.json(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
-} 
+}

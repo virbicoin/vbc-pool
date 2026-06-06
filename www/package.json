@@ -6,29 +6,50 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix"
+    "check": "eslint . && tsc --noEmit && npm run format:check",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
-    "next": "15.4.3",
+    "chart.js": "^4.5.1",
+    "date-fns": "^4.4.0",
+    "next": "^16.2.7",
+    "next-intl": "^4.13.0",
     "postcss-load-config": "^6.0.1",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "react-icons": "5.5.0",
-    "swr": "^2.3.4"
+    "qrcode.react": "^4.2.0",
+    "react": "^19.2.7",
+    "react-chartjs-2": "^5.3.1",
+    "react-dom": "^19.2.7",
+    "react-icons": "^5.6.0",
+    "swr": "^2.4.1"
+  },
+  "overrides": {
+    "eslint-plugin-import": {
+      "eslint": "$eslint"
+    },
+    "eslint-plugin-jsx-a11y": {
+      "eslint": "$eslint"
+    },
+    "eslint-plugin-react": {
+      "eslint": "$eslint"
+    }
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.1",
-    "@tailwindcss/postcss": "4.1.11",
-    "@types/node": "^24.1.0",
-    "@types/react": "19.1.8",
-    "@types/react-dom": "19.1.6",
-    "autoprefixer": "^10.4.21",
-    "eslint": "^9.31.0",
-    "eslint-config-next": "^15.4.3",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.11",
-    "typescript": "5.8.3"
+    "@eslint/eslintrc": "^3.3.5",
+    "@tailwindcss/postcss": "4.3.0",
+    "@types/node": "^25.9.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.5.0",
+    "eslint": "^10.4.1",
+    "eslint-config-next": "^16.2.7",
+    "eslint-config-prettier": "^10.1.8",
+    "postcss": "^8.5.15",
+    "prettier": "^3.8.3",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3"
   }
 }

@@ -1,24 +1,48 @@
 "use client";
 import useSWR from "swr";
+import { API_BASE_URL } from "@/lib/api";
 import BlocksTable from "@/components/BlocksTable";
+import { ClockIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "@/components/I18nProvider";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function ImmatureBlocksPage() {
-  const { data = {} } = useSWR(API_BASE_URL + "/api/blocks", fetcher, { refreshInterval: 5000 });
+  const { t } = useTranslation();
+  const { data = {}, isLoading } = useSWR(API_BASE_URL + "/api/blocks", fetcher, {
+    refreshInterval: 5000,
+  });
   const immatureBlocks = data.immature || [];
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-400"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-4 py-2">
+    <div>
       {immatureBlocks.length > 0 ? (
-        <>
-          <h4 className="text-xl font-semibold mb-6 text-gray-100">Immature Blocks</h4>
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <ClockIcon className="w-5 h-5 text-green-400" />
+            <h4 className="text-lg font-semibold text-gray-100">
+              {t("blocks.immature")}
+              <span className="ml-2 text-sm font-normal text-gray-400">
+                ({immatureBlocks.length.toLocaleString()})
+              </span>
+            </h4>
+          </div>
           <BlocksTable blocks={immatureBlocks} type="immature" />
-        </>
+        </div>
       ) : (
-        <h3 className="text-xl font-semibold text-gray-100">No immature blocks yet</h3>
+        <div className="text-center py-12">
+          <ClockIcon className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-300 mb-2">{t("common.noData")}</h3>
+        </div>
       )}
     </div>
   );
-} 
+}

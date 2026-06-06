@@ -2,13 +2,14 @@ package util
 
 import (
 	"math/big"
+	"net"
 	"regexp"
 	"strconv"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/common/math"
 )
 
 var Ether = math.BigPow(10, 18)
@@ -17,6 +18,14 @@ var Shannon = math.BigPow(10, 9)
 var pow256 = math.BigPow(2, 256)
 var addressPattern = regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
 var zeroHash = regexp.MustCompile("^0?x?0+$")
+
+// SECURITY: IsValidIPAddress validates IP address format to prevent command injection
+// Returns true only for valid IPv4 or IPv6 addresses
+func IsValidIPAddress(ip string) bool {
+	// Use Go's built-in net.ParseIP which is safe and comprehensive
+	parsedIP := net.ParseIP(ip)
+	return parsedIP != nil
+}
 
 func IsValidHexAddress(s string) bool {
 	if IsZeroHash(s) || !addressPattern.MatchString(s) {

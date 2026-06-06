@@ -1,0 +1,125 @@
+{
+  "coin": {
+    "name": "VirBiCoin",
+    "symbol": "VBC",
+    "chainId": 329,
+    "rpcUrl": "https://rpc.virbicoin.com"
+  },
+  "pool": {
+    "name": "VirBiCoin Pool",
+    "description": "Official VirBiCoin Mining Pool - High performance, low fees, and reliable payouts",
+    "minPayout": 0.1,
+    "fee": 1,
+    "payoutInterval": "2 Hours",
+    "address": "0x950302976387b43e042aea242ae8dab8e5c204d1"
+  },
+  "company": {
+    "name": "VirBiCoin Foundation",
+    "startYear": 2024
+  },
+  "block": {
+    "reward": 8,
+    "time": 13
+  },
+  "branding": {
+    "logo": "/VBC.svg",
+    "favicon": "/favicon.ico",
+    "primaryColor": "#22c55e"
+  },
+  "links": {
+    "explorer": "https://explorer.virbicoin.com",
+    "network": "https://stats.virbicoin.com",
+    "twitter": "https://x.com/VirBiCoin",
+    "github": "https://github.com/virbicoin/open-virbicoin-pool",
+    "discord": "https://discord.virbicoin.com",
+    "telegram": "",
+    "bitcointalk": "https://bitcointalk.org/index.php?topic=5546988"
+  },
+  "stratum": {
+    "host": "stratum.virbicoin.com",
+    "port": 8002,
+    "ports": [8002, 8004, 8009]
+  },
+  "api": {
+    "baseUrl": "https://api.virbicoin.com"
+  },
+  "servers": [
+    {
+      "id": "global",
+      "apiUrl": "https://pool.virbicoin.com",
+      "stratumUrl": "stratum.virbicoin.com",
+      "location": "Global",
+      "flag": "🌍",
+      "country": "GLOBAL",
+      "region": "Global",
+      "stratumPorts": [8002, 8004, 8009],
+      "active": true
+    },
+    {
+      "id": "pool0",
+      "apiUrl": "https://pool0.virbicoin.com",
+      "stratumUrl": "stratum0.virbicoin.com",
+      "location": "India",
+      "flag": "🇮🇳",
+      "country": "IN",
+      "region": "South Asia",
+      "stratumPorts": [8002, 8004, 8009],
+      "active": true
+    },
+    {
+      "id": "pool1",
+      "apiUrl": "https://pool1.virbicoin.com",
+      "stratumUrl": "stratum1.virbicoin.com",
+      "location": "Singapore",
+      "flag": "🇸🇬",
+      "country": "SG",
+      "region": "South East Asia",
+      "stratumPorts": [8002, 8004, 8009],
+      "active": true
+    },
+    {
+      "id": "pool2",
+      "apiUrl": "https://pool2.virbicoin.com",
+      "stratumUrl": "stratum2.virbicoin.com",
+      "location": "Japan",
+      "flag": "🇯🇵",
+      "country": "JP",
+      "region": "North East Asia",
+      "stratumPorts": [8002, 8004, 8009],
+      "active": true
+    },
+    {
+      "id": "pool3",
+      "apiUrl": "https://pool3.virbicoin.com",
+      "stratumUrl": "stratum3.virbicoin.com",
+      "location": "Eastern USA",
+      "flag": "🇺🇸",
+      "country": "US",
+      "region": "North America",
+      "stratumPorts": [8002, 8004, 8009],
+      "active": true
+    },
+    {
+      "id": "pool4",
+      "apiUrl": "https://pool4.virbicoin.com",
+      "stratumUrl": "stratum4.virbicoin.com",
+      "location": "Sweden",
+      "flag": "🇸🇪",
+      "country": "SE",
+      "region": "North Europe",
+      "stratumPorts": [8002, 8004, 8009],
+      "active": true
+    },
+    {
+      "id": "pool5",
+      "apiUrl": "https://pool5.virbicoin.com",
+      "stratumUrl": "stratum5.virbicoin.com",
+      "location": "Western USA",
+      "flag": "🇺🇸",
+      "country": "US",
+      "region": "North America",
+      "stratumPorts": [8002, 8004, 8009],
+      "active": true
+    }
+  ]
+}
