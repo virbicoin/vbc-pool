@@ -44,11 +44,11 @@ VirBiCoin エコシステムは以下の6つのリポジトリで構成されて
 | **vbc-explorer** | ブロックチェーンエクスプローラー | `../vbc-explorer` | [github.com/virbicoin/vbc-explorer](https://github.com/virbicoin/vbc-explorer) |
 | **go-virbicoin** | メインクライアント（Gvbc, Go実装） | `../go-virbicoin` | [github.com/virbicoin/go-virbicoin](https://github.com/virbicoin/go-virbicoin) |
 | **open-virbicoin-pool** ← 本リポジトリ | マイニングプール | `../open-virbicoin-pool` | [github.com/virbicoin/open-virbicoin-pool](https://github.com/virbicoin/open-virbicoin-pool) |
-| **rpc.virbicoin.com** | RPCノードステータス & JSON-RPCプロキシ | `../rpc.virbicoin.com` | [github.com/virbicoin/rpc.virbicoin.com](https://github.com/virbicoin/rpc.virbicoin.com) |
+| **vbc-rpc** | RPCノードステータス & JSON-RPCプロキシ | `../vbc-rpc` | [github.com/virbicoin/vbc-rpc](https://github.com/virbicoin/vbc-rpc) |
 
 ### 依存関係
 
 - **open-virbicoin-pool** → **go-virbicoin**: マイニングプールが Gvbc ノードから作業を取得・ブロック解除
 - **vbc-stats** → **go-virbicoin**: Gvbc ノードが eth-netstats-client プロトコルでブロック/統計データを送信
 - **vbc-explorer** → **go-virbicoin**: JSON-RPC 経由でブロックチェーンデータを取得
-- **rpc.virbicoin.com** → **go-virbicoin**: RPC プロキシが Gvbc ノードにリクエストを中継
+- **vbc-rpc** → **go-virbicoin**: RPC プロキシが Gvbc ノードにリクエストを中継
