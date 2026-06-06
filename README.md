@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/virbicoin/vbcstats/main/public/VBC.svg" alt="VirBiCoin Logo" width="120" height="120">
+  <img src="https://raw.githubusercontent.com/virbicoin/vbc-stats/main/public/VBC.svg" alt="VirBiCoin Logo" width="120" height="120">
 </p>
 
 <h1 align="center">Open VirBiCoin Pool</h1>

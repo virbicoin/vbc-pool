@@ -40,7 +40,7 @@ VirBiCoin エコシステムは以下の6つのリポジトリで構成されて
 | リポジトリ | 役割 | ローカルパス | URL |
 |-----------|------|-------------|-----|
 | **virbicoin.com** | 公式Webサイト（メインサイト） | `../virbicoin.com` | [github.com/virbicoin/virbicoin.com](https://github.com/virbicoin/virbicoin.com) |
-| **vbcstats** | ネットワーク統計ダッシュボード | `../vbcstats` | [github.com/virbicoin/vbcstats](https://github.com/virbicoin/vbcstats) |
+| **vbc-stats** | ネットワーク統計ダッシュボード | `../vbc-stats` | [github.com/virbicoin/vbc-stats](https://github.com/virbicoin/vbc-stats) |
 | **vbc-explorer** | ブロックチェーンエクスプローラー | `../vbc-explorer` | [github.com/virbicoin/vbc-explorer](https://github.com/virbicoin/vbc-explorer) |
 | **go-virbicoin** | メインクライアント（Gvbc, Go実装） | `../go-virbicoin` | [github.com/virbicoin/go-virbicoin](https://github.com/virbicoin/go-virbicoin) |
 | **open-virbicoin-pool** ← 本リポジトリ | マイニングプール | `../open-virbicoin-pool` | [github.com/virbicoin/open-virbicoin-pool](https://github.com/virbicoin/open-virbicoin-pool) |
@@ -49,6 +49,6 @@ VirBiCoin エコシステムは以下の6つのリポジトリで構成されて
 ### 依存関係
 
 - **open-virbicoin-pool** → **go-virbicoin**: マイニングプールが Gvbc ノードから作業を取得・ブロック解除
-- **vbcstats** → **go-virbicoin**: Gvbc ノードが eth-netstats-client プロトコルでブロック/統計データを送信
+- **vbc-stats** → **go-virbicoin**: Gvbc ノードが eth-netstats-client プロトコルでブロック/統計データを送信
 - **vbc-explorer** → **go-virbicoin**: JSON-RPC 経由でブロックチェーンデータを取得
 - **rpc.virbicoin.com** → **go-virbicoin**: RPC プロキシが Gvbc ノードにリクエストを中継
