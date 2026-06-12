@@ -224,4 +224,25 @@ export function shannonToCoin(shannon: number): number {
   return shannon / poolConfig.coin.shannonPerCoin;
 }
 
+// Block reward schedule from config.json
+const reductionConfig = configJson.block?.reduction;
+const rewardSchedule: { block: number; reward: number }[] = reductionConfig?.schedule || [
+  { block: 0, reward: poolConfig.block.reward },
+];
+
+/**
+ * Returns the expected block reward (in VBC) for a given block height.
+ */
+export function getExpectedReward(height: number): number {
+  let reward = rewardSchedule[0]?.reward ?? poolConfig.block.reward;
+  for (const entry of rewardSchedule) {
+    if (height >= entry.block) {
+      reward = entry.reward;
+    } else {
+      break;
+    }
+  }
+  return reward;
+}
+
 export default poolConfig;

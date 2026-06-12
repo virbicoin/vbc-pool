@@ -20,6 +20,7 @@ export default function NetworkStatus({ className = "" }: NetworkStatusProps) {
   const [networkInfo, setNetworkInfo] = useState<NetworkInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
 
   // Fetch network info
   useEffect(() => {
@@ -47,7 +48,11 @@ export default function NetworkStatus({ className = "" }: NetworkStatusProps) {
 
     fetchNetworkInfo();
     const interval = setInterval(fetchNetworkInfo, 30000);
-    return () => clearInterval(interval);
+    const ticker = setInterval(() => setNow(Date.now()), 1000);
+    return () => {
+      clearInterval(interval);
+      clearInterval(ticker);
+    };
   }, []);
 
   if (isLoading) {
@@ -116,7 +121,7 @@ export default function NetworkStatus({ className = "" }: NetworkStatusProps) {
               <div className="flex justify-between">
                 <dt className="text-gray-400">Last Block</dt>
                 <dd className="text-gray-200">
-                  {Math.floor((Date.now() - networkInfo.lastBlockTime) / 1000)}s ago
+                  {Math.floor((now - networkInfo.lastBlockTime) / 1000)}s ago
                 </dd>
               </div>
             </dl>

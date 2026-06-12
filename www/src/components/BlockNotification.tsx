@@ -104,7 +104,6 @@ export default function BlockNotification() {
     if (lastBlockFound && lastBlockFound > (lastBlockRef.current || 0)) {
       // New block found!
       showBlockNotification(currentHeight);
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Needed to show notification indicator
       setRecentBlock(currentHeight);
       lastBlockRef.current = currentHeight;
       localStorage.setItem(poolConfig.storage.lastBlockHeight, currentHeight.toString());

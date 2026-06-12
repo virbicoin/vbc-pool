@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import Link from "next/link";
@@ -106,10 +106,7 @@ export default function AccountPage() {
   const blockTime = poolStats?.config?.blockTime || poolConfig.block.time;
   const epochBlocks = 30000;
   const blocksUntilEpoch = epochBlocks - (currentHeight % epochBlocks);
-  const [epochSwitchTimestamp, setEpochSwitchTimestamp] = useState(0);
-  useEffect(() => {
-    setEpochSwitchTimestamp(Date.now() + blocksUntilEpoch * blockTime * 1000);
-  }, [blocksUntilEpoch, blockTime]);
+  const [epochSwitchTimestamp] = useState(() => Date.now() + blocksUntilEpoch * blockTime * 1000);
 
   // Loading state
   if (isLoading) {

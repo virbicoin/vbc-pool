@@ -41,32 +41,34 @@ function getInitialLocale(): Locale {
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(defaultLocale);
+  const [locale, setLocaleState] = useState<Locale>(() => getInitialLocale());
   const [messages, setMessages] = useState<Messages>({});
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load messages for current locale
   useEffect(() => {
+    let cancelled = false;
     async function loadMessages() {
       try {
         const msgs = await import(`../../messages/${locale}.json`);
-        setMessages(msgs.default);
-        setIsLoaded(true);
+        if (!cancelled) {
+          setMessages(msgs.default);
+          setIsLoaded(true);
+        }
       } catch (error) {
         console.error(`Failed to load messages for locale: ${locale}`, error);
-        // Fallback to English
         const fallback = await import(`../../messages/en.json`);
-        setMessages(fallback.default);
-        setIsLoaded(true);
+        if (!cancelled) {
+          setMessages(fallback.default);
+          setIsLoaded(true);
+        }
       }
     }
     loadMessages();
+    return () => {
+      cancelled = true;
+    };
   }, [locale]);
-
-  // Initialize locale from storage/browser on mount
-  useEffect(() => {
-    setLocaleState(getInitialLocale());
-  }, []);
 
   // Update locale and persist
   const setLocale = (newLocale: Locale) => {

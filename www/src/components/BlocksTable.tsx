@@ -1,7 +1,7 @@
 "use client";
 import TimeAgo from "@/components/TimeAgo";
 import { formatDifficulty } from "@/lib/formatters";
-import { poolConfig } from "@/lib/poolConfig";
+import { poolConfig, getExpectedReward } from "@/lib/poolConfig";
 import { CubeIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "@/components/I18nProvider";
 
@@ -57,10 +57,12 @@ function VarianceBadge({
 
 function RewardBadge({
   reward,
+  height,
   uncle,
   orphan,
 }: {
   reward?: string | number | undefined;
+  height: number;
   uncle?: boolean | undefined;
   orphan?: boolean | undefined;
 }) {
@@ -68,14 +70,15 @@ function RewardBadge({
   if (!reward) return <span className="text-gray-500">N/A</span>;
 
   const rewardAmount = Number(reward) / 1e18;
+  const expectedReward = getExpectedReward(height);
   let badgeClass = "";
 
   if (uncle) {
     badgeClass = "bg-gray-700/50 text-gray-300 border-gray-600/50";
-  } else if (rewardAmount >= 8.0) {
+  } else if (rewardAmount >= expectedReward) {
     badgeClass = "bg-green-900/30 text-green-300 border-green-700/50";
   } else {
-    badgeClass = "bg-blue-900/30 text-blue-300 border-blue-700/50";
+    badgeClass = "bg-yellow-900/30 text-yellow-300 border-yellow-700/50";
   }
 
   return (
@@ -198,7 +201,12 @@ export default function BlocksTable({ blocks, type }: BlocksTableProps) {
               </td>
               {type !== "pending" && (
                 <td className="px-4 py-3">
-                  <RewardBadge reward={block.reward} uncle={block.uncle} orphan={block.orphan} />
+                  <RewardBadge
+                    reward={block.reward}
+                    height={block.height}
+                    uncle={block.uncle}
+                    orphan={block.orphan}
+                  />
                 </td>
               )}
             </tr>

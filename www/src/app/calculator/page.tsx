@@ -34,9 +34,7 @@ async function fetchVBCPrice(): Promise<{ priceUSD: number; source: string } | n
       clearTimeout(timeoutId);
       if (res.ok) {
         const tickers = await res.json();
-        const ticker = tickers.find(
-          (t: { ticker_id: string }) => t.ticker_id === tickerId
-        );
+        const ticker = tickers.find((t: { ticker_id: string }) => t.ticker_id === tickerId);
         if (ticker?.last_price) {
           const price = parseFloat(ticker.last_price);
           if (price > 0) {
@@ -370,7 +368,9 @@ export default function CalculatorPage() {
 
   // Currency conversion rates (fetched live, with fallback defaults)
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
-    USD: 1, JPY: 155, EUR: 0.92,
+    USD: 1,
+    JPY: 155,
+    EUR: 0.92,
   });
 
   const { data: statsData } = useSWR(API_BASE_URL + "/api/stats", fetcher, {
@@ -404,12 +404,14 @@ export default function CalculatorPage() {
   }, []);
 
   // When currency or USD price changes, convert the price display
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (coinPriceUSD > 0) {
       const rate = exchangeRates[currency] || 1;
       setCoinPrice((coinPriceUSD * rate).toString());
     }
   }, [currency, exchangeRates, coinPriceUSD]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Convert input hashrate to H/s
   const hashrateInHs = useMemo(() => {
@@ -639,7 +641,11 @@ export default function CalculatorPage() {
             </div>
             <div>
               <label className="block text-sm text-gray-400 mb-2">
-                {t("calculator.electricityCostKwh").replace("($/kWh)", "").replace("（$/kWh）", "").trim()} ({currentCurrency.symbol}/kWh)
+                {t("calculator.electricityCostKwh")
+                  .replace("($/kWh)", "")
+                  .replace("（$/kWh）", "")
+                  .trim()}{" "}
+                ({currentCurrency.symbol}/kWh)
               </label>
               <input
                 type="number"
@@ -660,9 +666,7 @@ export default function CalculatorPage() {
                     Live
                   </span>
                 )}
-                {priceLoading && (
-                  <span className="text-xs text-gray-500">Loading...</span>
-                )}
+                {priceLoading && <span className="text-xs text-gray-500">Loading...</span>}
               </label>
               <input
                 type="number"
@@ -675,7 +679,12 @@ export default function CalculatorPage() {
               />
               {priceSource && (
                 <p className="mt-1 text-xs text-gray-500">
-                  Source: {priceSource === "wikaex" ? "WikaEx" : priceSource === "explorer" ? "Explorer" : priceSource}
+                  Source:{" "}
+                  {priceSource === "wikaex"
+                    ? "WikaEx"
+                    : priceSource === "explorer"
+                      ? "Explorer"
+                      : priceSource}
                 </p>
               )}
             </div>
@@ -684,7 +693,9 @@ export default function CalculatorPage() {
           {/* Currency Selector & Profitability Results */}
           <div className="mt-6">
             <div className="flex items-center justify-end gap-2 mb-3">
-              <span className="text-xs text-gray-500">{t("calculator.currency") || "Currency"}:</span>
+              <span className="text-xs text-gray-500">
+                {t("calculator.currency") || "Currency"}:
+              </span>
               <div className="flex gap-1">
                 {poolConfig.calculator.currencies.map((cur) => (
                   <button
@@ -719,7 +730,8 @@ export default function CalculatorPage() {
                 <p
                   className={`text-lg font-bold ${profitResults.dailyProfit >= 0 ? "text-green-400" : "text-red-400"}`}
                 >
-                  {profitResults.dailyProfit < 0 ? "-" : ""}{formatCurrency(Math.abs(profitResults.dailyProfit))}
+                  {profitResults.dailyProfit < 0 ? "-" : ""}
+                  {formatCurrency(Math.abs(profitResults.dailyProfit))}
                 </p>
               </div>
               <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
@@ -727,7 +739,8 @@ export default function CalculatorPage() {
                 <p
                   className={`text-lg font-bold ${profitResults.monthlyProfit >= 0 ? "text-green-400" : "text-red-400"}`}
                 >
-                  {profitResults.monthlyProfit < 0 ? "-" : ""}{formatCurrency(Math.abs(profitResults.monthlyProfit))}
+                  {profitResults.monthlyProfit < 0 ? "-" : ""}
+                  {formatCurrency(Math.abs(profitResults.monthlyProfit))}
                 </p>
               </div>
             </div>

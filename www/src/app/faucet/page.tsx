@@ -73,9 +73,9 @@ export default function FaucetPage() {
     }
   }, []);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     fetchStatus();
-    // Refresh status every 30 seconds
     const interval = setInterval(fetchStatus, 30000);
     return () => clearInterval(interval);
   }, [fetchStatus]);
@@ -101,6 +101,7 @@ export default function FaucetPage() {
 
     return () => clearInterval(interval);
   }, [result?.remainingMs]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Connect MetaMask wallet
   const connectWallet = async () => {

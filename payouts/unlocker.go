@@ -29,20 +29,16 @@ type UnlockerConfig struct {
 }
 
 const minDepth = 16
-const byzantiumHardForkHeight = 9999999999999
-const constantinopleHardForkHeight = 9999999999999
 
 // VirBiCoin reward reduction parameters
-// Reward decreases by 1 VBC every 4,200,000 blocks (~4 years at 12s/block)
+// First reduction at block 4,200,000, then every 2,100,000 blocks (~2 years at 12s/block)
 // Schedule: 8 -> 7 -> 6 -> 5 -> 4 -> 3 -> 2 -> 1 VBC (minimum 1 VBC)
-const rewardReductionInterval int64 = 4200000  // Reduce reward every 4,200,000 blocks
-const firstReductionBlock int64 = 4200000      // First reduction at block 4,200,000
+const rewardReductionInterval int64 = 2100000
+const firstReductionBlock int64 = 4200000
 
-var homesteadReward = math.MustParseBig256("8000000000000000000")       // 8 VBC
-var byzantiumReward = math.MustParseBig256("8000000000000000000")       // 8 VBC
-var constantinopleReward = math.MustParseBig256("8000000000000000000")  // 8 VBC
-var minimumReward = math.MustParseBig256("1000000000000000000")         // 1 VBC (minimum)
-var oneVBC = math.MustParseBig256("1000000000000000000")                // 1 VBC for reduction
+var baseReward = math.MustParseBig256("8000000000000000000")    // 8 VBC
+var minimumReward = math.MustParseBig256("1000000000000000000") // 1 VBC
+var oneVBC = math.MustParseBig256("1000000000000000000")
 
 // Donate 10% from pool fees to developers
 const donationFee = 10.0
@@ -512,20 +508,20 @@ func weiToShannonInt64(wei *big.Rat) int64 {
 }
 
 // getConstReward calculates the block reward with gradual reduction schedule.
-// Reward decreases by 1 VBC every 4,200,000 blocks (~4 years at 12s/block).
+// First reduction at block 4,200,000, then every 2,100,000 blocks (~2 years at 12s/block).
 // Reward schedule:
 //   - Block 0 - 4,199,999: 8 VBC
-//   - Block 4,200,000 - 8,399,999: 7 VBC
-//   - Block 8,400,000 - 12,599,999: 6 VBC
-//   - Block 12,600,000 - 16,799,999: 5 VBC
-//   - Block 16,800,000 - 20,999,999: 4 VBC
-//   - Block 21,000,000 - 25,199,999: 3 VBC
-//   - Block 25,200,000 - 29,399,999: 2 VBC
-//   - Block 29,400,000+: 1 VBC (minimum)
+//   - Block 4,200,000 - 6,299,999: 7 VBC
+//   - Block 6,300,000 - 8,399,999: 6 VBC
+//   - Block 8,400,000 - 10,499,999: 5 VBC
+//   - Block 10,500,000 - 12,599,999: 4 VBC
+//   - Block 12,600,000 - 14,699,999: 3 VBC
+//   - Block 14,700,000 - 16,799,999: 2 VBC
+//   - Block 16,800,000+: 1 VBC (minimum)
 func getConstReward(height int64) *big.Int {
 	// Before first reduction, return base reward (8 VBC)
 	if height < firstReductionBlock {
-		return new(big.Int).Set(homesteadReward)
+		return new(big.Int).Set(baseReward)
 	}
 
 	// Calculate number of reductions since first reduction block
@@ -539,7 +535,7 @@ func getConstReward(height int64) *big.Int {
 	}
 
 	// reward = 8 VBC - (reductions * 1 VBC)
-	reward := new(big.Int).Set(homesteadReward)
+	reward := new(big.Int).Set(baseReward)
 	reduction := new(big.Int).Mul(oneVBC, big.NewInt(reductions))
 	reward.Sub(reward, reduction)
 
