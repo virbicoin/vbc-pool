@@ -19,7 +19,20 @@
   },
   "block": {
     "reward": 2,
-    "time": 15
+    "time": 15,
+    "halving": {
+      "enabled": false,
+      "interval": 2100000,
+      "firstBlock": 4200000,
+      "minimumReward": 0.1,
+      "schedule": [
+        { "block": 0, "reward": 2 },
+        { "block": 4200000, "reward": 1 },
+        { "block": 6300000, "reward": 0.5 },
+        { "block": 8400000, "reward": 0.25 },
+        { "block": 10500000, "reward": 0.1 }
+      ]
+    }
   },
   "branding": {
     "logo": "/coin.svg",
