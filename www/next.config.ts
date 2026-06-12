@@ -18,6 +18,8 @@ const ALLOWED_DOMAINS = {
     "https://*.digitalregion.jp",
     "https://api.virbicoin.com",
     "https://*.virbicoin.com",
+    // External price APIs (for mining calculator live price)
+    "https://wikaex.com",
     // Allow localhost in development
     ...(isProd ? [] : ["http://localhost:*", "ws://localhost:*"]),
   ],

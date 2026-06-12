@@ -19,10 +19,33 @@ import { useTranslation } from "@/components/I18nProvider";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-// Fetch VBC price via server-side /api/price route
-// The server route fetches from WikaEx → Explorer with fallback
-// This avoids CSP and CORS issues since it's same-origin
+// Fetch VBC price with fallback order (same as vbc-explorer):
+// 1. WikaEx API (client-side direct, CSP allows wikaex.com)
+// 2. /api/price server route (fallback if WikaEx fails)
 async function fetchVBCPrice(): Promise<{ priceUSD: number; source: string } | null> {
+  // 1. Try WikaEx directly (allowed by CSP connect-src)
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch("https://wikaex.com/api/spot/coingecko/tickers", {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const tickers = await res.json();
+      const usdtTicker = tickers.find(
+        (t: { ticker_id: string }) => t.ticker_id === "VBC_USDT"
+      );
+      if (usdtTicker?.last_price) {
+        const price = parseFloat(usdtTicker.last_price);
+        if (price > 0) return { priceUSD: price, source: "wikaex" };
+      }
+    }
+  } catch {
+    // WikaEx failed, try server-side fallback
+  }
+
+  // 2. Fallback: /api/price server route (fetches from WikaEx/Explorer server-side)
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -35,8 +58,9 @@ async function fetchVBCPrice(): Promise<{ priceUSD: number; source: string } | n
       }
     }
   } catch {
-    // API route failed
+    // Both failed
   }
+
   return null;
 }
 
