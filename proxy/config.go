@@ -1,10 +1,10 @@
 package proxy
 
 import (
-	"github.com/virbicoin/open-virbicoin-pool/api"
-	"github.com/virbicoin/open-virbicoin-pool/payouts"
-	"github.com/virbicoin/open-virbicoin-pool/policy"
-	"github.com/virbicoin/open-virbicoin-pool/storage"
+	"github.com/virbicoin/vbc-pool/api"
+	"github.com/virbicoin/vbc-pool/payouts"
+	"github.com/virbicoin/vbc-pool/policy"
+	"github.com/virbicoin/vbc-pool/storage"
 )
 
 type Config struct {

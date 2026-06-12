@@ -4,7 +4,7 @@ executors:
   go-executor:
     docker:
       - image: circleci/golang:1.22
-    working_directory: ~/go/src/github.com/virbicoin/open-virbicoin-pool
+    working_directory: ~/go/src/github.com/virbicoin/vbc-pool
 
 jobs:
   build:
@@ -19,7 +19,7 @@ jobs:
           command: go test ./...
       - run:
           name: Build binary
-          command: go build -o open-virbicoin-pool
+          command: go build -o vbc-pool
 
 workflows:
   version: 2

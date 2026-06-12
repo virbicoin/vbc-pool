@@ -13,10 +13,10 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/virbicoin/open-virbicoin-pool/policy"
-	"github.com/virbicoin/open-virbicoin-pool/rpc"
-	"github.com/virbicoin/open-virbicoin-pool/storage"
-	"github.com/virbicoin/open-virbicoin-pool/util"
+	"github.com/virbicoin/vbc-pool/policy"
+	"github.com/virbicoin/vbc-pool/rpc"
+	"github.com/virbicoin/vbc-pool/storage"
+	"github.com/virbicoin/vbc-pool/util"
 )
 
 type ProxyServer struct {

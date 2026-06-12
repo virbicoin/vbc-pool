@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/virbicoin/open-virbicoin-pool/rpc"
-	"github.com/virbicoin/open-virbicoin-pool/util"
+	"github.com/virbicoin/vbc-pool/rpc"
+	"github.com/virbicoin/vbc-pool/util"
 )
 
 // Allow only lowercase hexadecimal with 0x prefix

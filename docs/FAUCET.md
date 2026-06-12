@@ -140,7 +140,7 @@ After=network.target redis.service geth.service
 Type=simple
 User=pool
 Group=pool
-ExecStart=/usr/local/bin/open-virbicoin-pool /etc/pool/faucet.json
+ExecStart=/usr/local/bin/vbc-pool /etc/pool/faucet.json
 Restart=always
 RestartSec=5
 

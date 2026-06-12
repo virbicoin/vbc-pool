@@ -8,8 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/virbicoin/open-virbicoin-pool/storage"
-	"github.com/virbicoin/open-virbicoin-pool/util"
+	"github.com/virbicoin/vbc-pool/storage"
+	"github.com/virbicoin/vbc-pool/util"
 )
 
 type Config struct {

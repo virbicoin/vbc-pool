@@ -1,4 +1,4 @@
-module github.com/virbicoin/open-virbicoin-pool
+module github.com/virbicoin/vbc-pool
 
 go 1.25.0
 

@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/virbicoin/open-virbicoin-pool/rpc"
-	"github.com/virbicoin/open-virbicoin-pool/util"
+	"github.com/virbicoin/vbc-pool/rpc"
+	"github.com/virbicoin/vbc-pool/util"
 
 	"github.com/ethereum/go-ethereum/common"
 )

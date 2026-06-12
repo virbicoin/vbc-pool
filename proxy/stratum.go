@@ -9,7 +9,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/virbicoin/open-virbicoin-pool/util"
+	"github.com/virbicoin/vbc-pool/util"
 )
 
 const (

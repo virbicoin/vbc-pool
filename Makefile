@@ -13,8 +13,8 @@ GOARCH := $(shell go env GOARCH)
 CGO_ENABLED := 1
 
 # Binary name
-BINARY_NAME := open-virbicoin-pool
-PACKAGE := github.com/virbicoin/open-virbicoin-pool
+BINARY_NAME := vbc-pool
+PACKAGE := github.com/virbicoin/vbc-pool
 
 # Build flags
 LDFLAGS := -ldflags "-s -w -X main.Version=$(VERSION) -X main.Commit=$(COMMIT) -X main.BuildTime=$(BUILD_TIME)"

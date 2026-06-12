@@ -41,7 +41,7 @@ show_help() {
     cat << EOF
 Usage: $0 [OPTIONS] VERSION
 
-Create a release of Open Virbicoin Pool
+Create a release of VBC Pool
 
 OPTIONS:
     -h, --help          Show this help message
@@ -175,5 +175,5 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     git push origin "$VERSION"
     log_success "Tag pushed! GitHub Actions should start building the release."
     echo
-    echo "Monitor the build at: https://github.com/virbicoin/open-virbicoin-pool/actions"
+    echo "Monitor the build at: https://github.com/virbicoin/vbc-pool/actions"
 fi 

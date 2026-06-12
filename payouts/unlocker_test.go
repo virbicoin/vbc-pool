@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/virbicoin/open-virbicoin-pool/rpc"
-	"github.com/virbicoin/open-virbicoin-pool/storage"
+	"github.com/virbicoin/vbc-pool/rpc"
+	"github.com/virbicoin/vbc-pool/storage"
 )
 
 func TestMain(m *testing.M) {

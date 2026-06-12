@@ -140,7 +140,7 @@ jobs:
           COMMIT=$(git rev-parse --short HEAD)
           BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
           
-          BINARY_NAME="open-virbicoin-pool"
+          BINARY_NAME="vbc-pool"
           if [ "$GOOS" = "windows" ]; then
             BINARY_NAME="${BINARY_NAME}.exe"
           fi
@@ -150,7 +150,7 @@ jobs:
           go build -ldflags "${LDFLAGS}" -trimpath -o "${BINARY_NAME}" .
           
           # Create archive
-          ARCHIVE_NAME="open-virbicoin-pool-${VERSION}-${GOOS}-${GOARCH}"
+          ARCHIVE_NAME="vbc-pool-${VERSION}-${GOOS}-${GOARCH}"
           if [ "$GOOS" = "windows" ]; then
             zip "${ARCHIVE_NAME}.zip" "${BINARY_NAME}"
           else
@@ -212,7 +212,7 @@ jobs:
           tag_name: ${{ steps.version.outputs.version }}
           name: Release ${{ steps.version.outputs.version }}
           body: |
-            ## Open Virbicoin Pool ${{ steps.version.outputs.version }}
+            ## VBC Pool ${{ steps.version.outputs.version }}
             
             ### Features
             - ✅ Sentinel automatic fallback support

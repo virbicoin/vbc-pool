@@ -13,7 +13,7 @@ import (
 	"sync"
 	
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/virbicoin/open-virbicoin-pool/util"
+	"github.com/virbicoin/vbc-pool/util"
 )
 
 type RPCClient struct {

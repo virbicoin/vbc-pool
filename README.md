@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/virbicoin/vbc-stats/main/public/VBC.svg" alt="VirBiCoin Logo" width="120" height="120">
 </p>
 
-<h1 align="center">Open VirBiCoin Pool</h1>
+<h1 align="center">VBC Pool</h1>
 
 <p align="center">
   <strong>Open Source Ethereum-Compatible Mining Pool for VirBiCoin</strong>
@@ -21,13 +21,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/virbicoin/open-virbicoin-pool/actions/workflows/go.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/virbicoin/open-virbicoin-pool/go.yml?style=flat-square&label=CI" alt="CI">
+  <a href="https://github.com/virbicoin/vbc-pool/actions/workflows/go.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/virbicoin/vbc-pool/go.yml?style=flat-square&label=CI" alt="CI">
   </a>
-  <a href="https://goreportcard.com/report/github.com/virbicoin/open-virbicoin-pool">
+  <a href="https://goreportcard.com/report/github.com/virbicoin/vbc-pool">
     <img src="https://img.shields.io/badge/Go_Report-A+-brightgreen?style=flat-square&logo=go&logoColor=white" alt="Go Report">
   </a>
-  <a href="https://pkg.go.dev/github.com/virbicoin/open-virbicoin-pool">
+  <a href="https://pkg.go.dev/github.com/virbicoin/vbc-pool">
     <img src="https://img.shields.io/badge/Go_Reference-pkg.go.dev-007D9C?style=flat-square&logo=go&logoColor=white" alt="Go Reference">
   </a>
   <img src="https://img.shields.io/badge/Go-≥1.22-00ADD8?style=flat-square&logo=go&logoColor=white" alt="Go">
@@ -73,15 +73,15 @@ First install  [go-virbicoin](https://github.com/virbicoin/go-virbicoin/wiki/Ins
 Clone & compile:
 
     git config --global http.https://gopkg.in.followRedirects true
-    git clone https://github.com/virbicoin/open-virbicoin-pool.git
-    cd open-virbicoin-pool
+    git clone https://github.com/virbicoin/vbc-pool.git
+    cd vbc-pool
     go build
 
 Install redis-server.
 
 ### Running Pool
 
-    ./build/bin/open-virbicoin-pool config.json
+    ./build/bin/vbc-pool config.json
 
 You can use Ubuntu upstart - check for sample config in <code>upstart.conf</code>.
 

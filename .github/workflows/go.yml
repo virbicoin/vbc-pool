@@ -117,14 +117,14 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: 1
           CC: ${{ matrix.goarch == 'arm64' && 'aarch64-linux-gnu-gcc' || '' }}
-        run: go build -o open-virbicoin-pool-${{ matrix.goarch }}
+        run: go build -o vbc-pool-${{ matrix.goarch }}
 
       - name: Test binary (AMD64 only)
         if: matrix.goarch == 'amd64'
-        run: ./open-virbicoin-pool-${{ matrix.goarch }} --version || echo "Version check completed"
+        run: ./vbc-pool-${{ matrix.goarch }} --version || echo "Version check completed"
 
       - name: Verify ARM64 binary
         if: matrix.goarch == 'arm64'
         run: |
-          file open-virbicoin-pool-${{ matrix.goarch }}
+          file vbc-pool-${{ matrix.goarch }}
           echo "ARM64 binary built successfully"

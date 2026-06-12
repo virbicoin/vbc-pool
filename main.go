@@ -14,10 +14,10 @@ import (
 
 	"github.com/yvasiyarov/gorelic"
 
-	"github.com/virbicoin/open-virbicoin-pool/api"
-	"github.com/virbicoin/open-virbicoin-pool/payouts"
-	"github.com/virbicoin/open-virbicoin-pool/proxy"
-	"github.com/virbicoin/open-virbicoin-pool/storage"
+	"github.com/virbicoin/vbc-pool/api"
+	"github.com/virbicoin/vbc-pool/payouts"
+	"github.com/virbicoin/vbc-pool/proxy"
+	"github.com/virbicoin/vbc-pool/storage"
 )
 
 // Version information (set by build flags)
