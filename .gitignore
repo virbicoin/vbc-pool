@@ -8,4 +8,4 @@ open*pool
 config.json
 *.log
 dist/
-releases/
+releases/.claude/
