@@ -6,6 +6,29 @@ const isProd = process.env.NODE_ENV === "production";
 // Next.js 15+ requires assetPrefix to start with "/" or be full URL. Empty string also allowed (default).
 const assetPrefix = process.env["NEXT_PUBLIC_ASSET_PREFIX"] ?? (isProd ? "/" : "");
 
+// Load config for dynamic CSP generation
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const configJson = require("./config.json");
+
+// Extract price API domains from config for CSP connect-src
+function getPriceApiDomains(): string[] {
+  const domains: string[] = [];
+  const priceApi = configJson.calculator?.priceApi;
+  if (priceApi?.url) {
+    try {
+      const url = new URL(priceApi.url);
+      domains.push(`${url.protocol}//${url.hostname}`);
+    } catch { /* invalid URL, skip */ }
+  }
+  if (priceApi?.fallbackUrl) {
+    try {
+      const url = new URL(priceApi.fallbackUrl);
+      domains.push(`${url.protocol}//${url.hostname}`);
+    } catch { /* invalid URL, skip */ }
+  }
+  return domains;
+}
+
 // SECURITY: Allowed domains for CSP
 const ALLOWED_DOMAINS = {
   scripts: ["'self'"],
@@ -18,8 +41,8 @@ const ALLOWED_DOMAINS = {
     "https://*.digitalregion.jp",
     "https://api.virbicoin.com",
     "https://*.virbicoin.com",
-    // External price APIs (for mining calculator live price)
-    "https://wikaex.com",
+    // External price APIs (dynamically loaded from config.json)
+    ...getPriceApiDomains(),
     // Allow localhost in development
     ...(isProd ? [] : ["http://localhost:*", "ws://localhost:*"]),
   ],

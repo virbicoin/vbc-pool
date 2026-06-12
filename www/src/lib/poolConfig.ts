@@ -99,6 +99,11 @@ interface PoolConfigType {
     defaultElectricityCost: number;
     defaultPowerConsumption: number;
     currencies: string[];
+    priceApi: {
+      url: string;
+      tickerId: string;
+      fallbackUrl: string;
+    };
   };
   stratum: {
     host: string;
@@ -173,6 +178,11 @@ export const poolConfig: PoolConfigType = {
     defaultElectricityCost: configJson.calculator?.defaultElectricityCost || 0.1,
     defaultPowerConsumption: configJson.calculator?.defaultPowerConsumption || 200,
     currencies: configJson.calculator?.currencies || ["USD"],
+    priceApi: {
+      url: configJson.calculator?.priceApi?.url || "",
+      tickerId: configJson.calculator?.priceApi?.tickerId || "",
+      fallbackUrl: configJson.calculator?.priceApi?.fallbackUrl || "",
+    },
   },
   stratum: {
     host: configJson.stratum?.host || "stratum.example.com",

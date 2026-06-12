@@ -19,33 +19,38 @@ import { useTranslation } from "@/components/I18nProvider";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-// Fetch VBC price with fallback order (same as vbc-explorer):
-// 1. WikaEx API (client-side direct, CSP allows wikaex.com)
-// 2. /api/price server route (fallback if WikaEx fails)
+// Fetch coin price with fallback order (configured in config.json):
+// 1. Primary price API (client-side direct, must be allowed in CSP)
+// 2. /api/price server route (fallback, fetches server-side)
 async function fetchVBCPrice(): Promise<{ priceUSD: number; source: string } | null> {
-  // 1. Try WikaEx directly (allowed by CSP connect-src)
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch("https://wikaex.com/api/spot/coingecko/tickers", {
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      const tickers = await res.json();
-      const usdtTicker = tickers.find(
-        (t: { ticker_id: string }) => t.ticker_id === "VBC_USDT"
-      );
-      if (usdtTicker?.last_price) {
-        const price = parseFloat(usdtTicker.last_price);
-        if (price > 0) return { priceUSD: price, source: "wikaex" };
+  const { url, tickerId } = poolConfig.calculator.priceApi;
+
+  // 1. Try primary price API directly (if configured)
+  if (url && tickerId) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const tickers = await res.json();
+        const ticker = tickers.find(
+          (t: { ticker_id: string }) => t.ticker_id === tickerId
+        );
+        if (ticker?.last_price) {
+          const price = parseFloat(ticker.last_price);
+          if (price > 0) {
+            const source = new URL(url).hostname.replace("www.", "");
+            return { priceUSD: price, source };
+          }
+        }
       }
+    } catch {
+      // Primary API failed, try fallback
     }
-  } catch {
-    // WikaEx failed, try server-side fallback
   }
 
-  // 2. Fallback: /api/price server route (fetches from WikaEx/Explorer server-side)
+  // 2. Fallback: /api/price server route (fetches externally server-side)
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);

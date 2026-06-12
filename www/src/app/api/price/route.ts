@@ -14,17 +14,20 @@ interface PriceData {
 }
 
 /**
- * Fetch price from WikaEx API (CoinGecko-compatible endpoint)
- * Same approach as vbc-explorer
+ * Fetch price from primary price API (configured in config.json)
+ * Supports CoinGecko-compatible ticker endpoints
  */
-async function getPriceFromWikaEx(): Promise<PriceData | null> {
+async function getPriceFromPrimary(): Promise<PriceData | null> {
+  const { url, tickerId } = poolConfig.calculator.priceApi;
+  if (!url || !tickerId) return null;
+
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    const response = await fetch("https://wikaex.com/api/spot/coingecko/tickers", {
+    const response = await fetch(url, {
       signal: controller.signal,
-      headers: { "User-Agent": "VBC-Pool/1.0", Accept: "application/json" },
+      headers: { "User-Agent": "Pool-Frontend/1.0", Accept: "application/json" },
     });
     clearTimeout(timeoutId);
 
@@ -33,22 +36,25 @@ async function getPriceFromWikaEx(): Promise<PriceData | null> {
     const tickers = await response.json();
     const symbol = poolConfig.coin.symbol;
 
+    // Find the configured ticker
     const usdtTicker = tickers.find(
-      (t: { ticker_id: string }) => t.ticker_id === `${symbol}_USDT`
+      (t: { ticker_id: string }) => t.ticker_id === tickerId
     );
+    // Also try to find BTC pair
     const btcTicker = tickers.find(
       (t: { ticker_id: string }) => t.ticker_id === `${symbol}_BTC`
     );
 
-    if (usdtTicker?.last_price || btcTicker?.last_price) {
-      const priceUSD = usdtTicker?.last_price ? parseFloat(usdtTicker.last_price) : 0;
+    if (usdtTicker?.last_price) {
+      const priceUSD = parseFloat(usdtTicker.last_price);
       if (priceUSD > 0) {
+        const source = new URL(url).hostname.replace("www.", "");
         return {
           symbol,
           priceUSD,
           priceBTC: btcTicker?.last_price ? parseFloat(btcTicker.last_price) : 0,
           timestamp: Date.now(),
-          source: "wikaex",
+          source,
         };
       }
     }
@@ -59,14 +65,18 @@ async function getPriceFromWikaEx(): Promise<PriceData | null> {
 }
 
 /**
- * Fetch price from vbc-explorer's API as fallback
+ * Fetch price from fallback URL (configured in config.json)
+ * Expects { success: true, data: { nativePriceUsd: number } } response format
  */
-async function getPriceFromExplorer(): Promise<PriceData | null> {
+async function getPriceFromFallback(): Promise<PriceData | null> {
+  const { fallbackUrl } = poolConfig.calculator.priceApi;
+  if (!fallbackUrl) return null;
+
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    const response = await fetch("https://explorer.virbicoin.com/api/dex/external-price", {
+    const response = await fetch(fallbackUrl, {
       signal: controller.signal,
       headers: { Accept: "application/json" },
     });
@@ -76,12 +86,13 @@ async function getPriceFromExplorer(): Promise<PriceData | null> {
 
     const data = await response.json();
     if (data.success && data.data?.nativePriceUsd > 0) {
+      const source = new URL(fallbackUrl).hostname.replace("www.", "");
       return {
         symbol: data.data.nativeSymbol || poolConfig.coin.symbol,
         priceUSD: data.data.nativePriceUsd,
         priceBTC: 0,
         timestamp: Date.now(),
-        source: "explorer",
+        source,
       };
     }
     return null;
@@ -101,12 +112,12 @@ export async function GET() {
       });
     }
 
-    // Try WikaEx first (primary source)
-    let price = await getPriceFromWikaEx();
+    // Try primary price API first
+    let price = await getPriceFromPrimary();
 
-    // Try explorer API as fallback
+    // Try fallback API
     if (!price) {
-      price = await getPriceFromExplorer();
+      price = await getPriceFromFallback();
     }
 
     if (price) {
