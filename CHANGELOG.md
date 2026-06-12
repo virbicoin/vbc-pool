@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Live Price Feed & Faucet Fix - June 12, 2026
+
+- **VBC Price Auto-Fetch**: Mining calculator now automatically fetches live VBC price
+  - New `/api/price` endpoint fetches price from WikaEx API (same source as vbc-explorer)
+  - Falls back to explorer.virbicoin.com API if WikaEx is unavailable
+  - 60-second cache with automatic refresh
+  - Shows "🟢 Live" indicator and price source in the calculator UI
+  - Users can still manually override the price
+- **Faucet Total Sent Overflow Fix**: Fixed negative Total Sent display
+  - Root cause: `totalSent` (int64) overflowed when accumulated wei exceeded 9.22×10^18
+  - Changed `totalSent` from `int64` to `*big.Int` for unlimited precision
+  - Redis storage changed from `INCRBY` (int64 limited) to `SET` (string-based)
+  - Auto-corrects already-overflowed values on startup by recalculating from `totalRequests × amount`
+  - Frontend API now properly passes `totalSentFormatted` from backend
+
+### Fixed
+
+- Faucet statistics showing negative "Total Sent" value (-9.18674407 VBC) due to int64 overflow
+
 #### Internationalization (i18n) - January 11, 2026
 
 - **Multi-language Support**: Added support for English, Japanese, and Chinese

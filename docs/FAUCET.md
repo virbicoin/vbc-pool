@@ -346,10 +346,15 @@ Faucet statistics are persisted to Redis and survive restarts:
 | Redis Key | Type | Description |
 |-----------|------|-------------|
 | `faucet:stats:totalRequests` | String (int) | Total number of faucet requests |
-| `faucet:stats:totalSent` | String (int) | Total amount sent in wei |
+| `faucet:stats:totalSent` | String (big.Int) | Total amount sent in wei (stored as string to avoid int64 overflow) |
 | `faucet:stats:uniqueAddresses` | Set | Set of unique wallet addresses |
 
 Statistics are automatically loaded on startup and updated after each successful request.
+
+**Note on totalSent overflow**: Prior to the June 2026 fix, `totalSent` was stored using Redis `INCRBY` (int64 limited to ~9.22×10^18). With a faucet amount of 10^16 wei per request, after ~922 requests the value would overflow int64 and become negative. The fix:
+- Uses `*big.Int` in Go for in-memory tracking (unlimited precision)
+- Stores the value as a string in Redis using `SET` instead of `INCRBY`
+- Automatically detects and corrects overflowed (negative) values on startup by recalculating from `totalRequests × amount`
 
 ### Example Log Output
 

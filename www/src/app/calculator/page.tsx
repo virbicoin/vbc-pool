@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import useSWR from "swr";
 import {
   CalculatorIcon,
@@ -283,10 +283,29 @@ export default function CalculatorPage() {
     poolConfig.calculator.defaultElectricityCost.toString()
   );
   const [coinPrice, setCoinPrice] = useState<string>("0.01");
+  const [priceSource, setPriceSource] = useState<string>("");
+  const [priceLoading, setPriceLoading] = useState<boolean>(true);
 
   const { data: statsData } = useSWR(API_BASE_URL + "/api/stats", fetcher, {
     refreshInterval: 30000,
   });
+
+  // Auto-fetch VBC price from WikaEx / explorer
+  const { data: priceData } = useSWR("/api/price", fetcher, {
+    refreshInterval: 60000, // Refresh every 60 seconds
+    revalidateOnFocus: false,
+  });
+
+  // Update coin price when price data is fetched
+  useEffect(() => {
+    if (priceData?.success && priceData.data?.priceUSD > 0) {
+      setCoinPrice(priceData.data.priceUSD.toString());
+      setPriceSource(priceData.data.source);
+      setPriceLoading(false);
+    } else if (priceData && !priceData.success) {
+      setPriceLoading(false);
+    }
+  }, [priceData]);
 
   // Convert input hashrate to H/s
   const hashrateInHs = useMemo(() => {
@@ -489,8 +508,17 @@ export default function CalculatorPage() {
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-2">
+              <label className="block text-sm text-gray-400 mb-2 flex items-center gap-2">
                 {coinSymbol} {t("calculator.priceUsd")}
+                {priceSource && (
+                  <span className="inline-flex items-center gap-1 text-xs text-green-400">
+                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                    Live
+                  </span>
+                )}
+                {priceLoading && (
+                  <span className="text-xs text-gray-500">Loading...</span>
+                )}
               </label>
               <input
                 type="number"
@@ -501,6 +529,11 @@ export default function CalculatorPage() {
                 min="0"
                 step="0.001"
               />
+              {priceSource && (
+                <p className="mt-1 text-xs text-gray-500">
+                  Source: {priceSource === "wikaex" ? "WikaEx" : priceSource === "explorer" ? "Explorer" : priceSource}
+                </p>
+              )}
             </div>
           </div>
 

@@ -157,6 +157,18 @@ export async function GET() {
         cooldownHours: data.cooldownMinutes
           ? data.cooldownMinutes / 60
           : poolConfig.faucet.cooldownHours,
+        cooldownMinutes: data.cooldownMinutes,
+        maxDailyPerIP: data.maxDailyPerIP,
+        balance: data.balance,
+        balanceFormatted: data.balanceFormatted,
+        stats: data.stats
+          ? {
+              totalRequests: data.stats.totalRequests || 0,
+              totalSent: data.stats.totalSent || "0",
+              totalSentFormatted: data.stats.totalSentFormatted || "0",
+              uniqueAddresses: data.stats.uniqueAddresses || 0,
+            }
+          : undefined,
       });
     }
   } catch {

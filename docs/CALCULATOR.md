@@ -72,12 +72,53 @@ Where:
 Daily Profit = (Daily Reward × Coin Price) - (Power Consumption × 24h × Electricity Cost)
 ```
 
+## Live Price Feed
+
+The calculator automatically fetches the current VBC price from external sources:
+
+### Price Sources (Priority Order)
+
+1. **WikaEx API** - Primary source (`https://wikaex.com/api/spot/coingecko/tickers`)
+   - Fetches VBC_USDT and VBC_BTC trading pairs
+   - Same data source as vbc-explorer
+2. **Explorer API** - Fallback (`https://explorer.virbicoin.com/api/dex/external-price`)
+   - Uses the vbc-explorer's price aggregation service
+
+### Price API Endpoint
+
+The pool provides a `/api/price` endpoint that:
+- Caches price data for 60 seconds
+- Returns price in USD and BTC
+- Indicates the data source (wikaex/explorer)
+- Refreshes automatically every 60 seconds in the UI
+
+```json
+// GET /api/price response
+{
+  "success": true,
+  "data": {
+    "symbol": "VBC",
+    "priceUSD": 0.0123,
+    "priceBTC": 0.00000012,
+    "timestamp": 1718182800000,
+    "source": "wikaex"
+  },
+  "cached": false
+}
+```
+
+### UI Indicators
+
+- **🟢 Live** badge: Shows when price is being fetched live
+- **Source label**: Displays "WikaEx" or "Explorer" below the price field
+- Users can still manually override the price at any time
+
 ## Usage
 
 1. **Select GPU**: Click a GPU category and select your specific GPU model
 2. **Or Enter Manually**: Type your hashrate in MH/s, GH/s, or TH/s
 3. **Configure Costs**: Enter power consumption (W) and electricity cost ($/kWh)
-4. **Set Coin Price**: Enter the current price of the coin
+4. **Coin Price**: Automatically fetched live (can be manually overridden)
 5. **View Results**: See estimated rewards (hourly, daily, weekly, monthly, yearly)
 
 ## Configuration
@@ -87,6 +128,11 @@ The calculator reads network statistics from the pool API:
 ```typescript
 const { data: statsData } = useSWR(API_BASE_URL + "/api/stats", fetcher, {
   refreshInterval: 30000, // Update every 30 seconds
+});
+
+// Auto-fetch VBC price
+const { data: priceData } = useSWR("/api/price", fetcher, {
+  refreshInterval: 60000, // Refresh every 60 seconds
 });
 ```
 

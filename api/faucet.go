@@ -45,7 +45,7 @@ type FaucetServer struct {
 
 	// Statistics
 	totalRequests   int64
-	totalSent       int64 // in wei
+	totalSent       *big.Int // in wei (use big.Int to avoid int64 overflow)
 	uniqueAddresses map[string]bool
 	statsMu         sync.RWMutex
 }
@@ -78,6 +78,7 @@ func NewFaucetServer(cfg *FaucetConfig, backend *storage.RedisClient) *FaucetSer
 		backend:         backend,
 		ipRequests:      make(map[string]*ipRequestInfo),
 		addrCooldowns:   make(map[string]int64),
+		totalSent:       big.NewInt(0),
 		uniqueAddresses: make(map[string]bool),
 	}
 	if cfg.Enabled {
@@ -148,11 +149,10 @@ func (f *FaucetServer) GetStatus(w http.ResponseWriter, r *http.Request) {
 
 		// Add statistics
 		f.statsMu.RLock()
-		totalSentBig := big.NewInt(f.totalSent)
 		reply["stats"] = map[string]interface{}{
 			"totalRequests":      f.totalRequests,
-			"totalSent":          f.totalSent,
-			"totalSentFormatted": formatWeiToCoins(totalSentBig),
+			"totalSent":          f.totalSent.String(),
+			"totalSentFormatted": formatWeiToCoins(f.totalSent),
 			"uniqueAddresses":    len(f.uniqueAddresses),
 		}
 		f.statsMu.RUnlock()
@@ -403,7 +403,7 @@ func (f *FaucetServer) recordRequest(ip string, address string) {
 	// Update statistics
 	f.statsMu.Lock()
 	f.totalRequests++
-	f.totalSent += f.config.Amount
+	f.totalSent.Add(f.totalSent, big.NewInt(f.config.Amount))
 	f.uniqueAddresses[address] = true
 	f.statsMu.Unlock()
 
@@ -463,10 +463,23 @@ func (f *FaucetServer) loadStats() {
 		f.totalRequests = totalRequests
 	}
 
-	// Load total sent
-	totalSent, err := client.Get(faucetTotalSentKey).Int64()
-	if err == nil {
-		f.totalSent = totalSent
+	// Load total sent as string to handle values that exceed int64
+	totalSentStr, err := client.Get(faucetTotalSentKey).Result()
+	if err == nil && totalSentStr != "" {
+		sent := new(big.Int)
+		if _, ok := sent.SetString(totalSentStr, 10); ok {
+			// If the value is negative (int64 overflow in Redis), recalculate from totalRequests
+			if sent.Sign() < 0 {
+				// The value overflowed in Redis. Recalculate: totalRequests * amount
+				corrected := new(big.Int).Mul(big.NewInt(f.totalRequests), big.NewInt(f.config.Amount))
+				f.totalSent = corrected
+				// Fix the value in Redis
+				client.Set(faucetTotalSentKey, corrected.String(), 0)
+				log.Printf("Faucet: corrected overflowed totalSent from %s to %s", totalSentStr, corrected.String())
+			} else {
+				f.totalSent = sent
+			}
+		}
 	}
 
 	// Load unique addresses
@@ -479,8 +492,8 @@ func (f *FaucetServer) loadStats() {
 		f.statsMu.Unlock()
 	}
 
-	log.Printf("Faucet: loaded stats - requests=%d, sent=%d, uniqueAddresses=%d",
-		f.totalRequests, f.totalSent, len(f.uniqueAddresses))
+	log.Printf("Faucet: loaded stats - requests=%d, sent=%s, uniqueAddresses=%d",
+		f.totalRequests, f.totalSent.String(), len(f.uniqueAddresses))
 }
 
 // saveStats saves statistics to Redis
@@ -491,9 +504,14 @@ func (f *FaucetServer) saveStats(address string) {
 	client := f.backend.Client()
 
 	// Use pipeline for efficiency
+	// Store totalSent as string to avoid int64 overflow in Redis
+	f.statsMu.RLock()
+	totalSentStr := f.totalSent.String()
+	f.statsMu.RUnlock()
+
 	pipe := client.Pipeline()
 	pipe.Incr(faucetTotalRequestsKey)
-	pipe.IncrBy(faucetTotalSentKey, f.config.Amount)
+	pipe.Set(faucetTotalSentKey, totalSentStr, 0)
 	pipe.SAdd(faucetUniqueAddressesKey, address)
 	_, err := pipe.Exec()
 	if err != nil {
