@@ -32,9 +32,14 @@ const minDepth = 16
 const byzantiumHardForkHeight = 9999999999999
 const constantinopleHardForkHeight = 9999999999999
 
-var homesteadReward = math.MustParseBig256("8000000000000000000")
-var byzantiumReward = math.MustParseBig256("8000000000000000000")
-var constantinopleReward = math.MustParseBig256("8000000000000000000")
+// VirBiCoin halving parameters
+const halvingInterval int64 = 2100000    // Halving every 2,100,000 blocks
+const firstHalvingBlock int64 = 4200000  // First halving at block 4,200,000
+
+var homesteadReward = math.MustParseBig256("8000000000000000000")       // 8 VBC
+var byzantiumReward = math.MustParseBig256("8000000000000000000")       // 8 VBC
+var constantinopleReward = math.MustParseBig256("8000000000000000000")  // 8 VBC
+var minimumReward = math.MustParseBig256("100000000000000000")          // 0.1 VBC
 
 // Donate 10% from pool fees to developers
 const donationFee = 10.0
@@ -503,14 +508,39 @@ func weiToShannonInt64(wei *big.Rat) int64 {
 	return value
 }
 
+// getConstReward calculates the block reward with halving schedule.
+// Halving occurs every 2,100,000 blocks starting from block 4,200,000.
+// Reward schedule:
+//   - Block 0 - 4,199,999: 8 VBC
+//   - Block 4,200,000 - 6,299,999: 4 VBC
+//   - Block 6,300,000 - 8,399,999: 2 VBC
+//   - Block 8,400,000 - 10,499,999: 1 VBC
+//   - ... and so on, minimum 0.1 VBC
 func getConstReward(height int64) *big.Int {
-	if height >= constantinopleHardForkHeight {
-		return new(big.Int).Set(constantinopleReward)
+	// Before first halving, return base reward
+	if height < firstHalvingBlock {
+		return new(big.Int).Set(homesteadReward)
 	}
-	if height >= byzantiumHardForkHeight {
-		return new(big.Int).Set(byzantiumReward)
+
+	// Calculate number of halvings since first halving block
+	blocksSinceFirstHalving := height - firstHalvingBlock
+	halvings := blocksSinceFirstHalving/halvingInterval + 1 // +1 for the first halving
+
+	// Cap halvings to prevent overflow
+	if halvings >= 64 {
+		return new(big.Int).Set(minimumReward)
 	}
-	return new(big.Int).Set(homesteadReward)
+
+	// Calculate reward: baseReward >> halvings (divide by 2^halvings)
+	reward := new(big.Int).Set(homesteadReward)
+	reward.Rsh(reward, uint(halvings))
+
+	// Ensure minimum reward
+	if reward.Cmp(minimumReward) < 0 {
+		return new(big.Int).Set(minimumReward)
+	}
+
+	return reward
 }
 
 func getRewardForUncle(height int64) *big.Int {
