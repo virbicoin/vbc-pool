@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+# Pre-commit hook. Enable with: git config core.hooksPath .githooks
+#
+# A repo-local core.hooksPath overrides the user's global hooks, so chain
+# the global pre-commit first (e.g. a GPG passphrase cache warmer).
+global_hooks=$(git config --global core.hooksPath 2>/dev/null)
+if [ -n "$global_hooks" ] && [ -x "$global_hooks/pre-commit" ]; then
+  "$global_hooks/pre-commit" || exit 1
+fi

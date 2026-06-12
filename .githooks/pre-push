@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+# Pre-push hook: mirror CI (go build + go test) before pushing.
+# Enable with: git config core.hooksPath .githooks
+
+echo "> pre-push: go build ./... (same as CI)..."
+if ! go build ./...; then
+  echo ""
+  echo "x Build failed; push aborted."
+  exit 1
+fi
+
+echo "> pre-push: go test ./... (same as CI)..."
+if ! go test ./...; then
+  echo ""
+  echo "x Tests failed; push aborted."
+  exit 1
+fi
+echo "+ pre-push: build and tests passed."
