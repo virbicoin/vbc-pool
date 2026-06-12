@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import poolConfig, { getPoolServers } from "@/lib/poolConfig";
-// Import the specific port-check handler so we can delegate when the
-// catch-all route accidentally captures /api/check-port. This avoids 404
-// responses in production where routing precedence can vary between
-// builds.
+// Import specific handlers so we can delegate when the catch-all route
+// accidentally captures them. This avoids 404 responses in production
+// where routing precedence can vary between builds.
 import { GET as checkPortGET } from "../check-port/route";
+import { GET as priceGET } from "../price/route";
 
 // Ensure this route always executes in the Node.js runtime; the delegated
 // handler uses the "net" module which is Node-only.
@@ -112,11 +112,14 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
       return NextResponse.json({ error: "Invalid proxy path" }, { status: 400 });
     }
 
-    // Special-case: if the request is exactly /api/check-port, delegate to the
-    // dedicated handler and return its response early.
-    // We check length === 1 to avoid matching /api/check-port/anything.
+    // Special-case: delegate to dedicated handlers when the catch-all route
+    // captures them. This avoids 404 responses in production where routing
+    // precedence can vary between builds.
     if (slug && slug.length === 1 && slug[0] === "check-port") {
       return checkPortGET(_req);
+    }
+    if (slug && slug.length === 1 && slug[0] === "price") {
+      return priceGET();
     }
 
     // Handle /api/health root -> global pool
