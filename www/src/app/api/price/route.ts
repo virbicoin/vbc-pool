@@ -66,7 +66,9 @@ async function getPriceFromPrimary(): Promise<PriceData | null> {
 
 /**
  * Fetch price from fallback URL (configured in config.json)
- * Expects { success: true, data: { nativePriceUsd: number } } response format
+ * Supports multiple response formats:
+ * - vbc-explorer format: { nativePriceUsd: number, nativeSymbol: string, ... }
+ * - Legacy format: { success: true, data: { nativePriceUsd: number } }
  */
 async function getPriceFromFallback(): Promise<PriceData | null> {
   const { fallbackUrl } = poolConfig.calculator.priceApi;
@@ -85,8 +87,21 @@ async function getPriceFromFallback(): Promise<PriceData | null> {
     if (!response.ok) return null;
 
     const data = await response.json();
+    const source = new URL(fallbackUrl).hostname.replace("www.", "");
+
+    // vbc-explorer /api/dex/external-price format (direct nativePriceUsd field)
+    if (data.nativePriceUsd && data.nativePriceUsd > 0) {
+      return {
+        symbol: data.nativeSymbol || poolConfig.coin.symbol,
+        priceUSD: data.nativePriceUsd,
+        priceBTC: 0,
+        timestamp: Date.now(),
+        source: data.source?.price || source,
+      };
+    }
+
+    // Legacy format: { success: true, data: { nativePriceUsd: number } }
     if (data.success && data.data?.nativePriceUsd > 0) {
-      const source = new URL(fallbackUrl).hostname.replace("www.", "");
       return {
         symbol: data.data.nativeSymbol || poolConfig.coin.symbol,
         priceUSD: data.data.nativePriceUsd,

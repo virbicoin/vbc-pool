@@ -172,7 +172,7 @@ func (f *FaucetServer) GetStatus(w http.ResponseWriter, r *http.Request) {
 
 // formatWeiToCoins converts wei (big.Int) to human-readable coin format
 func formatWeiToCoins(wei *big.Int) string {
-	if wei == nil {
+	if wei == nil || wei.Sign() <= 0 {
 		return "0"
 	}
 	// 1 coin = 1e18 wei
