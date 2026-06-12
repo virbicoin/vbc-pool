@@ -20,20 +20,20 @@
   "block": {
     "reward": 8,
     "time": 13,
-    "halving": {
+    "reduction": {
       "enabled": true,
-      "interval": 2100000,
+      "interval": 4200000,
       "firstBlock": 4200000,
-      "minimumReward": 0.1,
+      "minimumReward": 1,
       "schedule": [
         { "block": 0, "reward": 8 },
-        { "block": 4200000, "reward": 4 },
-        { "block": 6300000, "reward": 2 },
-        { "block": 8400000, "reward": 1 },
-        { "block": 10500000, "reward": 0.5 },
-        { "block": 12600000, "reward": 0.25 },
-        { "block": 14700000, "reward": 0.125 },
-        { "block": 16800000, "reward": 0.1 }
+        { "block": 4200000, "reward": 7 },
+        { "block": 8400000, "reward": 6 },
+        { "block": 12600000, "reward": 5 },
+        { "block": 16800000, "reward": 4 },
+        { "block": 21000000, "reward": 3 },
+        { "block": 25200000, "reward": 2 },
+        { "block": 29400000, "reward": 1 }
       ]
     }
   },

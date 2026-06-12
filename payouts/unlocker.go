@@ -32,14 +32,17 @@ const minDepth = 16
 const byzantiumHardForkHeight = 9999999999999
 const constantinopleHardForkHeight = 9999999999999
 
-// VirBiCoin halving parameters
-const halvingInterval int64 = 2100000    // Halving every 2,100,000 blocks
-const firstHalvingBlock int64 = 4200000  // First halving at block 4,200,000
+// VirBiCoin reward reduction parameters
+// Reward decreases by 1 VBC every 4,200,000 blocks (~4 years at 12s/block)
+// Schedule: 8 -> 7 -> 6 -> 5 -> 4 -> 3 -> 2 -> 1 VBC (minimum 1 VBC)
+const rewardReductionInterval int64 = 4200000  // Reduce reward every 4,200,000 blocks
+const firstReductionBlock int64 = 4200000      // First reduction at block 4,200,000
 
 var homesteadReward = math.MustParseBig256("8000000000000000000")       // 8 VBC
 var byzantiumReward = math.MustParseBig256("8000000000000000000")       // 8 VBC
 var constantinopleReward = math.MustParseBig256("8000000000000000000")  // 8 VBC
-var minimumReward = math.MustParseBig256("100000000000000000")          // 0.1 VBC
+var minimumReward = math.MustParseBig256("1000000000000000000")         // 1 VBC (minimum)
+var oneVBC = math.MustParseBig256("1000000000000000000")                // 1 VBC for reduction
 
 // Donate 10% from pool fees to developers
 const donationFee = 10.0
@@ -508,37 +511,37 @@ func weiToShannonInt64(wei *big.Rat) int64 {
 	return value
 }
 
-// getConstReward calculates the block reward with halving schedule.
-// Halving occurs every 2,100,000 blocks starting from block 4,200,000.
+// getConstReward calculates the block reward with gradual reduction schedule.
+// Reward decreases by 1 VBC every 4,200,000 blocks (~4 years at 12s/block).
 // Reward schedule:
 //   - Block 0 - 4,199,999: 8 VBC
-//   - Block 4,200,000 - 6,299,999: 4 VBC
-//   - Block 6,300,000 - 8,399,999: 2 VBC
-//   - Block 8,400,000 - 10,499,999: 1 VBC
-//   - ... and so on, minimum 0.1 VBC
+//   - Block 4,200,000 - 8,399,999: 7 VBC
+//   - Block 8,400,000 - 12,599,999: 6 VBC
+//   - Block 12,600,000 - 16,799,999: 5 VBC
+//   - Block 16,800,000 - 20,999,999: 4 VBC
+//   - Block 21,000,000 - 25,199,999: 3 VBC
+//   - Block 25,200,000 - 29,399,999: 2 VBC
+//   - Block 29,400,000+: 1 VBC (minimum)
 func getConstReward(height int64) *big.Int {
-	// Before first halving, return base reward
-	if height < firstHalvingBlock {
+	// Before first reduction, return base reward (8 VBC)
+	if height < firstReductionBlock {
 		return new(big.Int).Set(homesteadReward)
 	}
 
-	// Calculate number of halvings since first halving block
-	blocksSinceFirstHalving := height - firstHalvingBlock
-	halvings := blocksSinceFirstHalving/halvingInterval + 1 // +1 for the first halving
+	// Calculate number of reductions since first reduction block
+	blocksSinceFirstReduction := height - firstReductionBlock
+	reductions := blocksSinceFirstReduction/rewardReductionInterval + 1 // +1 for the first reduction
 
-	// Cap halvings to prevent overflow
-	if halvings >= 64 {
+	// Calculate reward: 8 VBC - (reductions * 1 VBC)
+	// Cap at minimum 1 VBC (7 reductions max: 8->7->6->5->4->3->2->1)
+	if reductions >= 7 {
 		return new(big.Int).Set(minimumReward)
 	}
 
-	// Calculate reward: baseReward >> halvings (divide by 2^halvings)
+	// reward = 8 VBC - (reductions * 1 VBC)
 	reward := new(big.Int).Set(homesteadReward)
-	reward.Rsh(reward, uint(halvings))
-
-	// Ensure minimum reward
-	if reward.Cmp(minimumReward) < 0 {
-		return new(big.Int).Set(minimumReward)
-	}
+	reduction := new(big.Int).Mul(oneVBC, big.NewInt(reductions))
+	reward.Sub(reward, reduction)
 
 	return reward
 }
