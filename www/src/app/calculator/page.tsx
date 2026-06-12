@@ -366,6 +366,12 @@ export default function CalculatorPage() {
   const [priceSource, setPriceSource] = useState<string>("");
   const [priceLoading, setPriceLoading] = useState<boolean>(true);
   const [currency, setCurrency] = useState<string>("USD");
+  const [coinPriceUSD, setCoinPriceUSD] = useState<number>(0);
+
+  // Currency conversion rates (fetched live, with fallback defaults)
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
+    USD: 1, JPY: 155, EUR: 0.92,
+  });
 
   const { data: statsData } = useSWR(API_BASE_URL + "/api/stats", fetcher, {
     refreshInterval: 30000,
@@ -380,7 +386,8 @@ export default function CalculatorPage() {
       const result = await fetchVBCPrice();
       if (cancelled) return;
       if (result) {
-        setCoinPrice(result.priceUSD.toString());
+        setCoinPriceUSD(result.priceUSD);
+        // coinPrice will be updated by the currency conversion effect
         setPriceSource(result.source);
       }
       setPriceLoading(false);
@@ -395,6 +402,14 @@ export default function CalculatorPage() {
       clearInterval(interval);
     };
   }, []);
+
+  // When currency or USD price changes, convert the price display
+  useEffect(() => {
+    if (coinPriceUSD > 0) {
+      const rate = exchangeRates[currency] || 1;
+      setCoinPrice((coinPriceUSD * rate).toString());
+    }
+  }, [currency, exchangeRates, coinPriceUSD]);
 
   // Convert input hashrate to H/s
   const hashrateInHs = useMemo(() => {
@@ -472,11 +487,6 @@ export default function CalculatorPage() {
     };
   }, [hashrateInHs, networkHashrate]);
 
-  // Currency conversion rates (fetched live, with fallback defaults)
-  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
-    USD: 1, JPY: 155, EUR: 0.92,
-  });
-
   // Fetch live exchange rates
   useEffect(() => {
     async function loadRates() {
@@ -527,13 +537,12 @@ export default function CalculatorPage() {
     };
   }, [results.daily, coinPrice, powerConsumption, electricityCost]);
 
-  // Format currency value
+  // Format currency value (input values are already in selected currency)
   const formatCurrency = (value: number) => {
-    const converted = value * currentCurrency.rate;
     if (currency === "JPY") {
-      return `${currentCurrency.symbol}${Math.round(converted).toLocaleString()}`;
+      return `${currentCurrency.symbol}${Math.round(value).toLocaleString()}`;
     }
-    return `${currentCurrency.symbol}${converted.toFixed(2)}`;
+    return `${currentCurrency.symbol}${value.toFixed(2)}`;
   };
 
   // Pool share calculation
@@ -630,7 +639,7 @@ export default function CalculatorPage() {
             </div>
             <div>
               <label className="block text-sm text-gray-400 mb-2">
-                {t("calculator.electricityCostKwh")} ({currentCurrency.symbol}/kWh)
+                {t("calculator.electricityCostKwh").replace("($/kWh)", "").replace("（$/kWh）", "").trim()} ({currentCurrency.symbol}/kWh)
               </label>
               <input
                 type="number"
