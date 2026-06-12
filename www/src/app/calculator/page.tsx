@@ -19,6 +19,52 @@ import { useTranslation } from "@/components/I18nProvider";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+// Fetch VBC price directly from external sources (client-side)
+// Priority: WikaEx → Explorer → fallback
+async function fetchVBCPrice(): Promise<{ priceUSD: number; source: string } | null> {
+  // 1. Try WikaEx API (primary source, same as vbc-explorer)
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch("https://wikaex.com/api/spot/coingecko/tickers", {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const tickers = await res.json();
+      const usdtTicker = tickers.find(
+        (t: { ticker_id: string }) => t.ticker_id === "VBC_USDT"
+      );
+      if (usdtTicker?.last_price) {
+        const price = parseFloat(usdtTicker.last_price);
+        if (price > 0) return { priceUSD: price, source: "wikaex" };
+      }
+    }
+  } catch {
+    // WikaEx failed, try next
+  }
+
+  // 2. Try Explorer API (fallback)
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch("https://explorer.virbicoin.com/api/dex/external-price", {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.data?.nativePriceUsd > 0) {
+        return { priceUSD: data.data.nativePriceUsd, source: "explorer" };
+      }
+    }
+  } catch {
+    // Explorer failed too
+  }
+
+  return null;
+}
+
 // GPU Database with Ethash hashrates and power consumption
 interface GPUData {
   name: string;
@@ -290,22 +336,30 @@ export default function CalculatorPage() {
     refreshInterval: 30000,
   });
 
-  // Auto-fetch VBC price from WikaEx / explorer
-  const { data: priceData } = useSWR("/api/price", fetcher, {
-    refreshInterval: 60000, // Refresh every 60 seconds
-    revalidateOnFocus: false,
-  });
-
-  // Update coin price when price data is fetched
+  // Auto-fetch VBC price directly from external APIs (client-side)
+  // Uses fallback order: WikaEx → Explorer (same as vbc-explorer)
   useEffect(() => {
-    if (priceData?.success && priceData.data?.priceUSD > 0) {
-      setCoinPrice(priceData.data.priceUSD.toString());
-      setPriceSource(priceData.data.source);
-      setPriceLoading(false);
-    } else if (priceData && !priceData.success) {
+    let cancelled = false;
+
+    async function loadPrice() {
+      const result = await fetchVBCPrice();
+      if (cancelled) return;
+      if (result) {
+        setCoinPrice(result.priceUSD.toString());
+        setPriceSource(result.source);
+      }
       setPriceLoading(false);
     }
-  }, [priceData]);
+
+    loadPrice();
+
+    // Refresh every 60 seconds
+    const interval = setInterval(loadPrice, 60000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Convert input hashrate to H/s
   const hashrateInHs = useMemo(() => {
