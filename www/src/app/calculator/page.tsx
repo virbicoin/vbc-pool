@@ -94,6 +94,9 @@ const GPU_DATABASE: GPUCategory[] = [
       { name: "RTX 5070", hashrate: 75, unit: "MH/s", power: 220 },
       { name: "RTX 5060 Ti", hashrate: 55, unit: "MH/s", power: 180 },
       { name: "RTX 5060", hashrate: 42, unit: "MH/s", power: 150 },
+      { name: "RTX 5090 Laptop", hashrate: 120, unit: "MH/s", power: 150 },
+      { name: "RTX 5080 Laptop", hashrate: 85, unit: "MH/s", power: 120 },
+      { name: "RTX 5070 Laptop", hashrate: 52, unit: "MH/s", power: 100 },
     ],
   },
   {
@@ -110,6 +113,10 @@ const GPU_DATABASE: GPUCategory[] = [
       { name: "RTX 4060 Ti 16GB", hashrate: 42, unit: "MH/s", power: 165 },
       { name: "RTX 4060 Ti 8GB", hashrate: 38, unit: "MH/s", power: 160 },
       { name: "RTX 4060", hashrate: 32, unit: "MH/s", power: 115 },
+      { name: "RTX 4090 Laptop", hashrate: 90, unit: "MH/s", power: 150 },
+      { name: "RTX 4080 Laptop", hashrate: 72, unit: "MH/s", power: 120 },
+      { name: "RTX 4070 Laptop", hashrate: 48, unit: "MH/s", power: 100 },
+      { name: "RTX 4060 Laptop", hashrate: 28, unit: "MH/s", power: 65 },
     ],
   },
   {
@@ -132,16 +139,39 @@ const GPU_DATABASE: GPUCategory[] = [
     name: "NVIDIA RTX Pro / Quadro",
     color: "bg-teal-500",
     gpus: [
-      { name: "RTX 6000 Ada", hashrate: 140, unit: "MH/s", power: 300 },
-      { name: "RTX 5000 Ada", hashrate: 95, unit: "MH/s", power: 250 },
-      { name: "RTX 4500 Ada", hashrate: 75, unit: "MH/s", power: 210 },
-      { name: "RTX 4000 Ada", hashrate: 55, unit: "MH/s", power: 130 },
-      { name: "RTX A6000", hashrate: 98, unit: "MH/s", power: 300 },
-      { name: "RTX A5500", hashrate: 82, unit: "MH/s", power: 230 },
-      { name: "RTX A5000", hashrate: 78, unit: "MH/s", power: 230 },
-      { name: "RTX A4500", hashrate: 70, unit: "MH/s", power: 200 },
-      { name: "RTX A4000", hashrate: 58, unit: "MH/s", power: 140 },
-      { name: "RTX A2000", hashrate: 28, unit: "MH/s", power: 70 },
+      { name: "RTX PRO 6000 Blackwell", hashrate: 200, unit: "MH/s", power: 350 },
+      { name: "RTX 6000 Ada Generation", hashrate: 140, unit: "MH/s", power: 300 },
+      { name: "RTX 5000 Ada Generation", hashrate: 95, unit: "MH/s", power: 250 },
+      { name: "RTX 4500 Ada Generation", hashrate: 75, unit: "MH/s", power: 210 },
+      { name: "RTX 4000 Ada Generation", hashrate: 55, unit: "MH/s", power: 130 },
+      { name: "RTX 4000 SFF Ada", hashrate: 50, unit: "MH/s", power: 70 },
+      { name: "RTX A6000 48GB", hashrate: 98, unit: "MH/s", power: 300 },
+      { name: "RTX A5500 24GB", hashrate: 82, unit: "MH/s", power: 230 },
+      { name: "RTX A5000 24GB", hashrate: 78, unit: "MH/s", power: 230 },
+      { name: "RTX A4500 20GB", hashrate: 70, unit: "MH/s", power: 200 },
+      { name: "RTX A4000 16GB", hashrate: 58, unit: "MH/s", power: 140 },
+      { name: "RTX A2000 12GB", hashrate: 28, unit: "MH/s", power: 70 },
+    ],
+  },
+  {
+    name: "NVIDIA Data Center / HPC",
+    color: "bg-indigo-600",
+    gpus: [
+      { name: "H100 SXM 80GB", hashrate: 420, unit: "MH/s", power: 700 },
+      { name: "H100 PCIe 80GB", hashrate: 360, unit: "MH/s", power: 350 },
+      { name: "H200 SXM 141GB", hashrate: 480, unit: "MH/s", power: 700 },
+      { name: "A100 SXM 80GB", hashrate: 210, unit: "MH/s", power: 400 },
+      { name: "A100 PCIe 80GB", hashrate: 185, unit: "MH/s", power: 300 },
+      { name: "A100 PCIe 40GB", hashrate: 165, unit: "MH/s", power: 250 },
+      { name: "L40S", hashrate: 180, unit: "MH/s", power: 350 },
+      { name: "L40", hashrate: 160, unit: "MH/s", power: 300 },
+      { name: "L4", hashrate: 55, unit: "MH/s", power: 72 },
+      { name: "A40", hashrate: 105, unit: "MH/s", power: 300 },
+      { name: "A30", hashrate: 78, unit: "MH/s", power: 165 },
+      { name: "A10", hashrate: 62, unit: "MH/s", power: 150 },
+      { name: "T4", hashrate: 28, unit: "MH/s", power: 70 },
+      { name: "V100 32GB", hashrate: 95, unit: "MH/s", power: 300 },
+      { name: "V100 16GB", hashrate: 88, unit: "MH/s", power: 250 },
     ],
   },
   {
@@ -335,6 +365,7 @@ export default function CalculatorPage() {
   const [coinPrice, setCoinPrice] = useState<string>("0.01");
   const [priceSource, setPriceSource] = useState<string>("");
   const [priceLoading, setPriceLoading] = useState<boolean>(true);
+  const [currency, setCurrency] = useState<string>("USD");
 
   const { data: statsData } = useSWR(API_BASE_URL + "/api/stats", fetcher, {
     refreshInterval: 30000,
@@ -441,6 +472,43 @@ export default function CalculatorPage() {
     };
   }, [hashrateInHs, networkHashrate]);
 
+  // Currency conversion rates (fetched live, with fallback defaults)
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
+    USD: 1, JPY: 155, EUR: 0.92,
+  });
+
+  // Fetch live exchange rates
+  useEffect(() => {
+    async function loadRates() {
+      try {
+        // Use exchangerate.host (free, no API key required)
+        const res = await fetch("https://open.er-api.com/v6/latest/USD", {
+          signal: AbortSignal.timeout(5000),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.rates) {
+            setExchangeRates((prev) => ({
+              ...prev,
+              JPY: data.rates["JPY"] || prev["JPY"],
+              EUR: data.rates["EUR"] || prev["EUR"],
+            }));
+          }
+        }
+      } catch {
+        // Keep fallback rates
+      }
+    }
+    loadRates();
+  }, []);
+
+  const currencySymbols: Record<string, string> = { USD: "$", JPY: "¥", EUR: "€" };
+
+  const currentCurrency = {
+    rate: exchangeRates[currency] || 1,
+    symbol: currencySymbols[currency] || "$",
+  };
+
   // Profitability calculation
   const profitResults: ProfitResult = useMemo(() => {
     const price = parseFloat(coinPrice) || 0;
@@ -458,6 +526,15 @@ export default function CalculatorPage() {
       monthlyProfit: dailyProfit * 30,
     };
   }, [results.daily, coinPrice, powerConsumption, electricityCost]);
+
+  // Format currency value
+  const formatCurrency = (value: number) => {
+    const converted = value * currentCurrency.rate;
+    if (currency === "JPY") {
+      return `${currentCurrency.symbol}${Math.round(converted).toLocaleString()}`;
+    }
+    return `${currentCurrency.symbol}${converted.toFixed(2)}`;
+  };
 
   // Pool share calculation
   const poolShare = useMemo(() => {
@@ -553,7 +630,7 @@ export default function CalculatorPage() {
             </div>
             <div>
               <label className="block text-sm text-gray-400 mb-2">
-                {t("calculator.electricityCostKwh")}
+                {t("calculator.electricityCostKwh")} ({currentCurrency.symbol}/kWh)
               </label>
               <input
                 type="number"
@@ -567,7 +644,7 @@ export default function CalculatorPage() {
             </div>
             <div>
               <label className="block text-sm text-gray-400 mb-2 flex items-center gap-2">
-                {coinSymbol} {t("calculator.priceUsd")}
+                {coinSymbol} Price ({currency})
                 {priceSource && (
                   <span className="inline-flex items-center gap-1 text-xs text-green-400">
                     <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
@@ -595,35 +672,55 @@ export default function CalculatorPage() {
             </div>
           </div>
 
-          {/* Profitability Results */}
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-              <p className="text-sm text-gray-400">{t("calculator.dailyRevenue")}</p>
-              <p className="text-lg font-bold text-green-400">
-                ${profitResults.dailyRevenue.toFixed(2)}
-              </p>
+          {/* Currency Selector & Profitability Results */}
+          <div className="mt-6">
+            <div className="flex items-center justify-end gap-2 mb-3">
+              <span className="text-xs text-gray-500">{t("calculator.currency") || "Currency"}:</span>
+              <div className="flex gap-1">
+                {poolConfig.calculator.currencies.map((cur) => (
+                  <button
+                    key={cur}
+                    onClick={() => setCurrency(cur)}
+                    className={`px-2.5 py-1 text-xs rounded transition-colors ${
+                      currency === cur
+                        ? "bg-orange-600 text-white"
+                        : "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                    }`}
+                  >
+                    {cur}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-              <p className="text-sm text-gray-400">{t("calculator.dailyElectricity")}</p>
-              <p className="text-lg font-bold text-red-400">
-                -${profitResults.dailyCost.toFixed(2)}
-              </p>
-            </div>
-            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-              <p className="text-sm text-gray-400">{t("calculator.dailyProfit")}</p>
-              <p
-                className={`text-lg font-bold ${profitResults.dailyProfit >= 0 ? "text-green-400" : "text-red-400"}`}
-              >
-                ${profitResults.dailyProfit.toFixed(2)}
-              </p>
-            </div>
-            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-              <p className="text-sm text-gray-400">{t("calculator.monthlyProfit")}</p>
-              <p
-                className={`text-lg font-bold ${profitResults.monthlyProfit >= 0 ? "text-green-400" : "text-red-400"}`}
-              >
-                ${profitResults.monthlyProfit.toFixed(2)}
-              </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                <p className="text-sm text-gray-400">{t("calculator.dailyRevenue")}</p>
+                <p className="text-lg font-bold text-green-400">
+                  {formatCurrency(profitResults.dailyRevenue)}
+                </p>
+              </div>
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                <p className="text-sm text-gray-400">{t("calculator.dailyElectricity")}</p>
+                <p className="text-lg font-bold text-red-400">
+                  -{formatCurrency(profitResults.dailyCost)}
+                </p>
+              </div>
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                <p className="text-sm text-gray-400">{t("calculator.dailyProfit")}</p>
+                <p
+                  className={`text-lg font-bold ${profitResults.dailyProfit >= 0 ? "text-green-400" : "text-red-400"}`}
+                >
+                  {profitResults.dailyProfit < 0 ? "-" : ""}{formatCurrency(Math.abs(profitResults.dailyProfit))}
+                </p>
+              </div>
+              <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                <p className="text-sm text-gray-400">{t("calculator.monthlyProfit")}</p>
+                <p
+                  className={`text-lg font-bold ${profitResults.monthlyProfit >= 0 ? "text-green-400" : "text-red-400"}`}
+                >
+                  {profitResults.monthlyProfit < 0 ? "-" : ""}{formatCurrency(Math.abs(profitResults.monthlyProfit))}
+                </p>
+              </div>
             </div>
           </div>
         </div>

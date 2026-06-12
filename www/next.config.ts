@@ -43,6 +43,8 @@ const ALLOWED_DOMAINS = {
     "https://*.virbicoin.com",
     // External price APIs (dynamically loaded from config.json)
     ...getPriceApiDomains(),
+    // Exchange rate API for currency conversion
+    "https://open.er-api.com",
     // Allow localhost in development
     ...(isProd ? [] : ["http://localhost:*", "ws://localhost:*"]),
   ],
