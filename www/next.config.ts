@@ -18,13 +18,17 @@ function getPriceApiDomains(): string[] {
     try {
       const url = new URL(priceApi.url);
       domains.push(`${url.protocol}//${url.hostname}`);
-    } catch { /* invalid URL, skip */ }
+    } catch {
+      /* invalid URL, skip */
+    }
   }
   if (priceApi?.fallbackUrl) {
     try {
       const url = new URL(priceApi.fallbackUrl);
       domains.push(`${url.protocol}//${url.hostname}`);
-    } catch { /* invalid URL, skip */ }
+    } catch {
+      /* invalid URL, skip */
+    }
   }
   return domains;
 }
@@ -33,7 +37,13 @@ function getPriceApiDomains(): string[] {
 const ALLOWED_DOMAINS = {
   scripts: ["'self'"],
   styles: ["'self'", "'unsafe-inline'"], // Tailwind requires unsafe-inline
-  images: ["'self'", "data:", "https://flagcdn.com", "https://*.virbicoin.com", "https://*.digitalregion.jp"],
+  images: [
+    "'self'",
+    "data:",
+    "https://flagcdn.com",
+    "https://*.virbicoin.com",
+    "https://*.digitalregion.jp",
+  ],
   fonts: ["'self'"],
   connect: [
     "'self'",

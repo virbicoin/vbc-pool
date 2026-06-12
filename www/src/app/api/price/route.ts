@@ -37,13 +37,9 @@ async function getPriceFromPrimary(): Promise<PriceData | null> {
     const symbol = poolConfig.coin.symbol;
 
     // Find the configured ticker
-    const usdtTicker = tickers.find(
-      (t: { ticker_id: string }) => t.ticker_id === tickerId
-    );
+    const usdtTicker = tickers.find((t: { ticker_id: string }) => t.ticker_id === tickerId);
     // Also try to find BTC pair
-    const btcTicker = tickers.find(
-      (t: { ticker_id: string }) => t.ticker_id === `${symbol}_BTC`
-    );
+    const btcTicker = tickers.find((t: { ticker_id: string }) => t.ticker_id === `${symbol}_BTC`);
 
     if (usdtTicker?.last_price) {
       const priceUSD = parseFloat(usdtTicker.last_price);

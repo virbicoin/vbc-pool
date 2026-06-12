@@ -47,11 +47,19 @@ const HeaderStats = () => {
 
   return (
     <div className="flex items-center space-x-2">
-      <NavLink href="/blocks" badge={poolBlocksBadge > 0 ? poolBlocksBadge : undefined} badgeColor="bg-green-600">
+      <NavLink
+        href="/blocks"
+        badge={poolBlocksBadge > 0 ? poolBlocksBadge : undefined}
+        badgeColor="bg-green-600"
+      >
         <CubeIcon className="w-5 h-5 mr-1" />
         Blocks
       </NavLink>
-      <NavLink href="/miners" badge={minersTotal > 0 ? minersTotal : undefined} badgeColor="bg-blue-500">
+      <NavLink
+        href="/miners"
+        badge={minersTotal > 0 ? minersTotal : undefined}
+        badgeColor="bg-blue-500"
+      >
         <UsersIcon className="w-5 h-5 mr-1" />
         Miners
       </NavLink>
