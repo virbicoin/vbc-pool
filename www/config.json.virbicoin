@@ -72,17 +72,6 @@
       "active": true
     },
     {
-      "id": "pool0",
-      "apiUrl": "https://pool0.virbicoin.com",
-      "stratumUrl": "stratum0.virbicoin.com",
-      "location": "India",
-      "flag": "🇮🇳",
-      "country": "IN",
-      "region": "South Asia",
-      "stratumPorts": [8002, 8004, 8009],
-      "active": true
-    },
-    {
       "id": "pool1",
       "apiUrl": "https://pool1.virbicoin.com",
       "stratumUrl": "stratum1.virbicoin.com",
