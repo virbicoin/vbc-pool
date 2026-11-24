@@ -8,7 +8,7 @@ VBC Pool — VirBiCoin (VBC) ネットワーク向けのオープンソースマ
 
 ## 技術スタック
 
-- **バックエンド**: Go 1.22+
+- **バックエンド**: Go 1.25+（`go.mod` は `go 1.25.0` / `toolchain go1.26.4`）
 - **フロントエンド**: Next.js 16（App Router）, React 19, TypeScript 5
 - **データストア**: Redis
 - **ブロックチェーン接続**: go-virbicoin (Gvbc) JSON-RPC
@@ -66,7 +66,7 @@ VirBiCoin エコシステムは以下のリポジトリで構成されていま�
 
 - **open-virbicoin**: go-virbicoin（Gvbc）と同じ VirBiCoin ネットワーク（chainId 329）に接続する代替クライアント（Ovbc, Rust 実装）
 - **vbc-pool** → **go-virbicoin**: マイニングプールが Gvbc ノードから作業を取得・ブロック解除
-- **go-virbicoin** → **vbc-hash**: Ethash PoW アルゴリズムの実装を利用
+- **vbc-pool** のシェア検証は `proxy/miner.go` の純 Go 実装（Ethash ライト検証）。vbc-hash には依存しない
 - **vbc-stats** → **go-virbicoin**: Gvbc ノードが eth-netstats-client プロトコルでブロック/統計データを送信
 - **vbc-explorer** → **go-virbicoin**: JSON-RPC 経由でブロックチェーンデータを取得
 - **vbc-rpc** → **go-virbicoin**: RPC プロキシが Gvbc ノードにリクエストを中継

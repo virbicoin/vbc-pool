@@ -26,6 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+#### Share Verification Cost - November 24, 2026
+
+- **Ethash cache built once per epoch**: `verifyBlock` regenerated the ethash verification cache (about 30 MB) for every submitted share, and twice for a share that was also checked against the block target, which cost about one second of CPU each time
+  - The cache is now generated once per epoch and shared by all shares; later verifications take a few milliseconds
+  - A block solution is verified before it is submitted, and shares from one stratum connection are verified one after another, so this time delayed every block submission. On mainnet, the pool's recent blocks (immature and matured on November 24, 2026) were submitted a median of 24 s (blocks that stayed canonical) and 41 s (blocks that became uncles) after work on that height began, and 129 of 141 uncles were submitted after the network had already moved to the next height. 74–81% of those blocks were uncles, and network-wide uncle counts have been about one per block since November 12, 2026
+  - The two most recent epochs are kept in memory (about 60 MB)
+  - Added `proxy/miner_test.go`, which checks the seals of two mainnet blocks on either side of the first epoch boundary
+
 #### ARM64 / CGO-Free Build Fix - July 2, 2026
 
 - **btcec Downgrade**: `go build` failed on hosts without a C toolchain (e.g. ARM64 VPS)
