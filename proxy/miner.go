@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -24,6 +25,49 @@ const (
 )
 
 var maxUint256 = new(big.Int).Exp(big.NewInt(2), big.NewInt(256), big.NewInt(0))
+
+// maxCachedEpochs bounds memory use: a verification cache is about 30 MB, and
+// shares only ever reference the current epoch or, right after a boundary, the
+// previous one.
+const maxCachedEpochs = 2
+
+// ethashCaches holds the verification caches of the most recent epochs.
+// Building one takes about a second, so it is done once per epoch rather than
+// once per submitted share. Entries are read-only after creation.
+var ethashCaches = struct {
+	sync.Mutex
+	byEpoch map[uint64][]uint32
+}{byEpoch: make(map[uint64][]uint32)}
+
+// cacheForBlock returns the verification cache for the epoch of blockNum,
+// generating it on first use. The lock is held while generating so that
+// concurrent shares wait for a single build instead of each starting their own.
+func cacheForBlock(blockNum uint64) []uint32 {
+	epoch := blockNum / epochLength
+
+	ethashCaches.Lock()
+	defer ethashCaches.Unlock()
+
+	if cache, ok := ethashCaches.byEpoch[epoch]; ok {
+		return cache
+	}
+	cache := makeCache(blockNum)
+	for len(ethashCaches.byEpoch) >= maxCachedEpochs {
+		oldest := epoch
+		for e := range ethashCaches.byEpoch {
+			if e < oldest {
+				oldest = e
+			}
+		}
+		if oldest == epoch {
+			// Only newer epochs are cached; serve this one without storing it.
+			return cache
+		}
+		delete(ethashCaches.byEpoch, oldest)
+	}
+	ethashCaches.byEpoch[epoch] = cache
+	return cache
+}
 
 func makeSeedHash(epoch uint64) (sh common.Hash) {
 	for ; epoch > 0; epoch-- {
@@ -100,7 +144,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 // verifyBlock performs Pure Go ethash PoW verification (no CGO required)
 func verifyBlock(block Block) bool {
 	blockNum := block.NumberU64()
-	cache := makeCache(blockNum)
+	cache := cacheForBlock(blockNum)
 	datasetSize := calcDatasetSize(blockNum)
 
 	digest, result := hashimotoLight(datasetSize, cache, block.HashNoNonce().Bytes(), block.Nonce())
