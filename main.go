@@ -65,7 +65,8 @@ func startPayoutsProcessor() {
 }
 
 func startNewrelic() {
-	if len(cfg.NewrelicKey) > 0 {
+	// A key left in the config must not start the agent when newrelicEnabled is false.
+	if cfg.NewrelicEnabled && len(cfg.NewrelicKey) > 0 {
 		nr := gorelic.NewAgent()
 		nr.Verbose = cfg.NewrelicVerbose
 		nr.NewrelicLicense = cfg.NewrelicKey
