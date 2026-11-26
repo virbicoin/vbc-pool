@@ -126,5 +126,12 @@
       "stratumPorts": [8002, 8004, 8009],
       "active": true
     }
-  ]
+  ],
+  "calculator": {
+    "priceApi": {
+      "url": "",
+      "tickerId": "",
+      "fallbackUrl": "https://explorer.virbicoin.com/api/dex/external-price"
+    }
+  }
 }

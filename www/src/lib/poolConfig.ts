@@ -181,7 +181,14 @@ export const poolConfig: PoolConfigType = {
     priceApi: {
       url: configJson.calculator?.priceApi?.url || "",
       tickerId: configJson.calculator?.priceApi?.tickerId || "",
-      fallbackUrl: configJson.calculator?.priceApi?.fallbackUrl || "",
+      // Without a configured fallback, use the price API of the configured explorer
+      // (vbc-explorer /api/dex/external-price). Hosts built without a calculator section
+      // otherwise had no price source at all.
+      fallbackUrl:
+        configJson.calculator?.priceApi?.fallbackUrl ||
+        (configJson.links?.explorer
+          ? `${String(configJson.links.explorer).replace(/\/+$/, "")}/api/dex/external-price`
+          : ""),
     },
   },
   stratum: {

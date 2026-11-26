@@ -78,18 +78,32 @@ The calculator automatically fetches the current VBC price from external sources
 
 ### Price Sources (Priority Order)
 
-1. **WikaEx API** - Primary source (`https://wikaex.com/api/spot/coingecko/tickers`)
-   - Fetches VBC_USDT and VBC_BTC trading pairs
-   - Same data source as vbc-explorer
-2. **Explorer API** - Fallback (`https://explorer.virbicoin.com/api/dex/external-price`)
-   - Uses the vbc-explorer's price aggregation service
+1. **Exchange ticker API** (optional) - `calculator.priceApi.url` + `tickerId`, a CoinGecko-style
+   ticker list fetched from the browser. VirBiCoin has none at the moment: WikaEx
+   (`https://wikaex.com/api/spot/coingecko/tickers`) has been unreachable since 2026-10, so the
+   VirBiCoin config leaves `url` empty.
+2. **`/api/price`** (server side) - fetches `calculator.priceApi.fallbackUrl`, by default
+   `<links.explorer>/api/dex/external-price`: the vbc-explorer price, which for VBC comes from
+   the DEX pools.
+
+`/api/price` is served by the Next.js frontend, so the reverse proxy must send it there and not
+to the pool API, like `/api/health`, `/api/pools` and `/api/check-port`:
+
+```nginx
+location ~ ^/(api/check-port|api/health|api/pools|api/price) {
+    proxy_pass http://127.0.0.1:3000$request_uri;
+}
+location /api {
+    proxy_pass https://api.virbicoin.com/api;
+}
+```
 
 ### Price API Endpoint
 
 The pool provides a `/api/price` endpoint that:
 - Caches price data for 60 seconds
 - Returns price in USD and BTC
-- Indicates the data source (wikaex/explorer)
+- Indicates the data source (the host of the API that answered)
 - Refreshes automatically every 60 seconds in the UI
 
 ```json
