@@ -1,5 +1,5 @@
-# Build stage
-FROM golang:1.22-alpine AS builder
+# Build stage (go.mod needs Go 1.25+; CI builds with 1.26)
+FROM golang:1.26-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache git make
@@ -21,8 +21,8 @@ ARG VERSION=dev
 ARG COMMIT=unknown
 ARG BUILD_TIME=unknown
 
-# Build the binary
-RUN CGO_ENABLED=1 GOOS=linux go build \
+# Build the binary (pure Go, like CI and the production builds)
+RUN CGO_ENABLED=0 GOOS=linux go build \
     -ldflags "-s -w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.BuildTime=${BUILD_TIME}" \
     -trimpath \
     -o vbc-pool .
@@ -52,12 +52,12 @@ RUN chown -R pooluser:pooluser /app
 # Switch to non-root user
 USER pooluser
 
-# Expose ports
-EXPOSE 8001 8881 8080
+# Expose ports (config.example.json: proxy 8888, stratum 8008, api 8080)
+EXPOSE 8888 8008 8080
 
-# Health check
+# Health check: the stratum port of config.example.json (busybox sh has no /dev/tcp)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD timeout 5s sh -c '</dev/tcp/localhost/8001' || exit 1
+    CMD nc -z 127.0.0.1 8008 || exit 1
 
 # Default command
 CMD ["./vbc-pool", "config.json"] 
