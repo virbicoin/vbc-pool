@@ -12,8 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Live Price Feed & Faucet Fix - June 12, 2026
 
 - **VBC Price Auto-Fetch**: Mining calculator now automatically fetches live VBC price
-  - New `/api/price` endpoint fetches price from WikaEx API (same source as vbc-explorer)
-  - Falls back to explorer.virbicoin.com API if WikaEx is unavailable
+  - New `/api/price` endpoint fetches the price from an exchange ticker API (since removed)
+  - Falls back to the explorer.virbicoin.com price API
   - 60-second cache with automatic refresh
   - Shows "🟢 Live" indicator and price source in the calculator UI
   - Users can still manually override the price

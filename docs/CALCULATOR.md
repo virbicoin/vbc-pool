@@ -79,9 +79,8 @@ The calculator automatically fetches the current VBC price from external sources
 ### Price Sources (Priority Order)
 
 1. **Exchange ticker API** (optional) - `calculator.priceApi.url` + `tickerId`, a CoinGecko-style
-   ticker list fetched from the browser. VirBiCoin has none at the moment: WikaEx
-   (`https://wikaex.com/api/spot/coingecko/tickers`) has been unreachable since 2026-10, so the
-   VirBiCoin config leaves `url` empty.
+   ticker list fetched from the browser. VirBiCoin has none, so the VirBiCoin config leaves
+   `url` empty.
 2. **`/api/price`** (server side) - fetches `calculator.priceApi.fallbackUrl`, by default
    `<links.explorer>/api/dex/external-price`: the vbc-explorer price, which for VBC comes from
    the DEX pools.
@@ -115,7 +114,7 @@ The pool provides a `/api/price` endpoint that:
     "priceUSD": 0.0123,
     "priceBTC": 0.00000012,
     "timestamp": 1718182800000,
-    "source": "wikaex"
+    "source": "explorer.virbicoin.com"
   },
   "cached": false
 }
@@ -124,7 +123,7 @@ The pool provides a `/api/price` endpoint that:
 ### UI Indicators
 
 - **🟢 Live** badge: Shows when price is being fetched live
-- **Source label**: Displays "WikaEx" or "Explorer" below the price field
+- **Source label**: Displays where the price came from (the host of the API that answered) below the price field
 - Users can still manually override the price at any time
 
 ## Usage

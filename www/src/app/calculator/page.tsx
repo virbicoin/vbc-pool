@@ -377,8 +377,8 @@ export default function CalculatorPage() {
     refreshInterval: 30000,
   });
 
-  // Auto-fetch VBC price directly from external APIs (client-side)
-  // Uses fallback order: WikaEx → Explorer (same as vbc-explorer)
+  // Auto-fetch the coin price: the configured exchange ticker API (if any), then /api/price,
+  // which asks the explorer
   useEffect(() => {
     let cancelled = false;
 
@@ -679,12 +679,7 @@ export default function CalculatorPage() {
               />
               {priceSource && (
                 <p className="mt-1 text-xs text-gray-500">
-                  Source:{" "}
-                  {priceSource === "wikaex"
-                    ? "WikaEx"
-                    : priceSource === "explorer"
-                      ? "Explorer"
-                      : priceSource}
+                  Source: {priceSource === "explorer" ? "Explorer" : priceSource}
                 </p>
               )}
             </div>
