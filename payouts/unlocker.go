@@ -31,7 +31,7 @@ type UnlockerConfig struct {
 const minDepth = 16
 
 // VirBiCoin reward reduction parameters
-// First reduction at block 4,200,000, then every 2,100,000 blocks (~2 years at 12s/block)
+// First reduction at block 4,200,000, then every 2,100,000 blocks (about 10 months at 12 s/block; mainnet has averaged about 13.4 s, so about 11 months)
 // Schedule: 8 -> 7 -> 6 -> 5 -> 4 -> 3 -> 2 -> 1 VBC (minimum 1 VBC)
 const rewardReductionInterval int64 = 2100000
 const firstReductionBlock int64 = 4200000
@@ -494,7 +494,7 @@ func weiToShannonInt64(wei *big.Rat) int64 {
 }
 
 // getConstReward calculates the block reward with gradual reduction schedule.
-// First reduction at block 4,200,000, then every 2,100,000 blocks (~2 years at 12s/block).
+// First reduction at block 4,200,000, then every 2,100,000 blocks (about 10 months at 12 s/block; mainnet has averaged about 13.4 s, so about 11 months).
 // Reward schedule:
 //   - Block 0 - 4,199,999: 8 VBC
 //   - Block 4,200,000 - 6,299,999: 7 VBC
